@@ -1,0 +1,32 @@
+---
+// Real project photos from the old site
+const photos = [
+  "pi2-min", "pi3-min", "pi4-min", "pi5-min", "pi6-min", "pi7-min",
+  "pi8-min", "pi9-min", "pi10-min", "pi11-min", "pi12-min", "pi13-min",
+];
+---
+<section class="section" id="work">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Our Work</span>
+      <h2>Recent HVAC Projects in the Bay Area</h2>
+      <p>A look at real installs, repairs, and maintenance jobs completed by our local team.</p>
+    </div>
+    <div class="gallery reveal">
+      {photos.map((p) => (
+        <a class="gallery__item" href={`/images/${p}.jpg`} target="_blank" rel="noopener">
+          <img src={`/images/${p}.jpg`} alt="Promax HVAC project" loading="lazy" />
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .gallery { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .gallery__item { overflow: hidden; border-radius: 12px; aspect-ratio: 1/1; background: var(--bg-alt); }
+  .gallery__item img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s ease; }
+  .gallery__item:hover img { transform: scale(1.08); }
+  @media (max-width: 900px) { .gallery { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 560px) { .gallery { grid-template-columns: repeat(2, 1fr); } }
+</style>

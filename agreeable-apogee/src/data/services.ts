@@ -1,0 +1,222 @@
+export type Service = {
+  slug: string;
+  name: string;        // short name for cards/nav
+  h1: string;          // page heading
+  title: string;       // SEO <title>
+  sub: string;         // hero subtitle
+  image: string;       // card / hero image
+  primary?: boolean;   // shown in homepage services grid
+};
+
+export const services: Service[] = [
+  {
+    slug: "hvac",
+    name: "HVAC Systems",
+    h1: "HVAC Systems in San Jose",
+    title: "HVAC | Promax Service Group",
+    sub: "Ready for year-round comfort in the Bay Area? From full system design to repair and maintenance, we keep San Jose homes comfortable in every season.",
+    image: "/images/hva1.jpg",
+    primary: true,
+  },
+  {
+    slug: "air-conditioner",
+    name: "Air Conditioner",
+    h1: "Air Conditioning Services in San Jose, CA",
+    title: "AC Services San Jose | Licensed Cooling Experts",
+    sub: "Is your cooling system in San Jose (Santa Clara County, Bay Area) not keeping up? Our licensed techs handle repair, installation, and maintenance.",
+    image: "/images/hva2.jpg",
+    primary: true,
+  },
+  {
+    slug: "furnace",
+    name: "Furnace",
+    h1: "Heating & Furnace Services in San Jose",
+    title: "Furnace & Heating Services | Promax Service Group",
+    sub: "Heating services in San Jose and Santa Clara County you can count on — from emergency furnace repair to energy-efficient installations.",
+    image: "/images/hva3.jpg",
+    primary: true,
+  },
+  {
+    slug: "heat-pump",
+    name: "Heat Pump",
+    h1: "Heat Pump Installation in San Jose",
+    title: "Heat Pump Installation | Promax Service Group",
+    sub: "Want lower energy bills and year-round comfort? A heat pump delivers efficient heating and cooling in one system.",
+    image: "/images/hva4.jpg",
+    primary: true,
+  },
+  {
+    slug: "water-heater",
+    name: "Water Heater",
+    h1: "Water Heating Services in San Jose",
+    title: "Water Heater Services | Promax Service Group",
+    sub: "No hot water for that morning shower? We repair, replace, and install tank and heat-pump water heaters across the Bay Area.",
+    image: "/images/hva5.jpg",
+    primary: true,
+  },
+  {
+    slug: "ductless-split-systems",
+    name: "Ductless Split Systems",
+    h1: "Ductless Mini Split Systems in San Jose",
+    title: "Ductless Mini Split AC System | Promax Service Group",
+    sub: "Efficient, quiet cooling and heating without ripping out walls — ideal for additions, older homes, and room-by-room comfort.",
+    image: "/images/hva6.jpg",
+    primary: true,
+  },
+  {
+    slug: "vrf-installation-system",
+    name: "VRF / VRV Systems",
+    h1: "VRF Installation in San Jose",
+    title: "VRF System Installation | Promax Service Group",
+    sub: "Need precise temperature control across multiple zones? VRF/VRV systems deliver flexible, efficient comfort for homes and offices.",
+    image: "/images/hva7.jpg",
+    primary: true,
+  },
+  {
+    slug: "rooftop-package-unit",
+    name: "Rooftop Package Units",
+    h1: "Rooftop HVAC Units in San Jose",
+    title: "Rooftop Package Unit | Promax Service Group",
+    sub: "Reliable rooftop HVAC systems that stand up to Bay Area weather — perfect for commercial and light-commercial spaces.",
+    image: "/images/hva8.jpg",
+    primary: true,
+  },
+  {
+    slug: "hvac-ductwork",
+    name: "HVAC Ductwork",
+    h1: "HVAC Ductwork Installation in San Jose",
+    title: "HVAC Ductwork | Promax Service Group",
+    sub: "Struggling with uneven airflow or high energy bills? We design, repair, and seal ductwork for balanced comfort in every room.",
+    image: "/images/hva9.jpg",
+    primary: true,
+  },
+  {
+    slug: "zone-control-system",
+    name: "Zone Control Systems",
+    h1: "Zone-Control HVAC Systems in San Jose",
+    title: "HVAC Zone Control System | Promax Service Group",
+    sub: "Tired of some rooms feeling like an oven while others stay chilly? Zoning gives you independent control room by room.",
+    image: "/images/hva10.jpg",
+    primary: true,
+  },
+  {
+    slug: "indoor-air-quality-system",
+    name: "Indoor Air Quality",
+    h1: "Indoor Air Quality Systems in San Jose",
+    title: "Indoor Air Quality Monitoring System | Promax Service Group",
+    sub: "Concerned about allergens, smoke, or stale indoor air? We install filtration, UV, and ventilation systems for cleaner air.",
+    image: "/images/hva11.jpg",
+    primary: true,
+  },
+
+  // Secondary / detailed service pages (routed, not on the homepage grid)
+  {
+    slug: "air-conditioner-repair",
+    name: "AC Repair",
+    h1: "Air Conditioner Repair in San Jose",
+    title: "AC Repair in San Jose | Fast Local Technicians",
+    sub: "Is your AC acting up just as summer heats up in San Jose? Strange noises, weak airflow, or a total shutdown? We fix it fast.",
+    image: "/images/hva2.jpg",
+  },
+  {
+    slug: "air-conditioner-installation",
+    name: "AC Installation",
+    h1: "AC Installation Services in San Jose",
+    title: "AC Installation San Jose | Affordable & Energy-Efficient",
+    sub: "Ready to upgrade an aging unit or add a new AC to your San Jose home? We size and install the right system for you.",
+    image: "/images/hva1.jpg",
+  },
+  {
+    slug: "air-conditioner-maintenance",
+    name: "AC Maintenance",
+    h1: "AC Maintenance in San Jose",
+    title: "AC Maintenance San Jose | Prevent Costly Breakdowns",
+    sub: "Fed up with surprise AC breakdowns when San Jose hits triple digits? Routine tune-ups keep your system running strong.",
+    image: "/images/ac-min.jpg",
+  },
+  {
+    slug: "furnace-repair",
+    name: "Furnace Repair",
+    h1: "Furnace Repair in San Jose",
+    title: "Furnace Repair in San Jose | Promax Service Group",
+    sub: "Facing a furnace failure on a freezing San Jose morning? Our techs diagnose and repair fast to restore your heat.",
+    image: "/images/furnace-photo-min.jpg",
+  },
+  {
+    slug: "furnace-installation",
+    name: "Furnace Installation",
+    h1: "Furnace Installation in San Jose",
+    title: "Furnace Installation in San Jose | Promax Service Group",
+    sub: "Thinking about a new furnace to conquer Bay Area chills? We install high-efficiency units that cut bills and even out heat.",
+    image: "/images/furnace-photo-min.jpg",
+  },
+  {
+    slug: "hvac-repair",
+    name: "HVAC Repair",
+    h1: "HVAC Repair in San Jose",
+    title: "HVAC Repair San Jose | Local Licensed Contractor",
+    sub: "Heater stuck on blast? AC refusing to cool? Our licensed contractors get your whole system back online quickly.",
+    image: "/images/high-photo-min.jpg",
+  },
+  {
+    slug: "hvac-installation",
+    name: "HVAC Installation",
+    h1: "HVAC Installation in San Jose",
+    title: "HVAC Installation San Jose | Ducts, Zoning, Full Setup",
+    sub: "Frustrated by outdated HVAC equipment and skyrocketing bills? We handle full installs — ducts, zoning, and complete setup.",
+    image: "/images/high-photo-min.jpg",
+  },
+  {
+    slug: "water-heater-repair",
+    name: "Water Heater Repair",
+    h1: "Water Heater Repair in San Jose",
+    title: "Water Heater Repair in San Jose | Promax Service Group",
+    sub: "Cold shower surprise? We respond fast to restore hot water for your family — tank and tankless systems.",
+    image: "/images/hva5.jpg",
+  },
+  {
+    slug: "water-heater-installation",
+    name: "Water Heater Installation",
+    h1: "Heat Pump Water Heater Installation in San Jose",
+    title: "Heat Pump Water Heater Installation in San Jose",
+    sub: "Want to slash utility bills and never run out of hot water? Heat-pump water heaters are efficient and rebate-eligible.",
+    image: "/images/hva5.jpg",
+  },
+  {
+    slug: "water-heater-replacement",
+    name: "Water Heater Replacement",
+    h1: "Water Heater Replacement in San Jose",
+    title: "Water Heater Replacement in San Jose | Promax Service Group",
+    sub: "Tired of lukewarm showers, hidden leaks, and endless repair bills? We replace old tanks quickly and cleanly.",
+    image: "/images/hva5.jpg",
+  },
+];
+
+export const primaryServices = services.filter((s) => s.primary);
+
+// Real per-service banner photos (darkened action shots) from the old site.
+const bannerMap: Record<string, string> = {
+  hvac: "/images/photo_hvac-min.jpg",
+  "hvac-repair": "/images/high-photo-min.jpg",
+  "hvac-installation": "/images/high-photo-min.jpg",
+  "hvac-ductwork": "/images/hvac-ductwork-photo-min.jpg",
+  "air-conditioner": "/images/ac-min.jpg",
+  "air-conditioner-repair": "/images/ac-min.jpg",
+  "air-conditioner-installation": "/images/ac-min.jpg",
+  "air-conditioner-maintenance": "/images/ac-min.jpg",
+  furnace: "/images/furnace-photo-min.jpg",
+  "furnace-repair": "/images/furnace-photo-min.jpg",
+  "furnace-installation": "/images/furnace-photo-min.jpg",
+  "heat-pump": "/images/heat-pump-photo-min.jpg",
+  "ductless-split-systems": "/images/duc-photo-min.jpg",
+  "vrf-installation-system": "/images/vrf-photo-min.jpg",
+  "rooftop-package-unit": "/images/rooftop-photo-min.jpg",
+  "zone-control-system": "/images/zone-photo-min.jpg",
+  "indoor-air-quality-system": "/images/photo_hvac-min.jpg",
+  "water-heater": "/images/water-heater-photo-min.jpg",
+  "water-heater-repair": "/images/water-heater-photo-min.jpg",
+  "water-heater-installation": "/images/water-heater-photo-min.jpg",
+  "water-heater-replacement": "/images/water-heater-photo-min.jpg",
+};
+
+export const bannerFor = (slug: string) => bannerMap[slug] ?? "/images/photo_hvac-min.jpg";

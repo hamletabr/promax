@@ -1,0 +1,68 @@
+---
+import { site } from "../data/site";
+import { primaryServices } from "../data/services";
+import { locations } from "../data/locations";
+---
+<footer class="ftr">
+  <div class="container ftr__grid">
+    <div>
+      <img src="/images/logo.jpg" alt={site.name} class="ftr__logo" />
+      <p class="ftr__about">
+        Your local San Jose HVAC team for repair, installation, and maintenance.
+        EPA certified, Mitsubishi Diamond Contractor and Bryant Premier Dealer.
+      </p>
+      <p class="ftr__lic">{site.license}</p>
+    </div>
+
+    <div>
+      <h4>Services</h4>
+      <ul>
+        {primaryServices.slice(0, 8).map((s) => (
+          <li><a href={`/services/${s.slug}`}>{s.name}</a></li>
+        ))}
+      </ul>
+    </div>
+
+    <div>
+      <h4>Service Areas</h4>
+      <ul class="ftr__areas">
+        {locations.map((l) => (
+          <li><a href={`/locations/${l.slug}`}>{l.city}</a></li>
+        ))}
+      </ul>
+    </div>
+
+    <div>
+      <h4>Contact</h4>
+      <p><a href={site.phoneHref} class="ftr__phone">{site.phone}</a></p>
+      <p><a href={`mailto:${site.email}`}>{site.email}</a></p>
+      <p>{site.hours}</p>
+      <p>{site.serviceArea}</p>
+    </div>
+  </div>
+  <div class="ftr__bar">
+    <div class="container">
+      <span>© {new Date().getFullYear()} {site.name}. All rights reserved.</span>
+      <span><a href="/privacy-policy">Privacy Policy</a> · <a href="/terms-of-service">Terms of Service</a></span>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .ftr { background: var(--bg-dark); color: #aeb7bf; padding-top: 60px; }
+  .ftr__grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 36px; padding-bottom: 44px; }
+  .ftr__logo { height: 54px; width: auto; border-radius: 6px; margin-bottom: 16px; }
+  .ftr__about { font-size: .92rem; }
+  .ftr__lic { font-weight: 700; color: #fff; }
+  .ftr h4 { color: #fff; font-size: 1rem; margin-bottom: 16px; }
+  .ftr ul { list-style: none; margin: 0; padding: 0; }
+  .ftr li { margin-bottom: 9px; }
+  .ftr a { color: #aeb7bf; font-size: .92rem; }
+  .ftr a:hover { color: var(--amber); }
+  .ftr__areas { columns: 2; }
+  .ftr__phone { color: var(--amber) !important; font-weight: 700; font-size: 1.1rem; }
+  .ftr__bar { border-top: 1px solid rgba(255,255,255,.1); padding: 18px 0; font-size: .84rem; }
+  .ftr__bar .container { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  @media (max-width: 860px) { .ftr__grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 520px) { .ftr__grid { grid-template-columns: 1fr; } }
+</style>

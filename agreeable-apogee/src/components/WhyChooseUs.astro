@@ -1,0 +1,33 @@
+---
+import { site } from "../data/site";
+---
+<section class="section section--alt" id="why">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Why Choose Us</span>
+      <h2>Your Comfort, Our Priority</h2>
+      <p>We combine technical expertise with customer-focused care to deliver unmatched quality and satisfaction.</p>
+    </div>
+    <div class="grid cols-4">
+      {site.features.map((f) => (
+        <div class="card feature reveal">
+          <span class="feature__icon"><img src={f.icon} alt="" width="40" height="40" loading="lazy" /></span>
+          <h3>{f.title}</h3>
+          <p>{f.text}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .feature { text-align: left; }
+  .feature__icon {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 64px; height: 64px; border-radius: 16px; background: var(--orange-soft);
+    margin-bottom: 16px;
+  }
+  .feature__icon img { width: 36px; height: 36px; object-fit: contain; }
+  .feature h3 { color: var(--slate); font-size: 1.08rem; }
+  .feature p { color: var(--muted); font-size: .93rem; margin: 0; }
+</style>

@@ -1,0 +1,74 @@
+---
+import "../styles/global.css";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import { site } from "../data/site";
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+const { title, description } = Astro.props;
+const pageTitle = title ?? `${site.name} | ${site.tagline}`;
+const pageDesc =
+  description ??
+  "Promax Service Group — licensed HVAC repair, installation, and maintenance in San Jose and the Bay Area. Open 7 days a week. Call (669) 777-1997.";
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="/images/favicon.jpg" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={pageDesc} />
+    <meta name="generator" content={Astro.generator} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={pageDesc} />
+    <meta property="og:type" content="website" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..600&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <Header />
+    <main>
+      <slot />
+    </main>
+    <Footer />
+
+    <!-- Sticky mobile call bar -->
+    <a href={site.phoneHref} class="mobile-call">
+      <span>📞 Call Now — {site.phone}</span>
+    </a>
+
+    <style>
+      .mobile-call {
+        display: none;
+        position: fixed; left: 0; right: 0; bottom: 0; z-index: 60;
+        background: var(--orange); color: #fff; text-align: center;
+        padding: 15px; font-family: var(--font-head); font-weight: 700;
+        box-shadow: 0 -6px 20px rgba(0,0,0,.18);
+      }
+      @media (max-width: 760px) {
+        .mobile-call { display: block; }
+        main { padding-bottom: 56px; }
+      }
+    </style>
+
+    <script>
+      const io = new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) {
+            if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+          }
+        },
+        { threshold: 0.12 }
+      );
+      document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
+    </script>
+  </body>
+</html>

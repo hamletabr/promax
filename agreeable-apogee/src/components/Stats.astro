@@ -1,0 +1,46 @@
+---
+import { site } from "../data/site";
+---
+<section class="stats">
+  <div class="container">
+    <div class="stats__grid">
+      {site.stats.map((s) => (
+        <div class="stat">
+          <span class="stat__num" data-target={s.value} data-suffix={s.suffix}>0{s.suffix}</span>
+          <span class="stat__label">{s.label}</span>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .stats { background: var(--bg-dark); color: #fff; padding: 54px 0; }
+  .stats__grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; text-align: center; }
+  .stat__num { display: block; font-family: var(--font-head); font-weight: 800; font-size: clamp(2.2rem, 4vw, 3rem); color: var(--amber); line-height: 1; }
+  .stat__label { color: #aeb8c1; font-size: .95rem; }
+  .stat + .stat, .stat { position: relative; }
+  @media (max-width: 700px) { .stats__grid { grid-template-columns: repeat(2, 1fr); gap: 32px; } }
+</style>
+
+<script>
+  const nums = document.querySelectorAll<HTMLElement>(".stat__num");
+  const animate = (el: HTMLElement) => {
+    const target = Number(el.dataset.target || "0");
+    const suffix = el.dataset.suffix || "";
+    const dur = 1400; const start = performance.now();
+    const tick = (now: number) => {
+      const p = Math.min((now - start) / dur, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(target * eased) + suffix;
+      if (p < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  };
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) {
+      if (e.isIntersecting) { animate(e.target as HTMLElement); io.unobserve(e.target); }
+    }
+  }, { threshold: 0.5 });
+  nums.forEach((n) => io.observe(n));
+</script>

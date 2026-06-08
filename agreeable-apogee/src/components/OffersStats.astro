@@ -1,0 +1,96 @@
+---
+import { site } from "../data/site";
+---
+<section class="ps">
+  <div class="container">
+    <!-- floating offer cards -->
+    <div class="ps__offers reveal">
+      {site.promos.map((p) => (
+        <div class="ps__offer">
+          <span class="ps__offer-icon"><img src={p.icon} alt="" width="30" height="30" /></span>
+          <span class="ps__offer-text">
+            <strong>{p.big}</strong>
+            <span>{p.small}</span>
+          </span>
+        </div>
+      ))}
+    </div>
+
+    <!-- dark stats panel (offers overlap its top edge) -->
+    <div class="ps__stats">
+      {site.stats.map((s) => (
+        <div class="ps__stat">
+          <span class="ps__num" data-target={s.value} data-suffix={s.suffix}>0{s.suffix}</span>
+          <span class="ps__lbl">{s.label}</span>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .ps { background: var(--bg); padding: 84px 0; }
+
+  /* floating offer cards */
+  .ps__offers {
+    position: relative; z-index: 2;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+    max-width: 960px; margin: 0 auto -58px;
+  }
+  .ps__offer {
+    display: flex; align-items: center; gap: 14px;
+    background: var(--white); border: 1px solid var(--line);
+    border-radius: var(--radius); box-shadow: var(--shadow-lg);
+    padding: 18px 22px;
+  }
+  .ps__offer-icon {
+    flex: none; display: grid; place-items: center;
+    width: 52px; height: 52px; border-radius: 14px; background: var(--orange-soft);
+  }
+  .ps__offer-icon img { width: 30px; height: 30px; object-fit: contain; }
+  .ps__offer-text { display: flex; flex-direction: column; line-height: 1.15; }
+  .ps__offer-text strong { font-family: var(--font-head); font-weight: 800; font-size: 1.5rem; color: var(--orange); }
+  .ps__offer-text span { font-size: .9rem; color: var(--muted); }
+
+  /* dark stats panel */
+  .ps__stats {
+    background: var(--bg-dark); border-radius: var(--radius-lg);
+    padding: 96px 40px 56px;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; text-align: center;
+  }
+  .ps__stat { position: relative; }
+  .ps__stat:not(:last-child)::after {
+    content: ""; position: absolute; right: -12px; top: 50%; transform: translateY(-50%);
+    width: 1px; height: 52px; background: rgba(255,255,255,.10);
+  }
+  .ps__num { display: block; font-family: var(--font-head); font-weight: 800; font-size: clamp(2.1rem, 3.4vw, 2.9rem); color: var(--amber); line-height: 1; }
+  .ps__lbl { color: #b7ab9c; font-size: .95rem; }
+
+  @media (max-width: 820px) {
+    .ps__offers { grid-template-columns: 1fr; max-width: 460px; margin-bottom: 28px; }
+    .ps__stats { grid-template-columns: repeat(2, 1fr); gap: 36px 24px; padding: 48px 28px; }
+    .ps__stat:nth-child(2)::after { display: none; }
+    .ps__stat::after { display: none; }
+  }
+</style>
+
+<script>
+  const nums = document.querySelectorAll(".ps__num");
+  const run = (el) => {
+    const target = Number(el.dataset.target || "0");
+    const suffix = el.dataset.suffix || "";
+    const dur = 1400; let start = null;
+    const tick = (now) => {
+      if (start === null) start = now;
+      const p = Math.min((now - start) / dur, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(target * eased) + suffix;
+      if (p < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  };
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) if (e.isIntersecting) { run(e.target); io.unobserve(e.target); }
+  }, { threshold: 0.5 });
+  nums.forEach((n) => io.observe(n));
+</script>

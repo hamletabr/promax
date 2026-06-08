@@ -1,0 +1,45 @@
+---
+import { site } from "../data/site";
+const {
+  eyebrow = "Local HVAC Experts",
+  title,
+  sub,
+  image = "/images/high-photo-min.jpg",
+  parentLabel,
+  parentHref = "/",
+  current,
+} = Astro.props;
+---
+<section class="phero" style={`background-image:url('${image}')`}>
+  <div class="phero__overlay"></div>
+  <div class="container phero__inner">
+    {parentLabel && (
+      <nav class="phero__crumb">
+        <a href="/">Home</a> <span>/</span> <a href={parentHref}>{parentLabel}</a>{current ? ` / ${current}` : ""}
+      </nav>
+    )}
+    <span class="eyebrow eyebrow--light">{eyebrow}</span>
+    <h1>{title}</h1>
+    {sub && <p>{sub}</p>}
+    <div class="phero__btns">
+      <a href={site.phoneHref} class="btn btn--primary">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M6.6 10.8a15.5 15.5 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.6 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1 11.4 11.4 0 0 0 .6 3.6 1 1 0 0 1-.25 1Z"/></svg>
+        {site.phone}
+      </a>
+      <a href="/contact" class="btn btn--soft">Get a Free Estimate</a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .phero { position: relative; background-size: cover; background-position: center; color: #fff; }
+  .phero__overlay { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(30,25,21,.93), rgba(30,25,21,.55)); }
+  .phero__inner { position: relative; padding: 84px 22px; max-width: 740px; }
+  .phero h1 { color: #fff; }
+  .phero p { color: #ece3d8; font-size: 1.1rem; max-width: 600px; }
+  .phero__crumb { font-size: .85rem; color: #cdbfae; margin-bottom: 16px; }
+  .phero__crumb a { color: var(--amber); }
+  .phero__crumb span { opacity: .5; }
+  .eyebrow--light { background: rgba(255,255,255,.14); color: #ffd9a8; -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+  .phero__btns { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 26px; }
+</style>

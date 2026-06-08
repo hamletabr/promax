@@ -1,0 +1,48 @@
+---
+const faqs = [
+  {
+    q: "How often should I change my air filters?",
+    a: "For most homes, every 1–3 months. Homes with pets, allergies, or heavy use should check monthly. Clean filters improve airflow, efficiency, and indoor air quality.",
+  },
+  {
+    q: "What can I do about indoor air quality?",
+    a: "Regularly change filters, add a whole-home air purifier, ensure proper ventilation, control humidity, and schedule professional duct cleaning. Low-VOC products and houseplants help too.",
+  },
+  {
+    q: "How often should I have my unit serviced?",
+    a: "We recommend a professional tune-up at least once a year — ideally heating in the fall and cooling in the spring — to catch small issues before they become costly breakdowns.",
+  },
+  {
+    q: "What's the best way to extend the life of my unit?",
+    a: "Routine maintenance, timely filter changes, keeping the outdoor unit clear of debris, and addressing minor issues early are the best ways to maximize the life of your system.",
+  },
+];
+---
+<section class="section section--alt" id="faq">
+  <div class="container faq">
+    <div class="section-head">
+      <span class="eyebrow">Q & A</span>
+      <h2>Frequently Asked Questions</h2>
+    </div>
+    <div class="faq__list">
+      {faqs.map((f) => (
+        <details class="faq__item">
+          <summary>{f.q}</summary>
+          <p>{f.a}</p>
+        </details>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .faq__list { max-width: 820px; margin: 0 auto; }
+  .faq__item { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); margin-bottom: 14px; padding: 4px 22px; }
+  .faq__item summary {
+    cursor: pointer; font-family: var(--font-head); font-weight: 600; color: var(--slate);
+    padding: 16px 0; list-style: none; position: relative;
+  }
+  .faq__item summary::after { content: "+"; position: absolute; right: 0; color: var(--orange); font-size: 1.4rem; }
+  .faq__item[open] summary::after { content: "–"; }
+  .faq__item p { color: var(--muted); margin: 0 0 16px; }
+</style>
