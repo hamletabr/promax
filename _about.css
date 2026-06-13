@@ -1,0 +1,198 @@
+  /* ===== About — split-photo-cards (warm-dark anchor band) ===== */
+  .about {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    background:
+      radial-gradient(120% 90% at 88% -10%, #3a3026 0%, rgba(58,48,38,0) 55%),
+      linear-gradient(165deg, #2a241f 0%, var(--bg-dark) 48%, var(--bg-darker) 100%);
+    color: #e3d7c5;
+  }
+  /* soft brand glow (static, decorative) */
+  .about__glow {
+    position: absolute; z-index: 0; pointer-events: none;
+    width: 620px; height: 620px; right: -160px; top: -200px;
+    background: radial-gradient(circle, rgba(232,116,12,.34) 0%, rgba(232,116,12,0) 68%);
+    filter: blur(8px);
+  }
+
+  .about__inner {
+    position: relative; z-index: 1;
+    display: grid;
+    grid-template-columns: 1.05fr 1.15fr;
+    gap: 62px;
+    align-items: center;
+  }
+
+  /* ---- LEFT: photo + floating cards ---- */
+  /* horizontal padding reserves room so negative-offset floats never clip */
+  .about__media { position: relative; padding: 6px 24px; }
+  .about__frame {
+    position: relative;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    padding: 8px;
+    background: linear-gradient(150deg, rgba(247,139,31,.55), rgba(232,116,12,.18) 60%, rgba(255,255,255,.06));
+    box-shadow: var(--shadow-lg);
+  }
+  .about__photo {
+    width: 100%;
+    aspect-ratio: 5 / 4;
+    object-fit: cover;
+    border-radius: calc(var(--radius-lg) - 8px);
+    display: block;
+  }
+
+  /* floating cards are STATIC — they do not animate (reduced-motion-safe by default) */
+  .about__float {
+    position: absolute;
+    font-family: var(--font-head);
+    box-shadow: var(--shadow-lg);
+  }
+  .about__float--stat {
+    left: 2px; bottom: 38px;
+    display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 12px;
+    background: linear-gradient(140deg, var(--orange-bright), var(--orange-deep));
+    color: #fff;
+    padding: 16px 22px 16px 18px;
+    border-radius: var(--radius);
+    border: 1px solid rgba(255,255,255,.18);
+  }
+  .about__floatNum { font-size: 2.3rem; font-weight: 800; line-height: .9; letter-spacing: -.02em; }
+  .about__floatLabel { font-size: .82rem; font-weight: 600; line-height: 1.25; color: #ffeede; }
+
+  .about__float--chip {
+    right: 4px; top: 24px;
+    display: inline-flex; align-items: center; gap: 9px;
+    background: #fff; color: var(--slate);
+    font-size: .82rem; font-weight: 700;
+    padding: 11px 17px; border-radius: var(--pill);
+  }
+  .about__chipDot {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: #2bb673; box-shadow: 0 0 0 4px rgba(43,182,115,.18);
+  }
+
+  /* ---- RIGHT: copy ---- */
+  /* on-dark eyebrow override (global .eyebrow is a light soft-orange pill) */
+  .about__eyebrow {
+    background: rgba(247,139,31,.16);
+    border: 1px solid rgba(247,139,31,.30);
+    color: #ffd9a8;
+  }
+  .about__h2 { color: #fff; font-size: clamp(2rem, 3.4vw, 2.85rem); margin-bottom: .55rem; }
+  .about__h2 em { font-style: italic; color: var(--amber); }
+  .about__lead { color: #e3d7c5; font-size: 1.08rem; max-width: 60ch; margin-bottom: 26px; }
+  .about__lead strong { color: #fff; font-weight: 700; }
+
+  /* credential cards */
+  .about__creds {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  .about__cred {
+    display: flex; align-items: center; gap: 14px;
+    background: rgba(255,255,255,.05);
+    border: 1px solid rgba(255,255,255,.10);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    transition: transform .2s ease, border-color .2s ease, background .2s ease;
+  }
+  .about__cred:hover {
+    transform: translateY(-3px);
+    background: rgba(255,255,255,.08);
+    border-color: rgba(247,139,31,.55);
+  }
+  .about__credIcon {
+    flex: 0 0 auto;
+    display: grid; place-items: center;
+    width: 48px; height: 48px;
+    border-radius: 13px;
+    background: linear-gradient(145deg, var(--orange-bright), var(--orange-deep));
+    color: #fff;
+    box-shadow: 0 8px 18px rgba(232,116,12,.34);
+  }
+  .about__credIcon svg { display: block; }
+  .about__credText { display: flex; flex-direction: column; line-height: 1.15; min-width: 0; }
+  .about__credText strong { font-family: var(--font-head); color: #fff; font-size: 1.02rem; }
+  /* sub-labels nudged lighter for AA contrast on the dark gradient */
+  .about__credText > span { color: #d8cbb8; font-size: .82rem; }
+
+  /* cert badge tray + CTA */
+  .about__footer {
+    display: flex; align-items: center; flex-wrap: wrap;
+    gap: 18px 28px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(255,255,255,.10);
+  }
+  .about__badges {
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .about__badgesLabel {
+    font-family: var(--font-head); font-weight: 700;
+    font-size: .66rem; letter-spacing: .12em; text-transform: uppercase;
+    color: #ffd9a8;
+  }
+  .about__badgesRow { display: flex; align-items: stretch; gap: 14px; flex-wrap: wrap; }
+  /* each badge gets its own cream matting chip — the badges are non-transparent
+     light-gray squares, so cream + generous padding makes the gray read as intentional */
+  .about__badgeChip {
+    display: grid; place-items: center;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    box-shadow: var(--shadow);
+  }
+  .about__badgeChip img { height: 50px; width: auto; display: block; }
+
+  .about__actions { display: flex; align-items: center; gap: 10px 20px; flex-wrap: wrap; margin-left: auto; }
+  .about__cta { box-shadow: 0 14px 30px rgba(232,116,12,.40); }
+
+  /* tappable phone link — second next step beside the CTA */
+  .about__call {
+    display: inline-flex; align-items: center; gap: 11px;
+    color: #fff; text-decoration: none;
+    font-family: var(--font-head);
+  }
+  .about__callIcon {
+    flex: 0 0 auto; display: grid; place-items: center;
+    width: 40px; height: 40px; border-radius: 50%;
+    background: rgba(255,255,255,.08);
+    border: 1px solid rgba(247,139,31,.40);
+    color: var(--amber);
+    transition: background .2s ease, border-color .2s ease, transform .2s ease;
+  }
+  .about__callText { display: flex; flex-direction: column; line-height: 1.15; font-weight: 700; font-size: 1.02rem; }
+  .about__callKicker { font-weight: 600; font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; color: #d8cbb8; }
+  .about__call:hover .about__callIcon {
+    background: rgba(247,139,31,.18); border-color: var(--orange-bright); transform: scale(1.05);
+  }
+  .about__call:focus-visible { outline: 2px solid var(--amber); outline-offset: 4px; border-radius: var(--radius); }
+
+  /* ---- Responsive ---- */
+  @media (max-width: 940px) {
+    .about__inner { grid-template-columns: 1fr; gap: 46px; }
+    .about__media { max-width: 560px; padding: 6px 26px; }
+    .about__actions { margin-left: 0; }
+  }
+  @media (max-width: 560px) {
+    .about__creds { grid-template-columns: 1fr; }
+    .about__media { padding: 6px 14px; }
+    .about__float--stat { left: 0; bottom: 12px; padding: 13px 18px; }
+    .about__floatNum { font-size: 1.9rem; }
+    .about__float--chip { right: 0; top: 12px; }
+    .about__footer { gap: 18px; }
+    .about__badgesRow { width: 100%; }
+    .about__badgeChip { flex: 1 1 130px; }
+    .about__actions { width: 100%; }
+    .about__cta { width: 100%; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .about__cred { transition: none; }
+    .about__cred:hover { transform: none; }
+    .about__call .about__callIcon { transition: none; }
+    .about__call:hover .about__callIcon { transform: none; }
+  }

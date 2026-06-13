@@ -1,0 +1,205 @@
+.callbtn {
+  --cb-glass: rgba(255, 247, 239, 0.10);
+  --cb-glass-hi: rgba(255, 252, 247, 0.18);
+  --cb-border: rgba(255, 247, 239, 0.32);
+  --cb-text: #fdf6ee;
+
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 13px;
+  height: 56px;
+  padding: 0 24px 0 8px;
+  border-radius: var(--pill, 999px);
+  text-decoration: none;
+  color: var(--cb-text);
+  font-family: var(--font-head, "Plus Jakarta Sans"), system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 1.0625rem;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+
+  background:
+    linear-gradient(180deg, var(--cb-glass-hi), var(--cb-glass));
+  border: 1px solid var(--cb-border);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  backdrop-filter: blur(14px) saturate(150%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.22) inset,
+    0 10px 30px rgba(0, 0, 0, 0.38),
+    0 2px 8px rgba(0, 0, 0, 0.28);
+  transition:
+    transform 0.32s cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 0.32s cubic-bezier(0.2, 0.8, 0.2, 1),
+    border-color 0.32s ease,
+    background 0.32s ease;
+  isolation: isolate;
+  will-change: transform;
+}
+
+/* warm top sheen that reads as glass catching the orange overlay */
+.callbtn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    radial-gradient(120% 90% at 18% -10%, rgba(247, 139, 31, 0.20), transparent 60%);
+  opacity: 0.9;
+  pointer-events: none;
+  z-index: -1;
+  transition: opacity 0.32s ease;
+}
+
+/* the orange lens disc holding the phone glyph + sonar source */
+.callbtn__lens {
+  position: relative;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: #fff;
+  background:
+    radial-gradient(120% 120% at 30% 25%, var(--orange-bright, #f78b1f), var(--orange-deep, #b85600));
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.20) inset,
+    0 4px 12px rgba(184, 86, 0, 0.55),
+    0 0 0 0 rgba(247, 139, 31, 0.0);
+  transition: box-shadow 0.32s ease, transform 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* baked top-highlight: a static physical bead of light on the disc */
+.callbtn__lens::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background:
+    radial-gradient(80% 55% at 32% 22%, rgba(255, 255, 255, 0.6), transparent 60%);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.callbtn__icon {
+  position: relative;
+  z-index: 3;
+  display: block;
+  transform: translateZ(0);
+}
+
+/* sonar rings (collapse to a single static halo under reduced motion) */
+.callbtn__ring {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1.5px solid var(--amber, #f3a738);
+  opacity: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.callbtn__label {
+  position: relative;
+  white-space: nowrap;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+}
+
+/* HOVER / FOCUS */
+.callbtn:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 247, 239, 0.46);
+  background: linear-gradient(180deg, rgba(255, 252, 247, 0.24), rgba(255, 247, 239, 0.14));
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.30) inset,
+    0 16px 40px rgba(0, 0, 0, 0.44),
+    0 6px 16px rgba(184, 86, 0, 0.30);
+}
+
+.callbtn:hover::before { opacity: 1; }
+
+.callbtn:hover .callbtn__lens,
+.callbtn:focus-visible .callbtn__lens {
+  transform: scale(1.05);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.28) inset,
+    0 6px 16px rgba(184, 86, 0, 0.6),
+    0 0 22px 4px rgba(247, 139, 31, 0.45);
+}
+
+.callbtn:active {
+  transform: translateY(0) scale(0.985);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.22) inset,
+    0 8px 20px rgba(0, 0, 0, 0.40);
+}
+
+.callbtn:focus-visible {
+  outline: none;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.22) inset,
+    0 10px 30px rgba(0, 0, 0, 0.38),
+    0 0 0 3px var(--bg-dark, #241f1b),
+    0 0 0 5px var(--orange-bright, #f78b1f);
+}
+
+/* MOTION: idle sonar loop + hover-only glyph wiggle */
+@media (prefers-reduced-motion: no-preference) {
+  .callbtn__ring {
+    animation: callbtn-sonar 2.6s cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
+  }
+  .callbtn__ring--2 { animation-delay: 1.3s; }
+
+  .callbtn:hover .callbtn__ring {
+    animation-duration: 1.8s;
+  }
+
+  /* hover/focus-only one-shot wiggle â€” keeps the resting state calm */
+  .callbtn:hover .callbtn__icon,
+  .callbtn:focus-visible .callbtn__icon {
+    animation: callbtn-ring 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) 1;
+  }
+
+  @keyframes callbtn-sonar {
+    0%   { transform: scale(0.85); opacity: 0; }
+    12%  { opacity: 0.65; }
+    100% { transform: scale(2.1); opacity: 0; }
+  }
+
+  @keyframes callbtn-ring {
+    0%   { transform: rotate(0deg); }
+    30%  { transform: rotate(-10deg); }
+    65%  { transform: rotate(8deg); }
+    100% { transform: rotate(0deg); }
+  }
+}
+
+/* REDUCED MOTION: freeze rings to a single static halo, no wiggle */
+@media (prefers-reduced-motion: reduce) {
+  .callbtn,
+  .callbtn::before,
+  .callbtn__lens,
+  .callbtn__icon,
+  .callbtn__ring {
+    animation: none !important;
+    transition-duration: 0.001ms;
+  }
+  .callbtn__ring--1 {
+    opacity: 0.35;
+    transform: scale(1.35);
+  }
+  .callbtn__ring--2 {
+    display: none;
+  }
+}
+
+/* graceful fallback where backdrop-filter is unsupported */
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .callbtn { background: rgba(28, 22, 17, 0.85); }
+}

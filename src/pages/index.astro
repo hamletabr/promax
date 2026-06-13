@@ -1,0 +1,228 @@
+---
+import Layout from "../layouts/Layout.astro";
+import OffersStats from "../components/OffersStats.astro";
+import WhyChooseUs from "../components/WhyChooseUs.astro";
+import Stages from "../components/Stages.astro";
+import Gallery from "../components/Gallery.astro";
+import Reviews from "../components/Reviews.astro";
+import FAQ from "../components/FAQ.astro";
+import CallBanner from "../components/CallBanner.astro";
+import CallButton from "../components/CallButton.astro";
+import EstimateButton from "../components/EstimateButton.astro";
+import { site } from "../data/site";
+import { primaryServices } from "../data/services";
+import { locations } from "../data/locations";
+
+---
+<Layout>
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero__overlay"></div>
+    <div class="container hero__inner">
+      <div class="hero__text">
+        <span class="eyebrow eyebrow--ondark">San Jose &amp; the Bay Area · Open 7 Days</span>
+        <h1>Keeping your home <em>comfortable</em>, all year round.</h1>
+        <p>Friendly, licensed HVAC pros for repairs, installations &amp; maintenance across San Jose — same-day service and honest, upfront pricing you can trust.</p>
+
+        <div class="hero__btns">
+          <CallButton />
+          <EstimateButton />
+        </div>
+
+        <div class="hero__proof">
+          <div class="hero__stars"><span>★★★★★</span> Rated 5 stars by local homeowners</div>
+          <div class="hero__facts">
+            <span>Licensed &amp; Insured</span>
+            <span>EPA Certified</span>
+            <span>Free Estimates</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <OffersStats />
+
+  <!-- Services -->
+  <section class="section section--alt" id="services">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow">HVAC in San Jose, CA</span>
+        <h2>Our Services</h2>
+        <p>Repair, installation, maintenance &amp; replacement for every part of your home comfort system.</p>
+      </div>
+      <div class="grid cols-4 svc-grid">
+        {primaryServices.map((s) => (
+          <a href={`/services/${s.slug}`} class="svc reveal">
+            <div class="svc__img"><img src={s.image} alt={s.name} loading="lazy" /></div>
+            <div class="svc__body">
+              <h3>{s.name}</h3>
+              <span class="svc__link">Request Service →</span>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <CallBanner heading="Repair, installation & maintenance — every day of the week." />
+
+  <WhyChooseUs />
+  <Gallery />
+
+  <!-- About (slim credibility band) -->
+  <section class="section section--alt" id="about">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow">About Promax</span>
+        <h2>A Licensed Local Team You Can Trust</h2>
+        <p>
+          Promax Service Group is a licensed, EPA-certified HVAC contractor serving San Jose and the greater Bay Area.
+          As a <strong>Mitsubishi Diamond Contractor</strong> and <strong>Bryant Premier Dealer</strong>,
+          we install and service top-tier equipment to the highest standards — and as a TECH Clean California certified contractor,
+          we help you unlock HEEHRA rebates on qualifying high-efficiency systems.
+        </p>
+      </div>
+      <div class="about__creds reveal">
+        <div class="cred"><strong>Mitsubishi</strong><span>Diamond Contractor</span></div>
+        <div class="cred"><strong>Bryant</strong><span>Premier Dealer</span></div>
+        <div class="cred"><strong>Navien</strong><span>Service Specialist</span></div>
+        <div class="cred"><strong>EPA</strong><span>Certified</span></div>
+        <div class="cred"><strong>Licensed</strong><span>{site.license}</span></div>
+      </div>
+      <div class="about__badges reveal">
+        {site.certBadges.map((b) =>
+          b.url ? (
+            <a href={b.url} class="about__badge-link" target="_blank" rel="noopener" aria-label={`${b.alt} — view credential`}>
+              <img src={b.src} alt={b.alt} loading="lazy" />
+            </a>
+          ) : (
+            <img src={b.src} alt={b.alt} loading="lazy" />
+          )
+        )}
+      </div>
+    </div>
+  </section>
+
+  <Stages />
+
+  <!-- Testimonials (cards built from src/data/reviews.ts) -->
+  <Reviews />
+
+  <!-- Locations -->
+  <section class="section" id="locations">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow">Service Area</span>
+        <h2>San Jose &amp; Neighboring Areas</h2>
+        <p>Proudly serving homeowners and businesses across Silicon Valley and the Peninsula.</p>
+      </div>
+      <div class="area reveal">
+        <img class="area__map" src="/images/map.jpg" alt="Promax service area map — San Jose and the Bay Area" loading="lazy" />
+        <div class="loc-grid">
+          {locations.map((l) => (
+            <a href={`/locations/${l.slug}`} class="loc">📍 {l.city}</a>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <FAQ />
+
+  <CallBanner heading="Ready to get comfortable? Contact Promax today." />
+</Layout>
+
+<style>
+  /* ===== Hero (full-bleed image) ===== */
+  .hero { position: relative; isolation: isolate; background: #1a1410; }
+  .hero::before {
+    content: ""; position: absolute; inset: 0; z-index: 0;
+    background: url("/images/photo_hvac-min.jpg") center 35% / cover no-repeat;
+    filter: brightness(1.16) saturate(1.05);
+  }
+  .hero__overlay {
+    position: absolute; inset: 0; z-index: 1;
+    background:
+      linear-gradient(90deg, rgba(22,17,13,.80) 0%, rgba(22,17,13,.50) 46%, rgba(22,17,13,.14) 100%),
+      linear-gradient(180deg, rgba(22,17,13,.06), rgba(22,17,13,.30));
+  }
+  .hero__inner {
+    position: relative; z-index: 2;
+    display: flex; align-items: center;
+    min-height: clamp(560px, 84vh, 800px);
+    padding: 96px 22px;
+  }
+  .hero__text { max-width: 620px; }
+  .eyebrow--ondark { background: rgba(255,255,255,.14); color: #ffd9a8; -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+  .hero h1 { font-size: clamp(2.7rem, 5.2vw, 4.3rem); color: #fff; }
+  .hero h1 em { font-style: italic; color: var(--amber); }
+  .hero p { font-size: 1.18rem; color: #eae1d6; max-width: 540px; margin-top: 16px; }
+
+  .hero__btns { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin: 32px 0 28px; }
+
+
+  .hero__proof { display: flex; flex-direction: column; gap: 16px; }
+  .hero__stars { display: flex; align-items: center; gap: 9px; color: #eae1d6; font-weight: 600; font-size: .94rem; }
+  .hero__stars span { color: var(--amber); letter-spacing: 2px; font-size: 1.08rem; }
+  .hero__facts { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .hero__facts span {
+    background: rgba(255,255,255,.10); border: 1px solid rgba(255,255,255,.18);
+    color: #f2e9de; border-radius: var(--pill); padding: 6px 14px; font-size: .82rem;
+    -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+  }
+  .hero__facts span::before { content: "✓ "; color: var(--amber); }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .hero__text > * { opacity: 0; transform: translateY(20px); animation: heroIn .7s cubic-bezier(.2,.7,.3,1) forwards; }
+    .hero__text > *:nth-child(1) { animation-delay: .05s; }
+    .hero__text > *:nth-child(2) { animation-delay: .14s; }
+    .hero__text > *:nth-child(3) { animation-delay: .23s; }
+    .hero__text > *:nth-child(4) { animation-delay: .32s; }
+    .hero__text > *:nth-child(5) { animation-delay: .41s; }
+    .hero__media { opacity: 0; transform: translateY(20px) scale(.98); animation: heroIn .85s cubic-bezier(.2,.7,.3,1) .3s forwards; }
+    @keyframes heroIn { to { opacity: 1; transform: none; } }
+  }
+
+  /* About (slim credibility band) — text dialed up for visibility */
+  #about .section-head { max-width: 820px; }
+  #about .section-head h2 { font-size: clamp(2.2rem, 4vw, 3.1rem); }
+  #about .section-head p { color: var(--slate-2); font-size: 1.2rem; line-height: 1.7; }
+  #about .section-head p strong { color: var(--slate); font-weight: 700; }
+  .about__creds { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; margin-bottom: 30px; }
+  .cred { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 28px; text-align: center; min-width: 160px; box-shadow: var(--shadow-sm); }
+  .cred strong { display: block; font-family: var(--font-head); color: var(--orange); font-size: 1.25rem; line-height: 1.1; }
+  .cred span { color: var(--slate-2); font-size: .92rem; font-weight: 500; }
+  .about__badges { display: flex; justify-content: center; align-items: center; gap: 30px; flex-wrap: wrap; }
+  .about__badges img { height: 104px; width: auto; display: block; }
+  .about__badge-link { display: inline-flex; line-height: 0; border-radius: 8px; transition: transform .2s ease, filter .2s ease; }
+  .about__badge-link:hover { transform: translateY(-4px); filter: drop-shadow(0 8px 16px rgba(74,56,35,.18)); }
+  .about__badge-link:focus-visible { outline: 2px solid var(--orange); outline-offset: 4px; }
+
+  /* Services */
+  .svc { display: block; background: #fff; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; transition: .25s ease; }
+  .svc:hover { box-shadow: var(--shadow-lg); transform: translateY(-6px); border-color: transparent; }
+  .svc__img { aspect-ratio: 4/3; overflow: hidden; background: #eef1f4; }
+  .svc__img img { width: 100%; height: 100%; object-fit: cover; transition: .35s ease; }
+  .svc:hover .svc__img img { transform: scale(1.07); }
+  .svc__body { padding: 20px 22px; }
+  .svc__body h3 { font-size: 1.08rem; margin-bottom: 4px; color: var(--slate); }
+  .svc__link { color: var(--orange); font-weight: 600; font-size: .9rem; }
+
+  /* Service area */
+  .area { display: grid; grid-template-columns: 1.4fr 1fr; gap: 32px; align-items: center; }
+  .area__map { width: 100%; border-radius: var(--radius); box-shadow: var(--shadow); }
+  .loc-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .loc { background: var(--bg-alt); border: 1px solid var(--line); border-radius: 10px; padding: 13px 16px; color: var(--slate); font-weight: 500; font-size: .95rem; transition: .18s ease; }
+  .loc:hover { background: var(--orange); color: #fff; border-color: var(--orange); transform: translateY(-2px); }
+
+  @media (max-width: 900px) {
+    .area { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 560px) {
+    .hero__inner { min-height: 70vh; padding: 80px 22px; }
+    .hero__overlay { background: linear-gradient(180deg, rgba(22,17,13,.62), rgba(22,17,13,.74)); }
+    .promo-strip { margin-top: 44px; }
+    .loc-grid { grid-template-columns: 1fr; }
+  }
+</style>

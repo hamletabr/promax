@@ -1,0 +1,92 @@
+---
+const steps = [
+  { n: "01", title: "Request", text: "Contact us with your HVAC concerns. We'll listen carefully and arrange a convenient appointment for a diagnostic visit." },
+  { n: "02", title: "Technician Visit & Diagnosis", text: "Our certified technician examines your system on-site to identify the root cause of the problem." },
+  { n: "03", title: "Estimate Provided", text: "You receive a detailed, no-obligation estimate outlining the issue, proposed solution, and associated costs." },
+  { n: "04", title: "Your Decision", text: "Take your time to review the estimate. If you're happy with it, we move forward — questions welcome anytime." },
+  { n: "05", title: "Parts & Scheduling", text: "Once approved, we order any necessary parts and schedule the repair at a time that's convenient for you." },
+];
+---
+<section class="section" id="process">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">How We Work</span>
+      <h2>Our Stages of Work</h2>
+      <p>We keep our service process simple and transparent. Here's how we work with you.</p>
+    </div>
+
+    <ol class="steps reveal">
+      {steps.map((s) => (
+        <li class="step">
+          <div class="step__node">
+            <span class="step__num">{s.n}</span>
+          </div>
+          <div class="step__card">
+            <h3>{s.title}</h3>
+            <p>{s.text}</p>
+          </div>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>
+
+<style>
+  .steps {
+    list-style: none; margin: 0; padding: 0;
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px;
+    position: relative;
+  }
+  /* gradient connector line running behind the nodes */
+  .steps::before {
+    content: ""; position: absolute; z-index: 0;
+    top: 32px; left: 10%; right: 10%; height: 3px; border-radius: 2px;
+    background: linear-gradient(90deg, var(--orange), var(--amber));
+  }
+
+  .step { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; text-align: center; }
+
+  .step__node {
+    width: 64px; height: 64px; border-radius: 50%; margin-bottom: 22px;
+    display: grid; place-items: center; color: #fff;
+    background: linear-gradient(145deg, var(--orange-bright), var(--orange-deep));
+    /* the bg-colored ring "cuts" the connector line cleanly around each node */
+    box-shadow: 0 10px 22px rgba(232,116,12,.35), 0 0 0 6px var(--bg);
+    transition: transform .25s ease, box-shadow .25s ease;
+  }
+  .step__num { font-family: var(--font-head); font-weight: 800; font-size: 1.4rem; }
+
+  .step__card {
+    width: 100%; flex-grow: 1;
+    background: #fff; border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 24px 18px; box-shadow: var(--shadow-sm);
+    transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+  }
+  .step__card h3 { font-size: 1.05rem; margin-bottom: 6px; }
+  .step__card p { font-size: .88rem; color: var(--muted); margin: 0; }
+
+  .step:hover .step__node {
+    transform: translateY(-4px) scale(1.06);
+    box-shadow: 0 16px 30px rgba(232,116,12,.48), 0 0 0 6px var(--bg);
+  }
+  .step:hover .step__card { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: transparent; }
+
+  /* tablet: 2 rows of nodes — drop the single horizontal line, give each row breathing room */
+  @media (max-width: 900px) and (min-width: 621px) {
+    .steps { grid-template-columns: repeat(3, 1fr); gap: 28px 16px; }
+    .steps::before { display: none; }
+  }
+
+  /* mobile: clean vertical timeline */
+  @media (max-width: 620px) {
+    .steps { grid-template-columns: 1fr; gap: 0; }
+    .steps::before {
+      top: 32px; bottom: 32px; left: 31px; right: auto; width: 3px; height: auto;
+      background: linear-gradient(180deg, var(--orange), var(--amber));
+    }
+    .step { flex-direction: row; align-items: flex-start; text-align: left; gap: 20px; padding-bottom: 26px; }
+    .step:last-child { padding-bottom: 0; }
+    .step__node { flex: 0 0 auto; margin-bottom: 0; }
+    .step__card { align-self: flex-start; }
+  }
+</style>

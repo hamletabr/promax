@@ -1,0 +1,47 @@
+---
+interface Props { href?: string; label?: string; class?: string; }
+const { href = "/contact", label = "Get a Free Estimate", class: extra = "" } = Astro.props;
+---
+<a href={href} class:list={["estbtn", extra]}>
+  <span class="estbtn__icon" aria-hidden="true">
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M14 3v4a1 1 0 0 0 1 1h4"/>
+      <path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z"/>
+      <path d="M8.5 13h7M8.5 16.5h5"/>
+    </svg>
+  </span>
+  <span class="estbtn__label">{label}</span>
+</a>
+
+<style>
+  /* ===== Vibrant secondary button (solid white) ===== */
+  .estbtn {
+    position: relative; display: inline-flex; align-items: center; gap: 13px;
+    height: 56px; padding: 0 26px 0 8px; border-radius: var(--pill);
+    text-decoration: none; color: var(--slate);
+    font-family: var(--font-head); font-weight: 700; font-size: 1.0625rem; letter-spacing: .01em; line-height: 1;
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
+    background: #fff;
+    box-shadow: 0 1px 0 rgba(255,255,255,.6) inset, 0 12px 28px rgba(0,0,0,.30), 0 3px 8px rgba(0,0,0,.16);
+    transition: transform .28s cubic-bezier(.2,.8,.2,1), box-shadow .28s ease;
+  }
+  .estbtn__icon {
+    flex: 0 0 auto; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%;
+    color: #fff; background: linear-gradient(135deg, var(--amber), var(--orange-deep));
+    box-shadow: 0 3px 8px rgba(184,86,0,.38);
+    transition: transform .28s cubic-bezier(.2,.8,.2,1);
+  }
+  .estbtn__icon svg { display: block; }
+  .estbtn__label { position: relative; white-space: nowrap; }
+  .estbtn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 1px 0 rgba(255,255,255,.6) inset, 0 18px 38px rgba(0,0,0,.36), 0 5px 12px rgba(0,0,0,.22);
+  }
+  .estbtn:hover .estbtn__icon { transform: scale(1.06); }
+  .estbtn:active { transform: translateY(0) scale(.985); }
+  .estbtn:focus-visible {
+    outline: none;
+    box-shadow: 0 12px 28px rgba(0,0,0,.3), 0 0 0 3px var(--bg-dark), 0 0 0 5px var(--orange);
+  }
+  @media (max-width: 480px) { .estbtn { width: 100%; justify-content: flex-start; } }
+</style>

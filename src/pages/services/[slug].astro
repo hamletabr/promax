@@ -1,0 +1,103 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import PageHero from "../../components/PageHero.astro";
+import OffersStats from "../../components/OffersStats.astro";
+import WhyChooseUs from "../../components/WhyChooseUs.astro";
+import CallBanner from "../../components/CallBanner.astro";
+import FAQ from "../../components/FAQ.astro";
+import { services, bannerFor } from "../../data/services";
+import { site } from "../../data/site";
+
+export function getStaticPaths() {
+  return services.map((s) => ({ params: { slug: s.slug }, props: { service: s } }));
+}
+const { service } = Astro.props;
+const related = services.filter((s) => s.primary && s.slug !== service.slug).slice(0, 4);
+
+const benefits = [
+  ["Best Price–Quality Ratio", "Affordable solutions whether you're on a tight budget or want the latest technology."],
+  ["Rebates & Financing", "We walk you through government rebate programs and flexible financing options."],
+  ["Free Service Call & Estimate", "No charge for our on-site visit and inspection — ever."],
+  ["7 Days a Week", "We answer calls Monday–Sunday and typically schedule your visit within 1–2 days."],
+  ["15% Returning Discount", "A special loyalty rate for all of our repeat clients."],
+  ["Licensed & EPA Certified", "Fully licensed professionals who handle every job to code and to spec."],
+];
+---
+<Layout title={service.title} description={service.sub}>
+  <PageHero
+    title={service.h1}
+    sub={service.sub}
+    image={bannerFor(service.slug)}
+    parentLabel="Services"
+    parentHref="/#services"
+    current={service.name}
+  />
+
+  <OffersStats />
+
+  <section class="section">
+    <div class="container svc-intro">
+      <div>
+        <span class="eyebrow">About This Service</span>
+        <h2>{service.name} in San Jose & the Bay Area</h2>
+        <p>{service.sub}</p>
+        <p>Our fast local technicians serve San Jose and all of Santa Clara County — no hidden fees, no upsells. Just reliable service to keep your home comfortable and worry-free. Whether it's an urgent repair, a planned installation, or routine maintenance, our certified team has you covered.</p>
+        <a href={site.phoneHref} class="btn btn--outline">Call {site.phone}</a>
+      </div>
+      <div class="svc-intro__img">
+        <img src={service.image} alt={service.name} loading="lazy" />
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--alt">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">Why Homeowners Choose Promax</span>
+        <h2>{service.name} Done Right</h2>
+      </div>
+      <div class="grid cols-3">
+        {benefits.map(([t, d]) => (
+          <div class="card benefit">
+            <h3>✓ {t}</h3>
+            <p>{d}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <CallBanner heading={`Need ${service.name.toLowerCase()} help in San Jose?`} />
+
+  <WhyChooseUs />
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">Explore More</span>
+        <h2>Related Services</h2>
+      </div>
+      <div class="grid cols-4">
+        {related.map((r) => (
+          <a href={`/services/${r.slug}`} class="card rel">
+            <h3>{r.name}</h3>
+            <span class="rel__link">Learn more →</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <FAQ />
+</Layout>
+
+<style>
+  .promo-strip { margin-top: 36px; }
+  .svc-intro { display: grid; grid-template-columns: 1.2fr 1fr; gap: 44px; align-items: center; }
+  .svc-intro__img img { border-radius: var(--radius); box-shadow: var(--shadow-lg); }
+  .benefit h3 { color: var(--slate); font-size: 1.05rem; }
+  .benefit p { color: var(--muted); font-size: .94rem; margin: 0; }
+  .rel { text-align: left; }
+  .rel__link { color: var(--orange); font-weight: 600; font-size: .9rem; }
+  @media (max-width: 860px) { .svc-intro { grid-template-columns: 1fr; } }
+</style>

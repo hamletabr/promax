@@ -1,0 +1,28 @@
+---
+import { site } from "../data/site";
+const { heading } = Astro.props;
+---
+<section class="callban">
+  <div class="container callban__inner">
+    <div>
+      <span class="callban__eyebrow">We Work Every Day · 7:00 AM – 10:00 PM</span>
+      <h2>{heading ?? "Need HVAC help today? We're ready."}</h2>
+    </div>
+    <div class="callban__cta">
+      <span>Call Us Today!</span>
+      <a href={site.phoneHref}>{site.phone}</a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .callban { background: var(--orange-soft); color: var(--slate); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .callban__inner { display: flex; align-items: center; justify-content: space-between; gap: 28px; padding: 38px 20px; flex-wrap: wrap; }
+  .callban__eyebrow { text-transform: uppercase; letter-spacing: .1em; font-size: .8rem; font-weight: 600; color: var(--orange-deep); }
+  .callban h2 { color: var(--slate); margin: 8px 0 0; font-size: clamp(1.5rem, 2.6vw, 2rem); }
+  .callban__cta { text-align: right; }
+  .callban__cta span { display: block; font-size: .85rem; color: var(--muted); }
+  .callban__cta a { font-family: var(--font-head); font-weight: 800; font-size: 1.9rem; color: var(--orange); }
+  .callban__cta a:hover { color: var(--orange-deep); }
+  @media (max-width: 640px) { .callban__cta { text-align: left; } }
+</style>
