@@ -1,0 +1,41 @@
+---
+// Slim dismissible promo bar above the header. Configure in src/data/site.ts
+// (site.promoBar). Dismissal is remembered for the session.
+import { site } from "../data/site";
+const promo = site.promoBar;
+---
+{promo.enabled && (
+  <div class="pbar" id="pbar" hidden>
+    <div class="container pbar__inner">
+      <p>{promo.text} <a href={promo.href}>{promo.cta} →</a></p>
+      <button type="button" id="pbar-close" aria-label="Dismiss announcement">✕</button>
+    </div>
+  </div>
+)}
+
+<script>
+  const bar = document.getElementById("pbar");
+  if (bar) {
+    if (!sessionStorage.getItem("promax-pbar-dismissed")) bar.hidden = false;
+    document.getElementById("pbar-close")?.addEventListener("click", () => {
+      bar.hidden = true;
+      sessionStorage.setItem("promax-pbar-dismissed", "1");
+    });
+  }
+</script>
+
+<style>
+  .pbar { background: var(--bg-dark); color: #e4e4e7; font-size: .86rem; }
+  .pbar[hidden] { display: none !important; }
+  .pbar__inner { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 9px 20px; position: relative; }
+  .pbar p { margin: 0; text-align: center; }
+  .pbar a { color: #fdba74; font-weight: 700; margin-left: 6px; }
+  .pbar a:hover { text-decoration: underline; }
+  .pbar button {
+    position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+    background: none; border: 0; color: #8b8b93; cursor: pointer; font-size: .9rem;
+    width: 32px; height: 32px; border-radius: 50%;
+  }
+  .pbar button:hover { background: rgba(255,255,255,.1); color: #fff; }
+  @media (max-width: 560px) { .pbar { font-size: .78rem; } .pbar__inner { padding-right: 44px; } }
+</style>

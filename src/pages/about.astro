@@ -1,0 +1,131 @@
+---
+import Layout from "../layouts/Layout.astro";
+import PageHero from "../components/PageHero.astro";
+import CallBanner from "../components/CallBanner.astro";
+import Stages from "../components/Stages.astro";
+import WhyChooseUs from "../components/WhyChooseUs.astro";
+import { site } from "../data/site";
+
+const title = "About Promax Service Group | Licensed HVAC Contractor San Jose";
+const metaDesc =
+  "Meet Promax Service Group — a licensed, EPA-certified HVAC contractor in San Jose (Lic #1133885). Mitsubishi Diamond Contractor, Bryant Premier Dealer, open 7 days.";
+
+const aboutSchema = {
+  "@context": "https://schema.org",
+  "@type": "AboutPage",
+  name: title,
+  url: `${site.url}/about`,
+  mainEntity: { "@id": `${site.url}/#business` },
+};
+
+const guarantees = [
+  ["Upfront, flat-rate pricing", "You approve the exact price before any work begins. No hourly meters, no surprise line items."],
+  ["Satisfaction guarantee", "If something isn't right after a visit, we come back and make it right — that's the whole policy."],
+  ["Our own employees, never subs", "Every technician in your home is a background-checked, factory-trained Promax employee."],
+  ["Licensed, bonded & insured", `California C-20 contractor ${site.license}, EPA-certified refrigerant handling, full liability coverage.`],
+  ["Code-compliant, always", "Permits pulled, HERS testing scheduled, and inspections passed on every installation — protecting your home's value."],
+  ["Clean-home promise", "Shoe covers, drop cloths, and a full cleanup. You'd never know we were there — except for the comfort."],
+];
+---
+<Layout title={title} description={metaDesc}>
+  <script type="application/ld+json" set:html={JSON.stringify(aboutSchema)} is:inline />
+
+  <PageHero
+    eyebrow="About Us"
+    title="The Bay Area Comfort Team That Does It Right"
+    sub="Promax Service Group is a local, licensed HVAC contractor built on one idea: treat every home like our own, and every customer like a neighbor — because they are."
+    image="/images/photo_hvac-min.jpg"
+    parentLabel="About"
+    parentHref="/about"
+  />
+
+  <section class="section">
+    <div class="container ab-story">
+      <div class="ab-story__text reveal">
+        <span class="eyebrow">Our Story</span>
+        <h2>Local Roots, Factory-Level Expertise</h2>
+        <p>
+          Promax Service Group started in San Jose with a small crew, one van, and a simple frustration: too many
+          homeowners were getting oversold, over-charged, or left waiting for days in an uncomfortable house. We set out
+          to be the company we'd want to call ourselves — honest diagnostics, upfront prices, and technicians who show
+          up when they say they will.
+        </p>
+        <p>
+          Today we serve hundreds of homes and businesses across Santa Clara County and the Peninsula, and we've earned
+          the industry's top factory credentials: <strong>Mitsubishi Diamond Contractor</strong> (their highest tier of training
+          and warranty backing), <strong>Bryant Premier Dealer</strong>, and <strong>Navien Service Specialist</strong>. We're
+          EPA-certified and licensed by the state ({site.license}).
+        </p>
+        <p>
+          Growth hasn't changed the rules: answer the phone 7 days a week, quote the real price before work starts,
+          and leave every home cleaner — and more comfortable — than we found it.
+        </p>
+      </div>
+      <div class="ab-story__facts reveal">
+        <div class="ab-fact"><strong>350+</strong><span>happy clients across the Bay Area</span></div>
+        <div class="ab-fact"><strong>7 days</strong><span>open every week, 7 AM – 10 PM</span></div>
+        <div class="ab-fact"><strong>{site.license.replace("Lic ", "")}</strong><span>California C-20 HVAC license</span></div>
+        <div class="ab-fact"><strong>5.0★</strong><span>Google rating from verified reviews</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--alt">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow">Our Guarantees</span>
+        <h2>What We Promise on Every Job</h2>
+      </div>
+      <div class="grid cols-3">
+        {guarantees.map(([t, d]) => (
+          <div class="card guar reveal">
+            <h3>✓ {t}</h3>
+            <p>{d}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow">Credentials</span>
+        <h2>Certified by the Brands We Install</h2>
+        <p>Factory certifications aren't wall decorations — they mean deeper training, better equipment pricing, and stronger warranties for you.</p>
+      </div>
+      <div class="ab-badges reveal">
+        {site.certBadges.map((b) =>
+          b.url ? (
+            <a href={b.url} target="_blank" rel="noopener" aria-label={`${b.alt} — view credential`}>
+              <img src={b.src} alt={b.alt} loading="lazy" />
+            </a>
+          ) : (
+            <img src={b.src} alt={b.alt} loading="lazy" />
+          )
+        )}
+      </div>
+    </div>
+  </section>
+
+  <WhyChooseUs />
+  <Stages />
+  <CallBanner heading="Get to know us the easy way — book a free estimate." />
+</Layout>
+
+<style>
+  .ab-story { display: grid; grid-template-columns: 1.4fr 1fr; gap: 48px; align-items: start; }
+  .ab-story__text p { color: var(--slate-2); }
+  .ab-story__facts { display: grid; gap: 16px; }
+  .ab-fact {
+    background: var(--bg-alt); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 20px 24px; display: flex; align-items: baseline; gap: 14px;
+  }
+  .ab-fact strong { font-family: var(--font-head); font-weight: 800; font-size: 1.7rem; color: var(--orange); white-space: nowrap; }
+  .ab-fact span { color: var(--slate-2); font-size: .92rem; }
+  .guar h3 { font-size: 1.02rem; color: var(--slate); }
+  .guar p { color: var(--muted); font-size: .93rem; margin: 0; }
+  .ab-badges { display: flex; justify-content: center; align-items: center; gap: 34px; flex-wrap: wrap; }
+  .ab-badges img { height: 96px; width: auto; }
+  @media (max-width: 900px) { .ab-story { grid-template-columns: 1fr; } }
+</style>

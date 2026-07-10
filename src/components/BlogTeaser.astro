@@ -1,0 +1,49 @@
+---
+// Homepage teaser: three latest blog posts.
+import { getCollection } from "astro:content";
+
+const posts = (await getCollection("blog"))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 3);
+
+const fmt = (d: Date) => d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+---
+<section class="section" id="blog">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Tips &amp; Guides</span>
+      <h2>Straight Answers From the Blog</h2>
+      <p>Real prices, rebate walkthroughs, and fix-it-yourself checks — written by the techs, not a marketing agency.</p>
+    </div>
+    <div class="bt-grid">
+      {posts.map((p) => (
+        <a href={`/blog/${p.id}`} class="bt-card reveal">
+          <div class="bt-card__img"><img src={p.data.image} alt={p.data.title} loading="lazy" width="420" height="240" /></div>
+          <div class="bt-card__body">
+            <span class="bt-card__meta">{fmt(p.data.date)}</span>
+            <h3>{p.data.title}</h3>
+            <span class="bt-card__link">Read the guide →</span>
+          </div>
+        </a>
+      ))}
+    </div>
+    <div class="bt-all reveal">
+      <a href="/blog" class="btn btn--outline">Read All Guides</a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .bt-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+  .bt-card { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; transition: .22s ease; display: flex; flex-direction: column; }
+  .bt-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-4px); border-color: transparent; }
+  .bt-card__img { aspect-ratio: 16/9; overflow: hidden; background: var(--bg-alt); }
+  .bt-card__img img { width: 100%; height: 100%; object-fit: cover; transition: transform .35s ease; }
+  .bt-card:hover .bt-card__img img { transform: scale(1.05); }
+  .bt-card__body { padding: 18px 20px 20px; }
+  .bt-card__meta { font-size: .78rem; color: var(--muted); }
+  .bt-card h3 { font-size: 1rem; line-height: 1.4; margin: 6px 0 10px; color: var(--slate); }
+  .bt-card__link { color: var(--orange-deep); font-weight: 700; font-size: .86rem; }
+  .bt-all { text-align: center; margin-top: 30px; }
+  @media (max-width: 900px) { .bt-grid { grid-template-columns: 1fr; } }
+</style>

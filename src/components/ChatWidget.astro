@@ -1,0 +1,413 @@
+---
+// Floating AI chat (bottom-right, on every page).
+// - LLM: Google Gemini free tier when site.ai.geminiApiKey is set (see
+//   src/data/site.ts for the 5-minute setup). Without a key, a built-in
+//   assistant answers from site data (services, hours, price ranges).
+// - Leads: the "Send to our team" flow posts the transcript + contact info to
+//   site.formEndpoint (same pipeline as the estimator/contact form), with a
+//   mailto fallback while the endpoint isn't configured yet.
+import { site } from "../data/site";
+import { sqftTiers, ductPricing } from "../data/estimator";
+
+const priceLines = sqftTiers.map((t) => `${t.label}: $${t.low.toLocaleString()}–$${t.high.toLocaleString()}`).join("; ");
+
+const systemPrompt = `You are the friendly virtual assistant for ${site.name}, a licensed HVAC contractor (${site.license}) in San Jose, CA.
+Business facts: phone ${site.phone}; email ${site.email}; hours ${site.hours}; service area: San Jose, Santa Clara, Sunnyvale, Cupertino, Campbell, Milpitas, Mountain View, Palo Alto and the greater Bay Area.
+Services: AC repair/installation/maintenance, furnace repair/installation, heat pumps, ductless mini splits (Mitsubishi Diamond Contractor), VRF/VRV systems, Bryant systems (Premier Dealer), ductwork, zoning, indoor air quality, tank/tankless/heat-pump water heaters (Navien specialist).
+Typical full-installation ballpark ranges by home size: ${priceLines}. Ductwork replacement adds about $${ductPricing.perDuctLow}–$${ductPricing.perDuctHigh} per duct. These are ballparks only — exact quotes require a free on-site visit.
+Rebates: the federal 25C tax credit (30%, up to $2,000/yr) applies to heat pumps and heat-pump water heaters, and HEEHRA offers point-of-sale discounts for income-qualified households. IMPORTANT: TECH Clean California rebate funding is currently EXHAUSTED — if asked about TECH, say it is not available right now and that we monitor new funding waves and will apply it automatically if the program reopens.
+Rules: Be warm, concise (2-4 sentences), and practical. Never invent prices beyond the ranges above. For anything urgent or specific, recommend calling ${site.phone} (open 7 days) or the online estimator at /estimate. If the visitor wants a callback, a quote, or a human, ask for their name and phone number, then tell them to tap "Send to our team" below the chat so our staff receives the conversation. Only discuss topics related to HVAC, home comfort, and this company.`;
+
+const config = {
+  endpoint: site.formEndpoint,
+  email: site.email,
+  phone: site.phone,
+  phoneHref: site.phoneHref,
+  systemPrompt,
+  gemini: site.ai,
+  // facts for the built-in (no-API-key) assistant
+  facts: {
+    hours: site.hours,
+    priceLines: sqftTiers.map((t) => `${t.label}: $${t.low.toLocaleString()}–$${t.high.toLocaleString()}`),
+    perDuct: `$${ductPricing.perDuctLow}–$${ductPricing.perDuctHigh}`,
+  },
+};
+---
+<div class="chatw" id="chatw" data-config={JSON.stringify(config)}>
+  <!-- floating button -->
+  <button class="chatw__fab" id="chatw-fab" aria-label="Chat with us" aria-expanded="false" aria-controls="chatw-panel">
+    <svg class="chatw__fab-open" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+    </svg>
+    <svg class="chatw__fab-close" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true">
+      <path d="M18 6 6 18M6 6l12 12"/>
+    </svg>
+  </button>
+
+  <!-- panel -->
+  <section class="chatw__panel" id="chatw-panel" role="dialog" aria-label="Promax chat assistant" hidden>
+    <header class="chatw__head">
+      <div>
+        <strong>Promax Assistant</strong>
+        <span>Ask about services, pricing &amp; scheduling</span>
+      </div>
+      <a href={site.phoneHref} class="chatw__call" aria-label={`Call ${site.phone}`}>
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.24 11.3 11.3 0 0 0 3.55.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.3a1 1 0 0 1 1 1 11.3 11.3 0 0 0 .57 3.55 1 1 0 0 1-.24 1Z"/></svg>
+        Call
+      </a>
+    </header>
+
+    <div class="chatw__msgs" id="chatw-msgs" aria-live="polite"></div>
+
+    <div class="chatw__quick" id="chatw-quick">
+      <button type="button" data-q="How much would a new HVAC system cost for my home?">💲 Ballpark price</button>
+      <button type="button" data-q="What areas do you serve and what are your hours?">📍 Areas & hours</button>
+      <button type="button" data-q="I'd like a callback from your team.">👤 Talk to a human</button>
+    </div>
+
+    <form class="chatw__inputrow" id="chatw-form">
+      <label class="sr-only" for="chatw-input">Type your message</label>
+      <input id="chatw-input" type="text" placeholder="Type your question…" autocomplete="off" maxlength="500" />
+      <button type="submit" class="chatw__send" aria-label="Send message">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+      </button>
+    </form>
+
+    <footer class="chatw__foot">
+      <button type="button" class="chatw__tolead" id="chatw-tolead">✉ Send this conversation to our team</button>
+    </footer>
+
+    <!-- lead capture overlay -->
+    <div class="chatw__lead" id="chatw-lead" hidden>
+      <h3>Send to our team</h3>
+      <p>We'll get the whole conversation and follow up — usually within 1 business day.</p>
+      <form id="chatw-leadform">
+        <label for="chatw-name">Name *<input id="chatw-name" type="text" autocomplete="name" required /></label>
+        <label for="chatw-phone">Phone *<input id="chatw-phone" type="tel" inputmode="numeric" placeholder="(xxx)-xxx-xxxx" maxlength="14" autocomplete="tel" required /></label>
+        <label for="chatw-email">Email<input id="chatw-email" type="email" autocomplete="email" /></label>
+        <div class="chatw__lead-btns">
+          <button type="button" id="chatw-leadback">Back</button>
+          <button type="submit" class="chatw__lead-send" id="chatw-leadsend">Send</button>
+        </div>
+        <p class="chatw__leadstatus" id="chatw-leadstatus" role="alert" hidden></p>
+      </form>
+    </div>
+  </section>
+</div>
+
+<script>
+  const root = document.getElementById("chatw")!;
+  const cfg = JSON.parse(root.dataset.config!);
+  const fab = document.getElementById("chatw-fab") as HTMLButtonElement;
+  const panel = document.getElementById("chatw-panel")!;
+  const msgsEl = document.getElementById("chatw-msgs")!;
+  const quick = document.getElementById("chatw-quick")!;
+  const form = document.getElementById("chatw-form") as HTMLFormElement;
+  const input = document.getElementById("chatw-input") as HTMLInputElement;
+  const leadPane = document.getElementById("chatw-lead")!;
+
+  type Msg = { role: "user" | "assistant"; content: string };
+  const STORE = "promax-chat";
+  let history: Msg[] = [];
+  try { history = JSON.parse(sessionStorage.getItem(STORE) || "[]"); } catch {}
+
+  const GREETING =
+    "Hi! I'm the Promax assistant 👋 Ask me anything about heating, cooling, water heaters, pricing, or scheduling in the San Jose area.";
+
+  function save() { try { sessionStorage.setItem(STORE, JSON.stringify(history.slice(-30))); } catch {} }
+
+  function bubble(role: "user" | "assistant", text: string) {
+    const div = document.createElement("div");
+    div.className = `chatw__msg chatw__msg--${role}`;
+    div.textContent = text;
+    msgsEl.appendChild(div);
+    msgsEl.scrollTop = msgsEl.scrollHeight;
+    return div;
+  }
+
+  function renderHistory() {
+    msgsEl.innerHTML = "";
+    bubble("assistant", GREETING);
+    for (const m of history) bubble(m.role, m.content);
+  }
+
+  // ── LLM: Google Gemini free tier (when a key is configured in site.ts) ──
+  const hasGemini = !!cfg.gemini?.geminiApiKey;
+
+  async function askGemini(question: string): Promise<string> {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${cfg.gemini.model}:generateContent?key=${cfg.gemini.geminiApiKey}`;
+    const contents = [
+      ...history.slice(-12).map((m) => ({ role: m.role === "user" ? "user" : "model", parts: [{ text: m.content }] })),
+      { role: "user", parts: [{ text: question }] },
+    ];
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: cfg.systemPrompt }] },
+        contents,
+        generationConfig: { maxOutputTokens: 512, temperature: 0.6 },
+      }),
+    });
+    if (!res.ok) throw new Error(String(res.status));
+    const data = await res.json();
+    const text = data?.candidates?.[0]?.content?.parts?.map((p: any) => p.text).join("") ?? "";
+    if (!text) throw new Error("empty response");
+    return text.trim();
+  }
+
+  // ── Built-in assistant: answers from site data (no API key needed) ──
+  function localAnswer(q: string): string {
+    const s = q.toLowerCase();
+    const f = cfg.facts;
+    if (/(price|cost|how much|quote|estimate|ballpark|\$)/.test(s))
+      return `Typical full-installation ranges: ${f.priceLines.join(" · ")}. Ductwork replacement adds about ${f.perDuct} per duct. For a personalized number in 60 seconds, try our online estimator at promax-service.com/estimate — or call ${cfg.phone} for an exact free quote.`;
+    if (/(hour|open|when|schedule|weekend|sunday|saturday|today)/.test(s))
+      return `We're open ${f.hours} — including weekends, at no extra charge. Call ${cfg.phone} and we can usually schedule a visit within 1–2 days.`;
+    if (/(area|serve|where|city|location|come to|near)/.test(s))
+      return `We serve San Jose and the greater Bay Area — Santa Clara, Sunnyvale, Cupertino, Campbell, Milpitas, Mountain View, Los Gatos, Palo Alto, Fremont, and more. If you're nearby, we've got you covered — call ${cfg.phone} to confirm.`;
+    if (/(mitsubishi|mini split|ductless|multi.?zone|single.?zone)/.test(s))
+      return `Yes — we're a Mitsubishi Diamond Contractor (their highest certification) and install single-zone and multi-zone ductless mini splits, ideal for ADUs, additions, and homes without ducts. See real installs at promax-service.com/our-work.`;
+    if (/(bryant|carrier|furnace|heater|heating)/.test(s))
+      return `We're a Bryant Premier Dealer and service all major brands. We handle furnace repair, replacement, and high-efficiency (96% AFUE) installations, with a carbon-monoxide safety check on every heating visit. Call ${cfg.phone} — open 7 days.`;
+    if (/(water heater|tankless|hot water|navien)/.test(s))
+      return `We repair, replace, and install tank, tankless, and heat-pump water heaters (Navien Service Specialists). Heat-pump models qualify for big rebates right now. No hot water? Call ${cfg.phone} for fast service.`;
+    if (/(duct|vent|airflow)/.test(s))
+      return `We design, replace, seal, and balance ductwork — replacement runs about ${f.perDuct} per duct. Leaky ducts waste up to 30% of the air you pay for, so it's often the best-value fix for uneven rooms and high bills.`;
+    if (/(rebate|tax credit|tech clean|incentive|financing)/.test(s))
+      return `Heat pumps and heat-pump water heaters qualify for the federal 25C tax credit (up to $2,000/yr), and income-qualified households may get HEEHRA discounts. Heads up: TECH Clean California rebate funding is currently exhausted — if a new wave opens, we apply it to eligible quotes automatically. Financing is available too.`;
+    if (/(human|person|callback|call me|agent|someone|representative|staff)/.test(s))
+      return `Absolutely — tap "Send this conversation to our team" just below and leave your name and number, and a real person will follow up. Or call us right now at ${cfg.phone} (open 7 days, 7 AM–10 PM).`;
+    if (/(emergency|urgent|broken|not working|no heat|no cool|no ac|leak)/.test(s))
+      return `Sorry you're dealing with that! For anything urgent, the fastest path is calling ${cfg.phone} — we answer 7 days a week, 7 AM–10 PM, and prioritize no-heat/no-cooling calls.`;
+    if (/(hi|hello|hey|thanks|thank you)/.test(s))
+      return `Happy to help! Ask me about pricing, services, rebates, or scheduling — or get an instant price range at promax-service.com/estimate.`;
+    return `Great question! I can help with pricing, services (AC, heating, heat pumps, mini splits, water heaters, ducts), rebates, and scheduling. For anything specific, call ${cfg.phone} (open 7 days) or tap "Send this conversation to our team" below and our staff will follow up by email.`;
+  }
+
+  async function ask(question: string) {
+    history.push({ role: "user", content: question });
+    save();
+    bubble("user", question);
+    quick.hidden = true;
+
+    const typing = bubble("assistant", "…");
+    typing.classList.add("chatw__msg--typing");
+
+    let text: string;
+    try {
+      text = hasGemini ? await askGemini(question) : localAnswer(question);
+    } catch {
+      text = localAnswer(question);
+    }
+    typing.classList.remove("chatw__msg--typing");
+    typing.textContent = text;
+    history.push({ role: "assistant", content: text });
+    save();
+    msgsEl.scrollTop = msgsEl.scrollHeight;
+  }
+
+  // ── open/close ──
+  function toggle(open?: boolean) {
+    const willOpen = open ?? panel.hidden === true;
+    panel.hidden = !willOpen;
+    root.classList.toggle("is-open", willOpen);
+    fab.setAttribute("aria-expanded", String(willOpen));
+    if (willOpen) {
+      renderHistory();
+      quick.hidden = history.length > 0;
+      input.focus();
+    }
+  }
+  fab.addEventListener("click", () => toggle());
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !panel.hidden) toggle(false);
+  });
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const q = input.value.trim();
+    if (!q) return;
+    input.value = "";
+    ask(q);
+  });
+
+  quick.addEventListener("click", (e) => {
+    const btn = (e.target as HTMLElement).closest<HTMLElement>("[data-q]");
+    if (btn) ask(btn.dataset.q!);
+  });
+
+  // ── lead capture: email the transcript to the team ──
+  const leadForm = document.getElementById("chatw-leadform") as HTMLFormElement;
+  const leadStatus = document.getElementById("chatw-leadstatus")!;
+  const leadSend = document.getElementById("chatw-leadsend") as HTMLButtonElement;
+  const leadPhone = document.getElementById("chatw-phone") as HTMLInputElement;
+
+  document.getElementById("chatw-tolead")!.addEventListener("click", () => {
+    leadPane.hidden = false;
+    (document.getElementById("chatw-name") as HTMLInputElement).focus();
+  });
+  document.getElementById("chatw-leadback")!.addEventListener("click", () => { leadPane.hidden = true; });
+
+  leadPhone.addEventListener("input", function () {
+    const d = this.value.replace(/[^0-9]/g, "").slice(0, 10);
+    this.value =
+      d.length > 6 ? `(${d.slice(0, 3)})-${d.slice(3, 6)}-${d.slice(6)}` :
+      d.length > 3 ? `(${d.slice(0, 3)})-${d.slice(3)}` :
+      d.length > 0 ? `(${d.slice(0, 3)}` : "";
+  });
+
+  leadForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!leadForm.reportValidity()) return;
+    const transcript = history.map((m) => `${m.role === "user" ? "Visitor" : "Assistant"}: ${m.content}`).join("\n") || "(no messages — visitor requested contact)";
+    const payload = {
+      _subject: "New chat lead (website AI assistant)",
+      name: (document.getElementById("chatw-name") as HTMLInputElement).value.trim(),
+      phone: leadPhone.value.trim(),
+      email: (document.getElementById("chatw-email") as HTMLInputElement).value.trim(),
+      transcript,
+      source: "promax-service.com (chat widget)",
+    };
+
+    const configured = cfg.endpoint && !cfg.endpoint.includes("YOUR_FORM_ID");
+    if (!configured) {
+      const body = `name: ${payload.name}\nphone: ${payload.phone}\nemail: ${payload.email}\n\n--- conversation ---\n${transcript}`;
+      location.href = `mailto:${cfg.email}?subject=${encodeURIComponent(payload._subject)}&body=${encodeURIComponent(body)}`;
+      leadStatus.hidden = false;
+      leadStatus.textContent = `Your email app should open with the conversation. If it didn't, call us at ${cfg.phone}.`;
+      return;
+    }
+
+    leadSend.disabled = true;
+    leadSend.textContent = "Sending…";
+    try {
+      const res = await fetch(cfg.endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error(String(res.status));
+      leadSend.textContent = "Sent ✓";
+      leadStatus.hidden = false;
+      leadStatus.textContent = "Got it! Our team will reach out shortly.";
+      setTimeout(() => { leadPane.hidden = true; leadSend.disabled = false; leadSend.textContent = "Send"; leadStatus.hidden = true; }, 2600);
+    } catch {
+      leadSend.disabled = false;
+      leadSend.textContent = "Send";
+      leadStatus.hidden = false;
+      leadStatus.textContent = `Couldn't send — please call us at ${cfg.phone}.`;
+    }
+  });
+</script>
+
+<style>
+  .chatw { position: fixed; right: 18px; bottom: 18px; z-index: 90; font-family: var(--font-body); }
+
+  /* FAB */
+  .chatw__fab {
+    width: 58px; height: 58px; border-radius: 50%; border: 0; cursor: pointer;
+    background: linear-gradient(135deg, var(--orange-bright), var(--orange-deep));
+    color: #fff; display: grid; place-items: center;
+    box-shadow: 0 10px 26px rgba(234, 88, 12, .45), 0 3px 8px rgba(15, 32, 56, .2);
+    transition: transform .2s ease, box-shadow .2s ease;
+  }
+  .chatw__fab:hover { transform: translateY(-3px) scale(1.04); box-shadow: 0 16px 34px rgba(234, 88, 12, .55); }
+  .chatw__fab:focus-visible { outline: 3px solid var(--orange); outline-offset: 3px; }
+  .chatw__fab-close { display: none; }
+  .is-open .chatw__fab-open { display: none; }
+  .is-open .chatw__fab-close { display: block; }
+
+  /* Panel */
+  .chatw__panel {
+    position: absolute; right: 0; bottom: 72px;
+    width: min(370px, calc(100vw - 28px));
+    background: #fff; border: 1px solid var(--line); border-radius: 18px;
+    box-shadow: var(--shadow-lg);
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .chatw__panel[hidden] { display: none !important; }
+
+  .chatw__head {
+    background: var(--bg-dark); color: #fff;
+    padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  }
+  .chatw__head strong { font-family: var(--font-head); font-size: .98rem; display: block; }
+  .chatw__head span { font-size: .76rem; color: var(--ondark-muted); }
+  .chatw__call {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(255,255,255,.12); color: #fff; border-radius: 999px;
+    padding: 8px 14px; font-size: .82rem; font-weight: 600; min-height: 36px;
+  }
+  .chatw__call:hover { background: var(--orange); }
+
+  .chatw__msgs {
+    height: 320px; max-height: 46vh; overflow-y: auto;
+    padding: 14px; display: flex; flex-direction: column; gap: 8px;
+    background: var(--bg-alt);
+  }
+  .chatw__msg {
+    max-width: 85%; padding: 9px 13px; border-radius: 14px;
+    font-size: .9rem; line-height: 1.5; white-space: pre-wrap; word-wrap: break-word;
+  }
+  .chatw__msg--assistant { background: #fff; border: 1px solid var(--line); color: var(--slate-2); border-bottom-left-radius: 4px; align-self: flex-start; }
+  .chatw__msg--user { background: var(--orange); color: #fff; border-bottom-right-radius: 4px; align-self: flex-end; }
+  .chatw__msg--typing { color: var(--muted); }
+  @media (prefers-reduced-motion: no-preference) {
+    .chatw__msg--typing { animation: chatw-pulse 1.2s ease infinite; }
+    @keyframes chatw-pulse { 50% { opacity: .45; } }
+  }
+
+  .chatw__quick { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 14px 0; background: var(--bg-alt); }
+  .chatw__quick button {
+    font: inherit; font-size: .8rem; font-weight: 600; cursor: pointer;
+    background: #fff; color: var(--slate-2); border: 1px solid var(--line);
+    border-radius: 999px; padding: 8px 13px; min-height: 36px; transition: .15s ease;
+  }
+  .chatw__quick button:hover { border-color: var(--orange); color: var(--orange-deep); }
+
+  .chatw__inputrow { display: flex; gap: 8px; padding: 12px 14px; background: var(--bg-alt); }
+  .chatw__inputrow input {
+    flex: 1; font: inherit; font-size: .92rem; padding: 11px 14px; min-height: 44px;
+    border: 1px solid var(--line); border-radius: 999px; background: #fff;
+  }
+  .chatw__inputrow input:focus { outline: 2px solid var(--orange); border-color: var(--orange); }
+  .chatw__send {
+    width: 44px; height: 44px; border-radius: 50%; border: 0; cursor: pointer;
+    background: var(--orange); color: #fff; display: grid; place-items: center; flex: none;
+    transition: background .15s ease;
+  }
+  .chatw__send:hover { background: var(--orange-bright); }
+
+  .chatw__foot { padding: 8px 14px 12px; background: var(--bg-alt); border-top: 1px solid var(--line); }
+  .chatw__tolead {
+    font: inherit; font-size: .8rem; font-weight: 600; cursor: pointer;
+    background: none; border: 0; color: var(--orange-deep); padding: 6px 0; min-height: 32px;
+  }
+  .chatw__tolead:hover { text-decoration: underline; }
+
+  /* lead overlay */
+  .chatw__lead { position: absolute; inset: 0; background: #fff; padding: 20px; overflow-y: auto; }
+  .chatw__lead[hidden] { display: none !important; }
+  .chatw__lead h3 { font-size: 1.1rem; margin-bottom: 4px; }
+  .chatw__lead p { font-size: .86rem; color: var(--muted); margin-bottom: 14px; }
+  .chatw__lead label { display: flex; flex-direction: column; gap: 5px; font-size: .85rem; font-weight: 600; color: var(--slate); margin-bottom: 12px; }
+  .chatw__lead input { font: inherit; padding: 10px 13px; min-height: 44px; border: 1px solid var(--line); border-radius: 10px; }
+  .chatw__lead input:focus { outline: 2px solid var(--orange); border-color: var(--orange); }
+  .chatw__lead-btns { display: flex; gap: 10px; justify-content: flex-end; margin-top: 4px; }
+  .chatw__lead-btns button {
+    font: inherit; font-weight: 600; cursor: pointer; min-height: 44px;
+    border-radius: 999px; padding: 10px 20px; border: 1px solid var(--line); background: #fff; color: var(--slate-2);
+  }
+  .chatw__lead-send { background: var(--orange) !important; border-color: var(--orange) !important; color: #fff !important; }
+  .chatw__lead-send:hover { background: var(--orange-bright) !important; }
+  .chatw__leadstatus { margin-top: 12px; font-size: .85rem; color: var(--slate); background: var(--orange-soft); border-radius: 10px; padding: 10px 13px; }
+
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+  /* keep clear of the sticky mobile call bar */
+  @media (max-width: 760px) {
+    .chatw { bottom: 74px; right: 14px; }
+    .chatw__msgs { height: 300px; max-height: 38vh; }
+  }
+</style>

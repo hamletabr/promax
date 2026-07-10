@@ -1,0 +1,144 @@
+---
+import Layout from "../layouts/Layout.astro";
+import PageHero from "../components/PageHero.astro";
+import CallBanner from "../components/CallBanner.astro";
+import EstimateButton from "../components/EstimateButton.astro";
+import CallButton from "../components/CallButton.astro";
+import FAQ from "../components/FAQ.astro";
+import { site } from "../data/site";
+
+const title = "HVAC Financing & Rebates San Jose | Low Monthly Payments | Promax";
+const metaDesc =
+  "Finance your new HVAC system in San Jose with approved-credit monthly plans, and stack federal tax credits up to $2,000 plus income-qualified HEEHRA rebates. Free estimates.";
+
+const rebates = [
+  {
+    name: "Federal 25C Tax Credit",
+    amount: "Up to $2,000 / yr",
+    text: "30% of the cost of a qualifying heat pump or heat pump water heater (max $2,000/year), plus up to $600 for qualifying AC/furnace upgrades. We provide the documentation for your tax filing.",
+  },
+  {
+    name: "HEEHRA (income-qualified)",
+    amount: "Up to $8,000",
+    text: "The Home Electrification and Appliance Rebate program offers major point-of-sale discounts on heat pumps for income-qualified households. We'll check your eligibility during the estimate.",
+  },
+  {
+    name: "Utility & local programs",
+    amount: "Varies",
+    text: "PG&E, SVCE, and San José Clean Energy periodically offer additional efficiency incentives — duct sealing, smart thermostats, and more. We track them so you don't have to.",
+  },
+  {
+    name: "TECH Clean California",
+    amount: "Funding exhausted",
+    gone: true,
+    text: "TECH's statewide heat pump rebate funding is currently used up, so this incentive is not available right now. We watch for new funding waves closely — if the program reopens, we apply it to eligible quotes automatically.",
+  },
+];
+
+const steps = [
+  ["Get your free estimate", "In-home visit with good/better/best options and real numbers — including every rebate you qualify for."],
+  ["Pick payments that fit", "Apply for financing in minutes (approved credit). Many customers pay for a new system with the money it saves on utilities."],
+  ["We install & you relax", "Permits, HERS testing, rebate paperwork, and cleanup handled. Most installations finish in 1–2 days."],
+];
+
+const faqs = [
+  {
+    q: "What financing options do you offer?",
+    a: "We offer approved-credit financing plans with terms to fit most budgets, including low-APR and deferred-interest promotional options. Ask for current plans when you book your free estimate — approval usually takes just a few minutes.",
+  },
+  {
+    q: "Can I combine financing with rebates?",
+    a: "Yes — that's the smart way to do it. The federal tax credit returns up to $2,000 at tax time, income-qualified households can get HEEHRA discounts at the point of sale, and financing spreads the remainder into a comfortable monthly payment.",
+  },
+  {
+    q: "Are TECH Clean California rebates still available?",
+    a: "Not at the moment — TECH's rebate funding is currently exhausted statewide. The federal 25C tax credit and HEEHRA income-qualified rebates are still active. We monitor TECH funding waves, and if the program reopens we'll apply it to eligible quotes automatically.",
+  },
+  {
+    q: "Do rebates apply to repairs too?",
+    a: "Rebates target high-efficiency equipment upgrades — heat pumps, heat pump water heaters, and sometimes duct sealing or smart thermostats. Repairs don't qualify, but our free-service-call-with-repair offer always applies.",
+  },
+  {
+    q: "How do I know what my new system will really cost?",
+    a: "Use our online estimator for an instant ballpark range, then get exact numbers with a free on-site estimate. Your written quote itemizes equipment, labor, permits, and every rebate — no surprises.",
+  },
+];
+---
+<Layout title={title} description={metaDesc}>
+  <PageHero
+    eyebrow="Financing & Rebates"
+    title="A New HVAC System, Without the Sticker Shock"
+    sub="Split the cost into comfortable monthly payments and let California rebates plus federal tax credits pay for a serious chunk of your upgrade. We handle all the paperwork."
+    image="/images/heat-pump-photo-min.jpg"
+    parentLabel="Financing"
+    parentHref="/financing"
+  />
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow">Stack Your Savings</span>
+        <h2>Rebates & Incentives We Apply For You</h2>
+        <p>California is paying homeowners to upgrade to efficient electric systems. We're enrolled, certified, and do the paperwork.</p>
+      </div>
+      <div class="grid cols-2">
+        {rebates.map((r) => (
+          <div class:list={["card", "rebate", "reveal", { "rebate--gone": r.gone }]}>
+            <span class:list={["rebate__amount", { "rebate__amount--gone": r.gone }]}>{r.amount}</span>
+            <h3>{r.name}</h3>
+            <p>{r.text}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--alt">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow">How It Works</span>
+        <h2>From Quote to Comfort in Three Steps</h2>
+      </div>
+      <div class="grid cols-3">
+        {steps.map(([t, d], i) => (
+          <div class="card fstep reveal">
+            <span class="fstep__num">{i + 1}</span>
+            <h3>{t}</h3>
+            <p>{d}</p>
+          </div>
+        ))}
+      </div>
+      <div class="fin-ctas reveal">
+        <CallButton />
+        <EstimateButton label="Get My Instant Estimate" />
+      </div>
+    </div>
+  </section>
+
+  <CallBanner heading="Wondering what you qualify for? One call answers it." />
+  <FAQ items={faqs} />
+</Layout>
+
+<style>
+  .rebate { position: relative; }
+  .rebate__amount {
+    display: inline-block; background: var(--orange-soft); color: var(--orange-deep);
+    font-family: var(--font-head); font-weight: 700; font-size: .95rem;
+    border-radius: var(--pill); padding: 6px 16px; margin-bottom: 14px;
+  }
+  .rebate h3 { margin-bottom: 8px; }
+  .rebate p { color: var(--slate-2); font-size: .95rem; margin: 0; }
+  .rebate--gone { background: var(--bg-alt); }
+  .rebate--gone h3 { color: var(--muted); }
+  .rebate--gone p { color: var(--muted); }
+  .rebate__amount--gone { background: var(--bg-deep); color: var(--muted); }
+
+  .fstep { text-align: left; }
+  .fstep__num {
+    display: inline-grid; place-items: center; width: 44px; height: 44px; border-radius: 50%;
+    background: linear-gradient(145deg, var(--orange-bright), var(--orange-deep)); color: #fff;
+    font-family: var(--font-head); font-weight: 700; font-size: 1.15rem; margin-bottom: 14px;
+  }
+  .fstep p { color: var(--muted); font-size: .94rem; margin: 0; }
+  .fin-ctas { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-top: 40px; }
+</style>

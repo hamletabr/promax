@@ -7,6 +7,9 @@ import Gallery from "../components/Gallery.astro";
 import Reviews from "../components/Reviews.astro";
 import FAQ from "../components/FAQ.astro";
 import CallBanner from "../components/CallBanner.astro";
+import SpecialsStrip from "../components/SpecialsStrip.astro";
+import FinancingBand from "../components/FinancingBand.astro";
+import BlogTeaser from "../components/BlogTeaser.astro";
 import CallButton from "../components/CallButton.astro";
 import EstimateButton from "../components/EstimateButton.astro";
 import { site } from "../data/site";
@@ -21,8 +24,8 @@ import { locations } from "../data/locations";
     <div class="container hero__inner">
       <div class="hero__text">
         <span class="eyebrow eyebrow--ondark">San Jose &amp; the Bay Area · Open 7 Days</span>
-        <h1>Keeping your home <em>comfortable</em>, all year round.</h1>
-        <p>Friendly, licensed HVAC pros for repairs, installations &amp; maintenance across San Jose — same-day service and honest, upfront pricing you can trust.</p>
+        <h1>San Jose HVAC experts keeping your home <em>comfortable</em>, all year round.</h1>
+        <p>Friendly, licensed HVAC pros for AC repair, heating installation &amp; maintenance across San Jose and Santa Clara County — same-day service and honest, upfront pricing you can trust.</p>
 
         <div class="hero__btns">
           <CallButton />
@@ -54,7 +57,7 @@ import { locations } from "../data/locations";
       <div class="grid cols-4 svc-grid">
         {primaryServices.map((s) => (
           <a href={`/services/${s.slug}`} class="svc reveal">
-            <div class="svc__img"><img src={s.image} alt={s.name} loading="lazy" /></div>
+            <div class="svc__img"><img src={s.image} alt={`${s.name} services in San Jose, CA`} loading="lazy" width="400" height="300" /></div>
             <div class="svc__body">
               <h3>{s.name}</h3>
               <span class="svc__link">Request Service →</span>
@@ -64,6 +67,8 @@ import { locations } from "../data/locations";
       </div>
     </div>
   </section>
+
+  <SpecialsStrip />
 
   <CallBanner heading="Repair, installation & maintenance — every day of the week." />
 
@@ -79,8 +84,8 @@ import { locations } from "../data/locations";
         <p>
           Promax Service Group is a licensed, EPA-certified HVAC contractor serving San Jose and the greater Bay Area.
           As a <strong>Mitsubishi Diamond Contractor</strong> and <strong>Bryant Premier Dealer</strong>,
-          we install and service top-tier equipment to the highest standards — and as a TECH Clean California certified contractor,
-          we help you unlock HEEHRA rebates on qualifying high-efficiency systems.
+          we install and service top-tier equipment to the highest standards — and we help you unlock federal tax credits
+          and income-qualified HEEHRA rebates on qualifying high-efficiency systems.
         </p>
       </div>
       <div class="about__creds reveal">
@@ -109,6 +114,8 @@ import { locations } from "../data/locations";
   <!-- Testimonials (cards built from src/data/reviews.ts) -->
   <Reviews />
 
+  <FinancingBand />
+
   <!-- Locations -->
   <section class="section" id="locations">
     <div class="container">
@@ -128,6 +135,8 @@ import { locations } from "../data/locations";
     </div>
   </section>
 
+  <BlogTeaser />
+
   <FAQ />
 
   <CallBanner heading="Ready to get comfortable? Contact Promax today." />
@@ -135,17 +144,17 @@ import { locations } from "../data/locations";
 
 <style>
   /* ===== Hero (full-bleed image) ===== */
-  .hero { position: relative; isolation: isolate; background: #1a1410; }
+  .hero { position: relative; isolation: isolate; background: #0a0a0b; }
   .hero::before {
     content: ""; position: absolute; inset: 0; z-index: 0;
     background: url("/images/photo_hvac-min.jpg") center 35% / cover no-repeat;
-    filter: brightness(1.16) saturate(1.05);
+    filter: brightness(1.12) saturate(1.02);
   }
   .hero__overlay {
     position: absolute; inset: 0; z-index: 1;
     background:
-      linear-gradient(90deg, rgba(22,17,13,.80) 0%, rgba(22,17,13,.50) 46%, rgba(22,17,13,.14) 100%),
-      linear-gradient(180deg, rgba(22,17,13,.06), rgba(22,17,13,.30));
+      linear-gradient(90deg, rgba(10,10,12,.86) 0%, rgba(10,10,12,.55) 46%, rgba(10,10,12,.16) 100%),
+      linear-gradient(180deg, rgba(10,10,12,.08), rgba(10,10,12,.34));
   }
   .hero__inner {
     position: relative; z-index: 2;
@@ -153,22 +162,22 @@ import { locations } from "../data/locations";
     min-height: clamp(560px, 84vh, 800px);
     padding: 96px 22px;
   }
-  .hero__text { max-width: 620px; }
-  .eyebrow--ondark { background: rgba(255,255,255,.14); color: #ffd9a8; -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
-  .hero h1 { font-size: clamp(2.7rem, 5.2vw, 4.3rem); color: #fff; }
-  .hero h1 em { font-style: italic; color: var(--amber); }
-  .hero p { font-size: 1.18rem; color: #eae1d6; max-width: 540px; margin-top: 16px; }
+  .hero__text { max-width: 640px; }
+  .eyebrow--ondark { color: #fff; }
+  .hero h1 { font-size: clamp(2.8rem, 5.4vw, 4.6rem); color: #fff; }
+  .hero h1 em { font-style: normal; color: var(--orange-bright); }
+  .hero p { font-size: 1.14rem; color: #d4d4d8; max-width: 540px; margin-top: 16px; }
 
   .hero__btns { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin: 32px 0 28px; }
 
 
   .hero__proof { display: flex; flex-direction: column; gap: 16px; }
-  .hero__stars { display: flex; align-items: center; gap: 9px; color: #eae1d6; font-weight: 600; font-size: .94rem; }
+  .hero__stars { display: flex; align-items: center; gap: 9px; color: #d4d4d8; font-weight: 600; font-size: .94rem; }
   .hero__stars span { color: var(--amber); letter-spacing: 2px; font-size: 1.08rem; }
   .hero__facts { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
   .hero__facts span {
     background: rgba(255,255,255,.10); border: 1px solid rgba(255,255,255,.18);
-    color: #f2e9de; border-radius: var(--pill); padding: 6px 14px; font-size: .82rem;
+    color: #e4e4e7; border-radius: var(--pill); padding: 6px 14px; font-size: .82rem;
     -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
   }
   .hero__facts span::before { content: "✓ "; color: var(--amber); }
@@ -221,7 +230,7 @@ import { locations } from "../data/locations";
   }
   @media (max-width: 560px) {
     .hero__inner { min-height: 70vh; padding: 80px 22px; }
-    .hero__overlay { background: linear-gradient(180deg, rgba(22,17,13,.62), rgba(22,17,13,.74)); }
+    .hero__overlay { background: linear-gradient(180deg, rgba(10,10,12,.64), rgba(10,10,12,.76)); }
     .promo-strip { margin-top: 44px; }
     .loc-grid { grid-template-columns: 1fr; }
   }

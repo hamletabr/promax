@@ -1,7 +1,6 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import PageHero from "../../components/PageHero.astro";
-import OffersStats from "../../components/OffersStats.astro";
 import Stages from "../../components/Stages.astro";
 import CallBanner from "../../components/CallBanner.astro";
 import FAQ from "../../components/FAQ.astro";
@@ -14,6 +13,28 @@ export function getStaticPaths() {
 }
 const { loc } = Astro.props;
 
+const pageUrl = `${site.url}/locations/${loc.slug}`;
+const metaDesc = `${loc.sub} Licensed HVAC repair, installation & maintenance in ${loc.city}, CA — open 7 days a week. Free estimates. Call ${site.phone}.`;
+const locationSchema = {
+  "@context": "https://schema.org",
+  "@type": "Service",
+  name: loc.h1,
+  serviceType: "HVAC repair, installation and maintenance",
+  description: metaDesc,
+  url: pageUrl,
+  provider: { "@id": `${site.url}/#business` },
+  areaServed: { "@type": "City", name: loc.city },
+};
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Home", item: site.url },
+    { "@type": "ListItem", position: 2, name: "Locations", item: `${site.url}/#locations` },
+    { "@type": "ListItem", position: 3, name: loc.city, item: pageUrl },
+  ],
+};
+
 const issues = [
   ["No Cooling or Heating", "Fast diagnostics and repair of compressors, pilots, and ignition systems."],
   ["Strange Noises", "Fan motor servicing, vibration isolation, and component lubrication for quiet operation."],
@@ -23,7 +44,10 @@ const issues = [
   ["Frequent Cycling", "Thermostat calibration and component checks to prevent short-cycling."],
 ];
 ---
-<Layout title={loc.title} description={loc.sub}>
+<Layout title={loc.title} description={metaDesc}>
+  <script type="application/ld+json" set:html={JSON.stringify(locationSchema)} is:inline />
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} is:inline />
+
   <PageHero
     eyebrow="Local Technicians"
     title={loc.h1}

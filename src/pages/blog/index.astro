@@ -1,0 +1,86 @@
+---
+import { getCollection } from "astro:content";
+import Layout from "../../layouts/Layout.astro";
+import PageHero from "../../components/PageHero.astro";
+import CallBanner from "../../components/CallBanner.astro";
+import { site } from "../../data/site";
+
+const posts = (await getCollection("blog")).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const title = "HVAC Tips & Guides for San Jose Homeowners | Promax Blog";
+const metaDesc =
+  "Honest HVAC advice from San Jose's local pros — real prices, rebate guides, troubleshooting, and buying tips for heat pumps, ACs, furnaces & mini splits.";
+
+const blogSchema = {
+  "@context": "https://schema.org",
+  "@type": "Blog",
+  name: "Promax Service Group Blog",
+  url: `${site.url}/blog`,
+  publisher: { "@id": `${site.url}/#business` },
+  blogPost: posts.map((p) => ({
+    "@type": "BlogPosting",
+    headline: p.data.title,
+    description: p.data.description,
+    datePublished: p.data.date.toISOString(),
+    url: `${site.url}/blog/${p.id}`,
+    image: `${site.url}${p.data.image}`,
+  })),
+};
+
+const fmt = (d: Date) => d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+---
+<Layout title={title} description={metaDesc}>
+  <script type="application/ld+json" set:html={JSON.stringify(blogSchema)} is:inline />
+
+  <PageHero
+    eyebrow="Tips & Guides"
+    title="Honest HVAC Advice From Local Pros"
+    sub="Real prices, rebate walkthroughs, and troubleshooting guides — the same straight answers we give our customers, written down."
+    image="/images/high-photo-min.jpg"
+    parentLabel="Blog"
+    parentHref="/blog"
+  />
+
+  <section class="section">
+    <div class="container">
+      <div class="posts">
+        {posts.map((p) => (
+          <a href={`/blog/${p.id}`} class="post reveal">
+            <div class="post__img">
+              <img src={p.data.image} alt={p.data.title} loading="lazy" width="480" height="300" />
+            </div>
+            <div class="post__body">
+              <div class="post__tags">
+                {p.data.tags.map((t) => <span>{t}</span>)}
+              </div>
+              <h2>{p.data.title}</h2>
+              <p>{p.data.description}</p>
+              <span class="post__meta">{fmt(p.data.date)} · Promax Service Group</span>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <CallBanner heading="Questions your search didn't answer? Call us — free advice, 7 days a week." />
+</Layout>
+
+<style>
+  .posts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 26px; }
+  .post {
+    display: flex; flex-direction: column; background: #fff; border: 1px solid var(--line);
+    border-radius: var(--radius-lg); overflow: hidden; transition: .22s ease;
+  }
+  .post:hover { box-shadow: var(--shadow-lg); transform: translateY(-4px); border-color: transparent; }
+  .post__img { aspect-ratio: 16/8.5; overflow: hidden; background: var(--bg-alt); }
+  .post__img img { width: 100%; height: 100%; object-fit: cover; transition: transform .35s ease; }
+  .post:hover .post__img img { transform: scale(1.05); }
+  .post__body { padding: 24px 26px 26px; }
+  .post__tags { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+  .post__tags span { background: var(--orange-soft); color: var(--orange-deep); font-size: .72rem; font-weight: 700; border-radius: var(--pill); padding: 4px 12px; }
+  .post h2 { font-size: 1.2rem; line-height: 1.35; margin-bottom: 8px; color: var(--slate); }
+  .post p { font-size: .93rem; color: var(--slate-2); margin-bottom: 12px; }
+  .post__meta { font-size: .8rem; color: var(--muted); }
+  @media (max-width: 800px) { .posts { grid-template-columns: 1fr; } }
+</style>

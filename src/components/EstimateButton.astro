@@ -1,6 +1,6 @@
 ---
 interface Props { href?: string; label?: string; class?: string; }
-const { href = "/contact", label = "Get a Free Estimate", class: extra = "" } = Astro.props;
+const { href = "/estimate", label = "Get a Free Estimate", class: extra = "" } = Astro.props;
 ---
 <a href={href} class:list={["estbtn", extra]}>
   <span class="estbtn__icon" aria-hidden="true">
@@ -17,7 +17,7 @@ const { href = "/contact", label = "Get a Free Estimate", class: extra = "" } = 
   /* ===== Vibrant secondary button (solid white) ===== */
   .estbtn {
     position: relative; display: inline-flex; align-items: center; gap: 13px;
-    height: 56px; padding: 0 26px 0 8px; border-radius: var(--pill);
+    height: 56px; padding: 0 26px 0 8px; border-radius: 14px;
     text-decoration: none; color: var(--slate);
     font-family: var(--font-head); font-weight: 700; font-size: 1.0625rem; letter-spacing: .01em; line-height: 1;
     cursor: pointer; -webkit-tap-highlight-color: transparent;

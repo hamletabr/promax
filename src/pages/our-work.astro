@@ -1,0 +1,339 @@
+---
+import Layout from "../layouts/Layout.astro";
+import PageHero from "../components/PageHero.astro";
+import CallBanner from "../components/CallBanner.astro";
+import { site } from "../data/site";
+import {
+  categories,
+  sortedProjects,
+  flattenCategories,
+  countIn,
+  normalizeImage,
+  coverOf,
+} from "../data/portfolio";
+
+const flat = flattenCategories();
+// Top-level tabs (only categories that actually contain projects)
+const tabs = categories
+  .map((c) => ({ slug: c.slug, label: c.label, count: countIn([c.slug]) }))
+  .filter((t) => t.count > 0);
+// Subcategory chips, grouped by their top-level tab (hide empty ones)
+const chipsByTab = Object.fromEntries(
+  tabs.map((t) => [
+    t.slug,
+    flat.filter((f) => f.path[0] === t.slug && f.depth > 1 && countIn(f.path) > 0),
+  ])
+);
+
+const fmtDate = (d: string) => {
+  const [y, m] = d.split("-").map(Number);
+  return new Date(y, (m || 1) - 1).toLocaleString("en-US", { month: "long", year: "numeric" });
+};
+
+const pathLabel = (path: string[]) =>
+  flat.find((f) => f.path.join("/") === path.join("/"))?.fullLabel ?? path.join(" · ");
+
+const title = "Our Work — HVAC & Water Heater Installations in San Jose, CA | Promax";
+const description =
+  "Browse real HVAC installation projects by Promax Service Group: Mitsubishi & Bryant systems, ductless mini splits, VRV/VRF multi-zone, furnaces, heat pumps, and water heaters across San Jose & the Bay Area.";
+
+// ImageGallery structured data for rich results
+const gallerySchema = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  name: "Promax Service Group — Completed HVAC Projects",
+  description,
+  url: `${site.url}/our-work`,
+  breadcrumb: {
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: site.url },
+      { "@type": "ListItem", position: 2, name: "Our Work", item: `${site.url}/our-work` },
+    ],
+  },
+  mainEntity: {
+    "@type": "ImageGallery",
+    name: "HVAC installation photo gallery — San Jose & Bay Area",
+    image: sortedProjects.map((p) => {
+      const c = coverOf(p);
+      return { "@type": "ImageObject", contentUrl: `${site.url}${c.src}`, name: p.title, description: p.summary };
+    }),
+  },
+};
+---
+<Layout title={title} description={description}>
+  <PageHero
+    eyebrow="Our Portfolio"
+    title="Our Work Across San Jose & the Bay Area"
+    sub="Real installations by our licensed technicians — Mitsubishi and Bryant HVAC systems, ductless mini splits, VRV/VRF multi-zone, furnaces, heat pumps, and water heaters. Browse by category to see what we can do for your home."
+    image="/images/photo_hvac-min.jpg"
+    parentLabel="Our Work"
+    parentHref="/our-work"
+  />
+
+  <script type="application/ld+json" set:html={JSON.stringify(gallerySchema)} is:inline />
+
+  <section class="section">
+    <div class="container">
+      <!-- Category tabs -->
+      <div class="pf-tabs" role="tablist" aria-label="Project categories">
+        <button class="pf-tab is-active" data-filter="" role="tab" aria-selected="true">All Projects</button>
+        {tabs.map((t) => (
+          <button class="pf-tab" data-filter={t.slug} role="tab" aria-selected="false">
+            {t.label} <span class="pf-tab__count">{t.count}</span>
+          </button>
+        ))}
+      </div>
+
+      <!-- Subcategory chips (one row per top-level tab, toggled by JS) -->
+      {tabs.map((t) => (
+        <div class="pf-chips" data-chips-for={t.slug} hidden>
+          {chipsByTab[t.slug].map((c) => (
+            <button class="pf-chip" data-filter={c.path.join("/")} style={`--indent:${c.depth - 2}`}>
+              {c.fullLabel.split(" · ").slice(1).join(" · ")}
+              <span class="pf-chip__count">{countIn(c.path)}</span>
+            </button>
+          ))}
+        </div>
+      ))}
+
+      <!-- Projects grid -->
+      <div class="pf-grid" id="pf-grid">
+        {sortedProjects.map((p) => {
+          const cover = coverOf(p);
+          const imgs = p.images.map((i) => normalizeImage(i, `${p.title} — ${p.location}`));
+          return (
+            <article
+              class="pf-card reveal"
+              data-path={p.path.join("/")}
+              data-images={JSON.stringify(imgs)}
+              data-title={p.title}
+              data-meta={`${p.location} · ${fmtDate(p.date)}`}
+            >
+              <button class="pf-card__open" aria-label={`View photos of ${p.title}`}>
+                <div class="pf-card__img">
+                  <img src={cover.src} alt={cover.alt} loading="lazy" width="600" height="450" />
+                  <span class="pf-card__zoom" aria-hidden="true">🔍 {p.images.length} photo{p.images.length > 1 ? "s" : ""}</span>
+                </div>
+              </button>
+              <div class="pf-card__body">
+                <div class="pf-card__badges">
+                  <span class="pf-badge pf-badge--cat">{pathLabel(p.path)}</span>
+                  {p.brand && <span class="pf-badge pf-badge--brand">{p.brand}</span>}
+                </div>
+                <h3>{p.title}</h3>
+                <p class="pf-card__meta">📍 {p.location} · {fmtDate(p.date)}</p>
+                <p class="pf-card__summary">{p.summary}</p>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+
+      <p class="pf-empty" id="pf-empty" hidden>No projects in this category yet — check back soon!</p>
+    </div>
+  </section>
+
+  <!-- SEO copy block -->
+  <section class="section section--alt">
+    <div class="container pf-seo">
+      <h2>Licensed HVAC Installation Experts in San Jose</h2>
+      <p>
+        Every project above was completed by Promax Service Group's licensed, EPA-certified technicians ({site.license}).
+        As a <strong>Mitsubishi Diamond Contractor</strong> and <strong>Bryant Premier Dealer</strong>, we install single-zone and
+        multi-zone ductless mini splits, VRV/VRF systems, high-efficiency furnaces, heat pumps, tank and tankless water heaters,
+        and complete ductwork — for homes and businesses in San Jose, Santa Clara, Sunnyvale, Cupertino, and across the Bay Area.
+      </p>
+      <p>
+        Want your home to be our next project? Call <a href={site.phoneHref}>{site.phone}</a> or
+        <a href="/contact">request a free estimate</a> — we're open 7 days a week.
+      </p>
+    </div>
+  </section>
+
+  <CallBanner heading="Like what you see? Get a free estimate for your project." />
+
+  <!-- Lightbox -->
+  <div class="lb" id="lb" hidden aria-modal="true" role="dialog" aria-label="Project photo viewer">
+    <button class="lb__close" id="lb-close" aria-label="Close photo viewer">✕</button>
+    <button class="lb__nav lb__nav--prev" id="lb-prev" aria-label="Previous photo">‹</button>
+    <figure class="lb__figure">
+      <img id="lb-img" src="" alt="" />
+      <figcaption>
+        <strong id="lb-title"></strong>
+        <span id="lb-meta"></span>
+        <span id="lb-count"></span>
+      </figcaption>
+    </figure>
+    <button class="lb__nav lb__nav--next" id="lb-next" aria-label="Next photo">›</button>
+  </div>
+</Layout>
+
+<script>
+  // ── Filtering ──────────────────────────────────────────────────────────────
+  const cards = Array.from(document.querySelectorAll<HTMLElement>(".pf-card"));
+  const tabs = Array.from(document.querySelectorAll<HTMLElement>(".pf-tab"));
+  const chips = Array.from(document.querySelectorAll<HTMLElement>(".pf-chip"));
+  const chipRows = Array.from(document.querySelectorAll<HTMLElement>("[data-chips-for]"));
+  const empty = document.getElementById("pf-empty")!;
+
+  function applyFilter(filter: string) {
+    let shown = 0;
+    for (const card of cards) {
+      const path = card.dataset.path || "";
+      const match = !filter || path === filter || path.startsWith(filter + "/");
+      card.hidden = !match;
+      if (match) shown++;
+    }
+    empty.hidden = shown > 0;
+
+    const top = filter.split("/")[0];
+    for (const row of chipRows) row.hidden = row.dataset.chipsFor !== top;
+    for (const t of tabs) {
+      const active = (t.dataset.filter || "") === top || (!filter && !t.dataset.filter);
+      t.classList.toggle("is-active", active);
+      t.setAttribute("aria-selected", String(active));
+    }
+    for (const c of chips) c.classList.toggle("is-active", c.dataset.filter === filter);
+
+    // keep the URL shareable: /our-work#hvac/mitsubishi
+    history.replaceState(null, "", filter ? "#" + filter : location.pathname);
+  }
+
+  for (const el of [...tabs, ...chips]) {
+    el.addEventListener("click", () => applyFilter(el.dataset.filter || ""));
+  }
+  // deep-link support
+  const initial = decodeURIComponent(location.hash.slice(1));
+  if (initial) applyFilter(initial);
+
+  // ── Lightbox ───────────────────────────────────────────────────────────────
+  const lb = document.getElementById("lb")!;
+  const lbImg = document.getElementById("lb-img") as HTMLImageElement;
+  const lbTitle = document.getElementById("lb-title")!;
+  const lbMeta = document.getElementById("lb-meta")!;
+  const lbCount = document.getElementById("lb-count")!;
+  let gallery: { src: string; alt: string }[] = [];
+  let idx = 0;
+
+  function show(i: number) {
+    idx = (i + gallery.length) % gallery.length;
+    lbImg.src = gallery[idx].src;
+    lbImg.alt = gallery[idx].alt;
+    lbCount.textContent = gallery.length > 1 ? `${idx + 1} / ${gallery.length}` : "";
+  }
+  function open(card: HTMLElement) {
+    gallery = JSON.parse(card.dataset.images || "[]");
+    if (!gallery.length) return;
+    lbTitle.textContent = card.dataset.title || "";
+    lbMeta.textContent = card.dataset.meta || "";
+    show(0);
+    lb.hidden = false;
+    document.body.style.overflow = "hidden";
+  }
+  function close() {
+    lb.hidden = true;
+    lbImg.src = "";
+    document.body.style.overflow = "";
+  }
+
+  for (const card of cards) {
+    card.querySelector(".pf-card__open")?.addEventListener("click", () => open(card));
+  }
+  document.getElementById("lb-close")!.addEventListener("click", close);
+  document.getElementById("lb-prev")!.addEventListener("click", () => show(idx - 1));
+  document.getElementById("lb-next")!.addEventListener("click", () => show(idx + 1));
+  lb.addEventListener("click", (e) => { if (e.target === lb) close(); });
+  window.addEventListener("keydown", (e) => {
+    if (lb.hidden) return;
+    if (e.key === "Escape") close();
+    if (e.key === "ArrowLeft") show(idx - 1);
+    if (e.key === "ArrowRight") show(idx + 1);
+  });
+</script>
+
+<style>
+  /* elements we toggle with the `hidden` attribute also set display:flex/grid,
+     which would override it — force hidden to win */
+  [hidden] { display: none !important; }
+
+  /* ── Tabs & chips ── */
+  .pf-tabs { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 18px; }
+  .pf-tab {
+    font: inherit; font-family: var(--font-head); font-weight: 700; font-size: .95rem;
+    background: #fff; color: var(--slate); border: 1px solid var(--line);
+    border-radius: var(--pill); padding: 11px 22px; cursor: pointer; transition: .18s ease;
+  }
+  .pf-tab:hover { border-color: var(--orange); color: var(--orange-deep); }
+  .pf-tab.is-active { background: var(--orange); border-color: var(--orange); color: #fff; }
+  .pf-tab__count { opacity: .65; font-weight: 600; margin-left: 4px; }
+
+  .pf-chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 8px; }
+  .pf-chip {
+    font: inherit; font-size: .84rem; font-weight: 600;
+    background: var(--bg-alt); color: var(--slate-2); border: 1px solid var(--line);
+    border-radius: var(--pill); padding: 7px 16px; cursor: pointer; transition: .18s ease;
+  }
+  .pf-chip:hover { border-color: var(--orange); color: var(--orange-deep); }
+  .pf-chip.is-active { background: var(--orange-soft); border-color: var(--orange); color: var(--orange-deep); }
+  .pf-chip__count { opacity: .6; margin-left: 4px; }
+
+  /* ── Grid & cards ── */
+  .pf-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 34px; }
+  .pf-card {
+    background: #fff; border: 1px solid var(--line); border-radius: var(--radius);
+    overflow: hidden; transition: .25s ease; display: flex; flex-direction: column;
+  }
+  .pf-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-5px); border-color: transparent; }
+  .pf-card__open { display: block; width: 100%; padding: 0; border: 0; background: none; cursor: zoom-in; }
+  .pf-card__img { position: relative; aspect-ratio: 4/3; overflow: hidden; background: var(--bg-alt); }
+  .pf-card__img img { width: 100%; height: 100%; object-fit: cover; transition: transform .35s ease; }
+  .pf-card:hover .pf-card__img img { transform: scale(1.06); }
+  .pf-card__zoom {
+    position: absolute; right: 10px; bottom: 10px;
+    background: rgba(20,16,12,.72); color: #fff; font-size: .78rem; font-weight: 600;
+    padding: 5px 11px; border-radius: var(--pill); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px);
+  }
+  .pf-card__body { padding: 18px 20px 22px; }
+  .pf-card__badges { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .pf-badge { font-size: .72rem; font-weight: 700; letter-spacing: .03em; border-radius: var(--pill); padding: 4px 11px; }
+  .pf-badge--cat { background: var(--orange-soft); color: var(--orange-deep); }
+  .pf-badge--brand { background: #eef1f4; color: var(--slate); }
+  .pf-card h3 { font-family: var(--font-head); font-size: 1.06rem; margin-bottom: 4px; }
+  .pf-card__meta { font-size: .84rem; color: var(--muted); margin-bottom: 8px; }
+  .pf-card__summary { font-size: .9rem; color: var(--slate-2); margin: 0; }
+
+  .pf-empty { text-align: center; color: var(--muted); padding: 40px 0; font-size: 1.05rem; }
+
+  .pf-seo { max-width: 860px; }
+  .pf-seo p { color: var(--slate-2); }
+
+  /* ── Lightbox ── */
+  .lb {
+    position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center;
+    background: rgba(10,10,12,.92); padding: 24px;
+  }
+  /* `display: flex` would override the hidden attribute — force it */
+  .lb[hidden] { display: none; }
+  .lb__figure { max-width: min(1100px, 92vw); margin: 0; text-align: center; }
+  .lb__figure img { max-width: 100%; max-height: 78vh; border-radius: 12px; box-shadow: 0 30px 80px rgba(0,0,0,.5); }
+  .lb__figure figcaption { color: #c9c9cf; margin-top: 14px; display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; font-size: .95rem; }
+  .lb__figure figcaption strong { color: #fff; }
+  .lb__close, .lb__nav {
+    position: fixed; z-index: 201; background: rgba(255,255,255,.12); color: #fff; border: 0;
+    border-radius: 50%; width: 48px; height: 48px; font-size: 1.5rem; cursor: pointer;
+    display: grid; place-items: center; transition: background .18s ease;
+  }
+  .lb__close:hover, .lb__nav:hover { background: var(--orange); }
+  .lb__close { top: 20px; right: 20px; }
+  .lb__nav { top: 50%; transform: translateY(-50%); font-size: 2.2rem; }
+  .lb__nav--prev { left: 20px; }
+  .lb__nav--next { right: 20px; }
+
+  @media (max-width: 980px) { .pf-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 620px) {
+    .pf-grid { grid-template-columns: 1fr; }
+    .lb__nav { width: 42px; height: 42px; }
+    .lb { padding: 12px; }
+  }
+</style>

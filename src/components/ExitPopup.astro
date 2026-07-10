@@ -1,0 +1,154 @@
+---
+// Exit-intent offer popup. Shows once per visitor per 7 days:
+//  - desktop: when the cursor leaves toward the top of the window
+//  - mobile: after 35s on the page (no reliable exit-intent on touch)
+// Configure the offer in src/data/site.ts (site.exitOffer).
+import { site } from "../data/site";
+const offer = site.exitOffer;
+const config = { endpoint: site.formEndpoint, email: site.email, phone: site.phone, offer: offer.offer };
+---
+{offer.enabled && (
+  <div class="xpop" id="xpop" hidden role="dialog" aria-modal="true" aria-label="Special offer" data-config={JSON.stringify(config)}>
+    <div class="xpop__card">
+      <button type="button" class="xpop__close" id="xpop-close" aria-label="No thanks, close this offer">✕</button>
+      <span class="xpop__badge">Limited-time offer</span>
+      <h2>{offer.headline}</h2>
+      <p>{offer.sub}</p>
+      <form id="xpop-form">
+        <label class="sr-only" for="xpop-phone">Your phone number</label>
+        <div class="xpop__row">
+          <input id="xpop-phone" type="tel" inputmode="numeric" placeholder="(xxx)-xxx-xxxx" maxlength="14" autocomplete="tel" required />
+          <button type="submit" class="xpop__send" id="xpop-send">Hold My $500</button>
+        </div>
+        <p class="xpop__status" id="xpop-status" role="alert" hidden></p>
+      </form>
+      <div class="xpop__alt">
+        <a href="/estimate">Get an instant estimate instead →</a>
+        <a href={site.phoneHref}>or call {site.phone}</a>
+      </div>
+    </div>
+  </div>
+)}
+
+<script>
+  const pop = document.getElementById("xpop");
+  if (pop) {
+    const cfg = JSON.parse(pop.dataset.config!);
+    const KEY = "promax-exit-offer";
+    const WEEK = 7 * 24 * 60 * 60 * 1000;
+    let shown = false;
+
+    function seenRecently() {
+      try {
+        const t = Number(localStorage.getItem(KEY) || 0);
+        return Date.now() - t < WEEK;
+      } catch { return false; }
+    }
+    function show() {
+      if (shown || seenRecently() || !pop!.hidden) return;
+      // don't interrupt someone mid-form or mid-chat
+      const active = document.activeElement?.tagName;
+      if (active === "INPUT" || active === "TEXTAREA" || active === "SELECT") return;
+      shown = true;
+      pop!.hidden = false;
+      document.body.style.overflow = "hidden";
+      try { localStorage.setItem(KEY, String(Date.now())); } catch {}
+    }
+    function close() {
+      pop!.hidden = true;
+      document.body.style.overflow = "";
+    }
+
+    // desktop exit intent
+    document.addEventListener("mouseout", (e) => {
+      if (!e.relatedTarget && e.clientY <= 0) show();
+    });
+    // mobile / fallback: timed
+    if (matchMedia("(hover: none)").matches) setTimeout(show, 35000);
+
+    document.getElementById("xpop-close")!.addEventListener("click", close);
+    pop.addEventListener("click", (e) => { if (e.target === pop) close(); });
+    window.addEventListener("keydown", (e) => { if (e.key === "Escape" && !pop!.hidden) close(); });
+
+    const phone = document.getElementById("xpop-phone") as HTMLInputElement;
+    phone.addEventListener("input", function () {
+      const d = this.value.replace(/[^0-9]/g, "").slice(0, 10);
+      this.value =
+        d.length > 6 ? `(${d.slice(0, 3)})-${d.slice(3, 6)}-${d.slice(6)}` :
+        d.length > 3 ? `(${d.slice(0, 3)})-${d.slice(3)}` :
+        d.length > 0 ? `(${d.slice(0, 3)}` : "";
+    });
+
+    const form = document.getElementById("xpop-form") as HTMLFormElement;
+    const status = document.getElementById("xpop-status")!;
+    const send = document.getElementById("xpop-send") as HTMLButtonElement;
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (phone.value.replace(/[^0-9]/g, "").length !== 10) { phone.focus(); return; }
+      const payload = {
+        _subject: `Exit-offer lead: ${cfg.offer}`,
+        offer: cfg.offer,
+        phone: phone.value.trim(),
+        page: location.pathname,
+        source: "promax-service.com (exit popup)",
+      };
+      const configured = cfg.endpoint && !cfg.endpoint.includes("YOUR_FORM_ID");
+      if (!configured) {
+        location.href = `mailto:${cfg.email}?subject=${encodeURIComponent(payload._subject)}&body=${encodeURIComponent(`offer: ${payload.offer}\nphone: ${payload.phone}`)}`;
+        status.hidden = false;
+        status.textContent = `Your email app should open. Or just call ${cfg.phone} and mention the $500 offer.`;
+        return;
+      }
+      send.disabled = true; send.textContent = "Saving…";
+      try {
+        const res = await fetch(cfg.endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Accept: "application/json" },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) throw new Error(String(res.status));
+        status.hidden = false;
+        status.textContent = "Locked in! We'll call you to schedule your free estimate.";
+        send.textContent = "Done ✓";
+        setTimeout(close, 3200);
+      } catch {
+        send.disabled = false; send.textContent = "Hold My $500";
+        status.hidden = false;
+        status.textContent = `Couldn't send — call ${cfg.phone} and mention the offer.`;
+      }
+    });
+  }
+</script>
+
+<style>
+  .xpop { position: fixed; inset: 0; z-index: 180; background: rgba(10,10,12,.66); display: grid; place-items: center; padding: 20px; }
+  .xpop[hidden] { display: none !important; }
+  .xpop__card {
+    position: relative; width: min(480px, 100%); background: #fff; border-radius: 20px;
+    box-shadow: var(--shadow-lg); padding: 36px; text-align: center;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .xpop__card { animation: xpop-in .3s cubic-bezier(.2,.8,.3,1.1); }
+    @keyframes xpop-in { from { opacity: 0; transform: translateY(18px) scale(.97); } }
+  }
+  .xpop__close { position: absolute; top: 14px; right: 14px; width: 38px; height: 38px; border: 0; border-radius: 50%; background: var(--bg-alt); cursor: pointer; color: var(--slate); font-size: 1rem; }
+  .xpop__close:hover { background: var(--orange-soft); color: var(--orange-deep); }
+  .xpop__badge { display: inline-block; background: var(--orange-soft); color: var(--orange-deep); font-weight: 700; font-size: .76rem; letter-spacing: .08em; text-transform: uppercase; border-radius: var(--pill); padding: 6px 15px; margin-bottom: 14px; }
+  .xpop__card h2 { font-size: 1.6rem; margin-bottom: 8px; }
+  .xpop__card > p { color: var(--slate-2); font-size: .95rem; margin-bottom: 20px; }
+  .xpop__row { display: flex; gap: 10px; }
+  .xpop__row input { flex: 1; font: inherit; padding: 12px 16px; min-height: 50px; border: 2px solid var(--line); border-radius: 12px; }
+  .xpop__row input:focus { outline: 2px solid var(--orange); border-color: var(--orange); }
+  .xpop__send {
+    font: inherit; font-family: var(--font-head); font-weight: 700; cursor: pointer; white-space: nowrap;
+    background: var(--orange); color: #fff; border: 0; border-radius: 12px; padding: 12px 22px; min-height: 50px;
+    transition: background .15s ease;
+  }
+  .xpop__send:hover { background: var(--orange-bright); }
+  .xpop__send:disabled { opacity: .6; cursor: not-allowed; }
+  .xpop__status { margin-top: 12px; font-size: .88rem; color: var(--slate); background: var(--orange-soft); border-radius: 10px; padding: 10px 14px; }
+  .xpop__alt { display: flex; flex-direction: column; gap: 4px; margin-top: 18px; font-size: .88rem; }
+  .xpop__alt a { color: var(--orange-deep); font-weight: 600; }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+  @media (max-width: 480px) { .xpop__row { flex-direction: column; } }
+</style>

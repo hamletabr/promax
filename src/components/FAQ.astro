@@ -1,5 +1,10 @@
 ---
-const faqs = [
+export type FaqItem = { q: string; a: string };
+interface Props {
+  items?: FaqItem[]; // pass page-specific FAQs; falls back to the general set
+}
+
+const defaults: FaqItem[] = [
   {
     q: "How often should I change my air filters?",
     a: "For most homes, every 1–3 months. Homes with pets, allergies, or heavy use should check monthly. Clean filters improve airflow, efficiency, and indoor air quality.",
@@ -17,7 +22,21 @@ const faqs = [
     a: "Routine maintenance, timely filter changes, keeping the outdoor unit clear of debris, and addressing minor issues early are the best ways to maximize the life of your system.",
   },
 ];
+
+const faqs = Astro.props.items?.length ? Astro.props.items : defaults;
+
+// FAQPage rich-result structured data
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: faqs.map((f) => ({
+    "@type": "Question",
+    name: f.q,
+    acceptedAnswer: { "@type": "Answer", text: f.a },
+  })),
+};
 ---
+<script type="application/ld+json" set:html={JSON.stringify(faqSchema)} is:inline />
 <section class="section section--alt" id="faq">
   <div class="container faq">
     <div class="section-head">

@@ -1,0 +1,49 @@
+---
+// Homepage strip showing featured specials (edit in src/data/specials.ts).
+import { featuredSpecials } from "../data/specials";
+---
+<section class="section sps" id="specials">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Specials &amp; Coupons</span>
+      <h2>Current Deals for San Jose Homeowners</h2>
+      <p>Real savings, no gimmicks — claim online in 30 seconds and we'll apply it when we book your visit.</p>
+    </div>
+    <div class="sps__grid">
+      {featuredSpecials.map((s) => (
+        <a href="/specials" class="sps__card reveal">
+          <span class="sps__value">{s.value}</span>
+          <div>
+            <h3>{s.title}</h3>
+            <p>{s.desc}</p>
+            <span class="sps__link">Claim this offer →</span>
+          </div>
+        </a>
+      ))}
+    </div>
+    <div class="sps__all reveal">
+      <a href="/specials" class="btn btn--outline">See All Specials</a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .sps { background: var(--bg-alt); }
+  .sps__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .sps__card {
+    display: flex; flex-direction: column; gap: 14px;
+    background: #fff; border: 2px dashed var(--orange); border-radius: var(--radius);
+    padding: 24px; transition: .2s ease;
+  }
+  .sps__card:hover { box-shadow: var(--shadow-lg); transform: translateY(-4px); }
+  .sps__value {
+    align-self: flex-start; background: linear-gradient(150deg, var(--orange-bright), var(--orange-deep));
+    color: #fff; font-family: var(--font-head); font-weight: 800; font-size: 1.3rem;
+    border-radius: 12px; padding: 8px 18px;
+  }
+  .sps__card h3 { font-size: 1.05rem; color: var(--slate); margin-bottom: 6px; }
+  .sps__card p { font-size: .88rem; color: var(--muted); margin-bottom: 10px; }
+  .sps__link { color: var(--orange-deep); font-weight: 700; font-size: .88rem; }
+  .sps__all { text-align: center; margin-top: 30px; }
+  @media (max-width: 900px) { .sps__grid { grid-template-columns: 1fr; } }
+</style>

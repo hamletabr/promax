@@ -2,38 +2,111 @@
 import "../styles/global.css";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
+import ChatWidget from "../components/ChatWidget.astro";
+import PromoBar from "../components/PromoBar.astro";
+import ExitPopup from "../components/ExitPopup.astro";
 import { site } from "../data/site";
+import { locations } from "../data/locations";
 
 interface Props {
   title?: string;
   description?: string;
+  ogImage?: string;   // absolute path, e.g. "/images/hva1.jpg"
+  noindex?: boolean;  // for thank-you / utility pages
 }
-const { title, description } = Astro.props;
-const pageTitle = title ?? `${site.name} | ${site.tagline}`;
-const pageDesc =
-  description ??
-  "Promax Service Group — licensed HVAC repair, installation, and maintenance in San Jose and the Bay Area. Open 7 days a week. Call (669) 777-1997.";
+const { title, description, ogImage = "/og-image.jpg", noindex = false } = Astro.props;
+const pageTitle = title ?? `${site.name} | HVAC Repair & Installation in San Jose, CA`;
+const pageDesc = description ?? site.description;
+const canonical = new URL(Astro.url.pathname, site.url).href;
+const ogImageUrl = new URL(ogImage, site.url).href;
+
+// Sitewide HVACBusiness structured data (Google local-business rich results)
+const businessSchema = {
+  "@context": "https://schema.org",
+  "@type": "HVACBusiness",
+  "@id": `${site.url}/#business`,
+  name: site.name,
+  url: site.url,
+  logo: `${site.url}/images/l512.jpg`,
+  image: ogImageUrl,
+  description: site.description,
+  telephone: site.phone,
+  email: site.email,
+  priceRange: "$$",
+  address: {
+    "@type": "PostalAddress",
+    addressLocality: site.address.locality,
+    addressRegion: site.address.region,
+    addressCountry: site.address.country,
+  },
+  geo: { "@type": "GeoCoordinates", latitude: site.geo.lat, longitude: site.geo.lng },
+  openingHoursSpecification: [
+    {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+      opens: "07:00",
+      closes: "22:00",
+    },
+  ],
+  areaServed: [
+    { "@type": "City", name: "San Jose" },
+    ...locations.map((l) => ({ "@type": "City", name: l.city })),
+  ],
+  hasCredential: site.certifications,
+  sameAs: site.sameAs,
+};
 ---
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" href="/images/favicon.jpg" />
     <title>{pageTitle}</title>
     <meta name="description" content={pageDesc} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
     <meta name="generator" content={Astro.generator} />
+
+    <!-- Icons -->
+    <link rel="icon" href="/images/favicon.jpg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content="#ea580c" />
+
+    <!-- Open Graph -->
+    <meta property="og:site_name" content={site.name} />
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={pageDesc} />
     <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={pageDesc} />
+    <meta name="twitter:image" content={ogImageUrl} />
+
+    <!-- Local SEO geo hints -->
+    <meta name="geo.region" content="US-CA" />
+    <meta name="geo.placename" content="San Jose" />
+    <meta name="geo.position" content={`${site.geo.lat};${site.geo.lng}`} />
+    <meta name="ICBM" content={`${site.geo.lat}, ${site.geo.lng}`} />
+
+    <script type="application/ld+json" set:html={JSON.stringify(businessSchema)} is:inline />
+    <script is:inline>document.documentElement.classList.add("js");</script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..600&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
   </head>
   <body>
+    <PromoBar />
     <Header />
     <main>
       <slot />
@@ -44,6 +117,9 @@ const pageDesc =
     <a href={site.phoneHref} class="mobile-call">
       <span>📞 Call Now — {site.phone}</span>
     </a>
+
+    <ChatWidget />
+    <ExitPopup />
 
     <style>
       .mobile-call {

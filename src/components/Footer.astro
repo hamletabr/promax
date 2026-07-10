@@ -17,9 +17,25 @@ import { locations } from "../data/locations";
     <div>
       <h4>Services</h4>
       <ul>
-        {primaryServices.slice(0, 8).map((s) => (
+        {primaryServices.slice(0, 7).map((s) => (
           <li><a href={`/services/${s.slug}`}>{s.name}</a></li>
         ))}
+        <li><a href="/services/commercial-hvac">Commercial HVAC</a></li>
+        <li><a href="/emergency">Emergency Service</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <h4>Company</h4>
+      <ul>
+        <li><a href="/about">About Us</a></li>
+        <li><a href="/our-work">Our Work</a></li>
+        <li><a href="/reviews">Reviews</a></li>
+        <li><a href="/specials">Specials & Coupons</a></li>
+        <li><a href="/financing">Financing & Rebates</a></li>
+        <li><a href="/blog">Blog</a></li>
+        <li><a href="/estimate">Free Estimate</a></li>
+        <li><a href="/contact">Contact</a></li>
       </ul>
     </div>
 
@@ -49,15 +65,15 @@ import { locations } from "../data/locations";
 </footer>
 
 <style>
-  .ftr { background: var(--bg-dark); color: #aeb7bf; padding-top: 60px; }
-  .ftr__grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 36px; padding-bottom: 44px; }
+  .ftr { background: var(--bg-dark); color: #a1a1aa; padding-top: 60px; }
+  .ftr__grid { display: grid; grid-template-columns: 1.3fr 1fr .9fr 1fr 1fr; gap: 32px; padding-bottom: 44px; }
   .ftr__logo { height: 54px; width: auto; border-radius: 6px; margin-bottom: 16px; }
   .ftr__about { font-size: .92rem; }
   .ftr__lic { font-weight: 700; color: #fff; }
   .ftr h4 { color: #fff; font-size: 1rem; margin-bottom: 16px; }
   .ftr ul { list-style: none; margin: 0; padding: 0; }
   .ftr li { margin-bottom: 9px; }
-  .ftr a { color: #aeb7bf; font-size: .92rem; }
+  .ftr a { color: #a1a1aa; font-size: .92rem; }
   .ftr a:hover { color: var(--amber); }
   .ftr__areas { columns: 2; }
   .ftr__phone { color: var(--amber) !important; font-weight: 700; font-size: 1.1rem; }

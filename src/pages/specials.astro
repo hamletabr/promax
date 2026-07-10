@@ -1,0 +1,195 @@
+---
+import Layout from "../layouts/Layout.astro";
+import PageHero from "../components/PageHero.astro";
+import CallBanner from "../components/CallBanner.astro";
+import { site } from "../data/site";
+import { specials } from "../data/specials";
+
+const title = "HVAC Specials & Coupons San Jose | Promax Service Group";
+const metaDesc =
+  "Current HVAC deals in San Jose: $99 tune-up, $500 off system installation, free service call with repair, senior & military discounts. Claim a coupon in 30 seconds.";
+
+const offersSchema = {
+  "@context": "https://schema.org",
+  "@type": "OfferCatalog",
+  name: "Promax Service Group — Current Specials",
+  url: `${site.url}/specials`,
+  itemListElement: specials.map((s) => ({
+    "@type": "Offer",
+    name: `${s.value} — ${s.title}`,
+    description: s.desc,
+    offeredBy: { "@id": `${site.url}/#business` },
+  })),
+};
+const config = { endpoint: site.formEndpoint, email: site.email, phone: site.phone };
+---
+<Layout title={title} description={metaDesc}>
+  <script type="application/ld+json" set:html={JSON.stringify(offersSchema)} is:inline />
+
+  <PageHero
+    eyebrow="Specials & Coupons"
+    title="Current HVAC Deals in San Jose"
+    sub="Real savings on tune-ups, repairs, and new systems — claim a coupon below and we'll apply it when we book your visit. No printing required."
+    image="/images/photo_hvac-min.jpg"
+    parentLabel="Specials"
+    parentHref="/specials"
+  />
+
+  <section class="section" id="coupons" data-config={JSON.stringify(config)}>
+    <div class="container">
+      <div class="coupons">
+        {specials.map((s) => (
+          <article class="coupon reveal">
+            <div class="coupon__value">
+              <strong>{s.value}</strong>
+            </div>
+            <div class="coupon__body">
+              <h2>{s.title}</h2>
+              <p>{s.desc}</p>
+              <p class="coupon__fine">{s.fine}</p>
+              <div class="coupon__actions">
+                <button type="button" class="btn btn--primary coupon__claim" data-offer={`${s.value} — ${s.title}`}>Claim This Offer</button>
+                <a href={site.phoneHref} class="coupon__call">or call {site.phone}</a>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <div class="coupons__note reveal">
+        <p>
+          <strong>Stack your savings:</strong> many offers combine with <a href="/financing">federal tax credits and income-qualified HEEHRA rebates</a> —          heat pumps and heat-pump water heaters can qualify for thousands in incentives. Ask us during your free estimate.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <CallBanner heading="Not sure which offer fits? Call us and we'll pick the best deal for you." />
+
+  <!-- claim modal -->
+  <div class="claim" id="claim" hidden role="dialog" aria-modal="true" aria-label="Claim this offer">
+    <div class="claim__card">
+      <button type="button" class="claim__close" id="claim-close" aria-label="Close">✕</button>
+      <h3>Claim: <span id="claim-offer"></span></h3>
+      <p>Leave your name and number — we'll confirm the offer and book your visit, usually within 1 business day.</p>
+      <form id="claim-form">
+        <label for="claim-name">Name *<input id="claim-name" type="text" autocomplete="name" required /></label>
+        <label for="claim-phone">Phone *<input id="claim-phone" type="tel" inputmode="numeric" placeholder="(xxx)-xxx-xxxx" maxlength="14" autocomplete="tel" required /></label>
+        <button type="submit" class="btn btn--primary" id="claim-send">Claim Offer</button>
+        <p class="claim__status" id="claim-status" role="alert" hidden></p>
+      </form>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  const section = document.getElementById("coupons")!;
+  const cfg = JSON.parse(section.dataset.config!);
+  const modal = document.getElementById("claim")!;
+  const offerEl = document.getElementById("claim-offer")!;
+  const form = document.getElementById("claim-form") as HTMLFormElement;
+  const status = document.getElementById("claim-status")!;
+  const send = document.getElementById("claim-send") as HTMLButtonElement;
+  const phone = document.getElementById("claim-phone") as HTMLInputElement;
+  let currentOffer = "";
+
+  section.addEventListener("click", (e) => {
+    const btn = (e.target as HTMLElement).closest<HTMLElement>(".coupon__claim");
+    if (!btn) return;
+    currentOffer = btn.dataset.offer!;
+    offerEl.textContent = currentOffer;
+    modal.hidden = false;
+    document.body.style.overflow = "hidden";
+    (document.getElementById("claim-name") as HTMLInputElement).focus();
+  });
+  function close() { modal.hidden = true; document.body.style.overflow = ""; status.hidden = true; }
+  document.getElementById("claim-close")!.addEventListener("click", close);
+  modal.addEventListener("click", (e) => { if (e.target === modal) close(); });
+  window.addEventListener("keydown", (e) => { if (e.key === "Escape" && !modal.hidden) close(); });
+
+  phone.addEventListener("input", function () {
+    const d = this.value.replace(/[^0-9]/g, "").slice(0, 10);
+    this.value =
+      d.length > 6 ? `(${d.slice(0, 3)})-${d.slice(3, 6)}-${d.slice(6)}` :
+      d.length > 3 ? `(${d.slice(0, 3)})-${d.slice(3)}` :
+      d.length > 0 ? `(${d.slice(0, 3)}` : "";
+  });
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!form.reportValidity()) return;
+    const payload = {
+      _subject: `Coupon claimed: ${currentOffer}`,
+      offer: currentOffer,
+      name: (document.getElementById("claim-name") as HTMLInputElement).value.trim(),
+      phone: phone.value.trim(),
+      source: "promax-service.com/specials",
+    };
+    const configured = cfg.endpoint && !cfg.endpoint.includes("YOUR_FORM_ID");
+    if (!configured) {
+      const body = `offer: ${payload.offer}\nname: ${payload.name}\nphone: ${payload.phone}`;
+      location.href = `mailto:${cfg.email}?subject=${encodeURIComponent(payload._subject)}&body=${encodeURIComponent(body)}`;
+      status.hidden = false;
+      status.textContent = `Your email app should open with the claim. If it didn't, call us at ${cfg.phone}.`;
+      return;
+    }
+    send.disabled = true; send.textContent = "Sending…";
+    try {
+      const res = await fetch(cfg.endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error(String(res.status));
+      location.href = "/thank-you";
+    } catch {
+      send.disabled = false; send.textContent = "Claim Offer";
+      status.hidden = false;
+      status.textContent = `Couldn't send — please call us at ${cfg.phone}.`;
+    }
+  });
+</script>
+
+<style>
+  .coupons { display: grid; grid-template-columns: repeat(2, 1fr); gap: 22px; }
+  .coupon {
+    display: flex; background: #fff; border: 2px dashed var(--orange); border-radius: var(--radius);
+    overflow: hidden; transition: .2s ease;
+  }
+  .coupon:hover { box-shadow: var(--shadow-lg); transform: translateY(-4px); }
+  .coupon__value {
+    flex: 0 0 132px; display: grid; place-items: center; text-align: center;
+    background: linear-gradient(150deg, var(--orange-bright), var(--orange-deep)); color: #fff; padding: 18px 10px;
+  }
+  .coupon__value strong { font-family: var(--font-head); font-weight: 800; font-size: 1.5rem; line-height: 1.15; }
+  .coupon__body { padding: 22px 24px; flex: 1; }
+  .coupon__body h2 { font-size: 1.15rem; margin-bottom: 6px; }
+  .coupon__body p { font-size: .92rem; color: var(--slate-2); margin-bottom: 8px; }
+  .coupon__fine { font-size: .76rem !important; color: var(--muted) !important; }
+  .coupon__actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 12px; }
+  .coupon__actions .btn { padding: 11px 22px; min-height: 44px; font-size: .9rem; }
+  .coupon__call { font-size: .85rem; font-weight: 600; color: var(--orange-deep); }
+
+  .coupons__note { margin-top: 34px; background: var(--orange-soft); border-radius: var(--radius); padding: 20px 26px; }
+  .coupons__note p { margin: 0; color: var(--slate-2); }
+
+  /* modal */
+  .claim { position: fixed; inset: 0; z-index: 150; background: rgba(10,10,12,.6); display: grid; place-items: center; padding: 20px; }
+  .claim[hidden] { display: none !important; }
+  .claim__card { position: relative; background: #fff; border-radius: 18px; box-shadow: var(--shadow-lg); padding: 30px; width: min(440px, 100%); }
+  .claim__card h3 { font-size: 1.15rem; margin-bottom: 6px; padding-right: 30px; }
+  .claim__card h3 span { color: var(--orange-deep); }
+  .claim__card > p, .claim__card form > p { font-size: .9rem; color: var(--muted); }
+  .claim__close { position: absolute; top: 14px; right: 14px; width: 36px; height: 36px; border: 0; border-radius: 50%; background: var(--bg-alt); cursor: pointer; font-size: 1rem; color: var(--slate); }
+  .claim__close:hover { background: var(--orange-soft); color: var(--orange-deep); }
+  .claim__card label { display: flex; flex-direction: column; gap: 5px; font-size: .88rem; font-weight: 600; color: var(--slate); margin: 14px 0; }
+  .claim__card input { font: inherit; padding: 11px 14px; min-height: 46px; border: 2px solid var(--line); border-radius: 10px; }
+  .claim__card input:focus { outline: 2px solid var(--orange); border-color: var(--orange); }
+  .claim__card .btn { width: 100%; margin-top: 6px; }
+  .claim__status { margin-top: 12px; font-size: .88rem; color: var(--slate); background: var(--orange-soft); border-radius: 10px; padding: 11px 14px; }
+
+  @media (max-width: 760px) {
+    .coupons { grid-template-columns: 1fr; }
+    .coupon__value { flex-basis: 104px; }
+  }
+</style>
