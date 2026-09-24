@@ -1,0 +1,19 @@
+---
+// Admin console shell. Kept out of the sitemap, robots.txt and the search
+// index — see public/robots.txt and astro.config.mjs.
+export const prerender = true;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Promax — Website Admin</title>
+  </head>
+  <body>
+    <!-- Sveltia CMS: saves straight into the GitHub repo. Who may actually
+         save is decided by GitHub repo permissions, not by this page. -->
+    <script src="https://unpkg.com/@sveltia/cms@0.107.2/dist/sveltia-cms.js" type="module"></script>
+  </body>
+</html>

@@ -6,7 +6,7 @@ import { locations } from "../data/locations";
 <footer class="ftr">
   <div class="container ftr__grid">
     <div>
-      <img src="/images/logo.jpg" alt={site.name} class="ftr__logo" />
+      <img src="/images/logo.jpg" alt={site.name} class="ftr__logo" width="328" height="100" loading="lazy" decoding="async" />
       <p class="ftr__about">
         Your local San Jose HVAC team for repair, installation, and maintenance.
         EPA certified, Mitsubishi Diamond Contractor and Bryant Premier Dealer.
@@ -53,7 +53,8 @@ import { locations } from "../data/locations";
       <p><a href={site.phoneHref} class="ftr__phone">{site.phone}</a></p>
       <p><a href={`mailto:${site.email}`}>{site.email}</a></p>
       <p>{site.hours}</p>
-      <p>{site.serviceArea}</p>
+      <p>{site.address.street}<br />{site.address.locality}, {site.address.region} {site.address.postalCode}</p>
+      <p>Serving {site.serviceArea}</p>
     </div>
   </div>
   <div class="ftr__bar">

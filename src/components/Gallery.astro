@@ -1,13 +1,38 @@
 ---
 // Homepage "Our Work" teaser — automatically shows the newest portfolio
 // projects from src/data/portfolio.ts. Edit that file to change what appears.
-import { sortedProjects, coverOf, flattenCategories } from "../data/portfolio";
+import { getImage } from "astro:assets";
+import { sortedProjects, imagesOf, flattenCategories } from "../data/portfolio";
+import { imageSize } from "../lib/image-size";
 
 const flat = flattenCategories();
 const pathLabel = (path: string[]) =>
   flat.find((f) => f.path.join("/") === path.join("/"))?.fullLabel ?? path.join(" · ");
 
-const featured = sortedProjects.slice(0, 6);
+const THUMB_W = 480;
+
+// Cover photo per project, optimised at build time (see src/data/portfolio.ts).
+const featured = (
+  await Promise.all(
+    sortedProjects.slice(0, 6).map(async (p) => {
+      const cover = imagesOf(p)[0];
+      if (!cover) return null;
+      if (typeof cover.source === "string") {
+        const d = imageSize(cover.source) ?? { width: THUMB_W, height: 360 };
+        return { p, src: cover.source, alt: cover.alt, width: d.width, height: d.height };
+      }
+      const w = Math.min(THUMB_W, cover.source.width);
+      const img = await getImage({ src: cover.source, width: w, format: "webp", quality: 68 });
+      return {
+        p,
+        src: img.src,
+        alt: cover.alt,
+        width: w,
+        height: Math.round(w * (cover.source.height / cover.source.width)),
+      };
+    })
+  )
+).filter((x) => x !== null);
 ---
 <section class="section" id="work">
   <div class="container">
@@ -17,18 +42,15 @@ const featured = sortedProjects.slice(0, 6);
       <p>Real installs, repairs, and maintenance jobs completed by our local team — browse by category in our full portfolio.</p>
     </div>
     <div class="gallery reveal">
-      {featured.map((p) => {
-        const cover = coverOf(p);
-        return (
-          <a class="gallery__item" href={`/our-work#${p.path.join("/")}`}>
-            <img src={cover.src} alt={cover.alt} loading="lazy" width="480" height="360" />
-            <span class="gallery__overlay">
-              <strong>{p.title}</strong>
-              <span>{pathLabel(p.path)} · {p.location}</span>
-            </span>
-          </a>
-        );
-      })}
+      {featured.map(({ p, src, alt, width, height }) => (
+        <a class="gallery__item" href={`/our-work#c=${p.path.join("/")}`}>
+          <img src={src} alt={alt} loading="lazy" decoding="async" width={width} height={height} />
+          <span class="gallery__overlay">
+            <strong>{p.title}</strong>
+            <span>{[pathLabel(p.path), p.location].filter(Boolean).join(" · ")}</span>
+          </span>
+        </a>
+      ))}
     </div>
     <div class="gallery__cta reveal">
       <a href="/our-work" class="btn btn--primary btn--lg">View Full Portfolio →</a>

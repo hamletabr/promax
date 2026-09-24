@@ -1,32 +1,63 @@
 // Central business info for Promax Service Group
+//
+// The fields the owner can change from the admin console (/admin) live in
+// src/content/settings/ and are loaded in below. Everything else is left here
+// because it is structural, SEO-sensitive, or never changes.
+import business from "../content/settings/business.json";
+import promo from "../content/settings/promo.json";
+
+/** "(669) 777-1997" -> "tel:6697771997" */
+const telHref = (n: string) => `tel:${n.replace(/[^0-9]/g, "")}`;
+
 export const site = {
   name: "Promax Service Group",
   shortName: "Promax",
   tagline: "Local HVAC Services in San Jose, CA",
-  phone: "(669) 777-1997",
-  phoneHref: "tel:6697771997",
-  email: "support@promax-service.com",
-  license: "Lic #1133885",
-  hours: "Every day, 7:00 AM – 10:00 PM",
-  hoursShort: "Open 7 days a week",
+  phone: business.phone,
+  phoneHref: telHref(business.phone),
+  email: business.email,
+  license: business.license,
+  hours: business.hours,
+  hoursShort: business.hoursShort,
   cityState: "San Jose, CA",
-  serviceArea: "San Jose & Neighboring Bay Area",
+  serviceArea: business.serviceArea,
   url: "https://promax-service.com",
   // Default meta description (homepage & fallback)
   description:
-    "Promax Service Group — licensed HVAC contractor in San Jose, CA. Same-day AC repair, furnace repair, heat pump & ductless mini split installation, and water heaters across the Bay Area. Free estimates, open 7 days. Call (669) 777-1997.",
+    "Licensed HVAC contractor in San Jose, CA. Same-day AC and furnace repair, heat pump and mini split installation, water heaters. Free estimates, open 7 days.",
   // Structured-data details (used in schema.org JSON-LD)
+  // Registered business address (matches Google Business Profile, BBB, Yelp).
+  // Service area is still San Jose + the cities in locations.ts.
   address: {
-    locality: "San Jose",
+    street: "3033 Kaiser Dr, Unit D",
+    locality: "Santa Clara",
     region: "CA",
+    postalCode: "95051",
     country: "US",
+  },
+  alternateName: ["Promax Service Group Inc", "Promax HVAC & Plumbing"],
+  foundingDate: "2024",
+  // Online booking (Housecall Pro). Works with no other setup and is the
+  // fallback for every form while formEndpoint is unconfigured.
+  bookingUrl: "https://book.housecallpro.com/book/Promax-Service-Group/02c456a339a34ad69fb615ececcd1bae?v2=true",
+  // ONE set of service promises — every page must quote these, never its own.
+  promises: {
+    repair: "Same-day service for no-cool, no-heat and no-hot-water calls, 7 days a week",
+    scheduled: "Most other visits scheduled within 1–2 days",
+    callback: "We call back within one business hour, 7 AM – 10 PM",
+    diagnostic: "Diagnostic fee waived with any repair",
+    estimate: "Free in-home estimates on new systems and replacements",
   },
   geo: { lat: 37.3434945, lng: -121.9826127 },
   // Profile links Google uses to connect this site to your listings (sameAs).
   // Add your Yelp / Facebook / Instagram / Nextdoor URLs here as you get them.
   sameAs: [
     "https://www.google.com/maps/place/Promax+Service+Group/@37.3434987,-121.9851876,17z/data=!4m8!3m7!1s0x884da2ca13c669cd:0x6e0fcecb77b63e4a!8m2!3d37.3434945!4d-121.9826127!9m1!1b1!16s%2Fg%2F11lp6c3722",
+    "https://www.yelp.com/biz/promax-service-group-santa-clara",
     "https://www.bbb.org/us/ca/santa-clara/profile/heating-contractors/promax-hvac-plumbing-1216-1000065689",
+    "https://www.facebook.com/profile.php?id=61574457265259",
+    "https://www.instagram.com/promax_service_hvac/",
+    "https://www.threads.com/@promax_service_hvac",
   ],
   googleReviewsUrl:
     "https://www.google.com/maps/place/Promax+Service+Group/@37.3434987,-121.9851876,17z/data=!4m8!3m7!1s0x884da2ca13c669cd:0x6e0fcecb77b63e4a!8m2!3d37.3434945!4d-121.9826127!9m1!1b1!16s%2Fg%2F11lp6c3722?entry=ttu",
@@ -58,30 +89,20 @@ export const site = {
     model: "gemini-2.5-flash",
   },
 
-  // ── SITE-WIDE PROMO BAR (slim bar above the header; set enabled: false to hide)
-  promoBar: {
-    enabled: true,
-    text: "☀️ Summer special: $99 AC tune-up — beat the heat wave rush",
-    cta: "Claim it",
-    href: "/specials",
-  },
+  // ── PROMO BAR + EXIT OFFER (both editable in the admin console) ──────────
+  promoBar: promo.promoBar,
 
-  // ── EXIT-INTENT OFFER POPUP (shows once per visitor per week; set enabled: false to disable)
-  exitOffer: {
-    enabled: true,
-    headline: "Wait — grab $500 off first",
-    sub: "Leave your number and we'll hold $500 off a complete system installation for you — plus a free in-home estimate with rebates included.",
-    offer: "$500 OFF — Complete System Installation",
-  },
+  exitOffer: promo.exitOffer,
   certifications: [
     "Mitsubishi Diamond Contractor",
-    "Bryant Premier Dealer",
+    "Bryant Factory Authorized Dealer",
     "EPA Certified",
   ],
+  // Offer strip — every entry must exist as a coupon on /specials (specials.json).
   promos: [
-    { icon: "/images/ic1n.jpg", big: "FREE", small: "Free service call with repair" },
-    { icon: "/images/ic2n.jpg", big: "10%", small: "Save when you book today" },
-    { icon: "/images/ic3n.jpg", big: "15%", small: "Discount for regular clients" },
+    { icon: "/images/ic1n.jpg", big: "FREE", small: "Service call with any repair" },
+    { icon: "/images/ic2n.jpg", big: "$99", small: "Furnace or AC tune-up" },
+    { icon: "/images/ic3n.jpg", big: "15%", small: "Off for returning customers" },
   ],
   // Trust badges shown on the homepage (real images from the old site).
   // Set `url` to make a badge clickable (e.g. your profile/listing page); leave empty for non-clickable.
@@ -121,16 +142,17 @@ export const site = {
   // Leave url empty ("") and the badge renders as a plain (non-clickable) image.
   certBadges: [
     { src: "/images/mitsubishi-diamond-contractor-logo-full.png", alt: "Mitsubishi Diamond Contractor", url: "https://www.mitsubishicomfort.com/get-started?get-started-single-home-tab=1" },
-    { src: "/images/bryant.png", alt: "Bryant Premier Dealer", url: "" },
+    { src: "/images/bryant.webp", alt: "Bryant Factory Authorized Dealer", url: "" },
     { src: "/images/navien.png", alt: "Navien Service Specialist", url: "" },
-    { src: "/images/cooper.png", alt: "Cooper & Hunter Pro-Tech Gold Contractor", url: "" },
+    { src: "/images/cooper.webp", alt: "Cooper & Hunter Pro-Tech Gold Contractor", url: "" },
     // { src: "/images/tech_hvac_certified.png", alt: "TECH Clean California Certified HVAC", url: "" },
     // { src: "/images/contractor_heehra_badge.png", alt: "HEEHRA Rebate Contractor", url: "" },
   ],
 };
 
 export const nav = [
-  { label: "Services", href: "/#services" },
+  { label: "Services", href: "/services" },
+  { label: "Emergency", href: "/emergency" },
   { label: "Specials", href: "/specials" },
   { label: "Our Work", href: "/our-work" },
   { label: "Financing", href: "/financing" },

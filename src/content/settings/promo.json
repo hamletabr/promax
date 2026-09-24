@@ -1,0 +1,14 @@
+{
+  "promoBar": {
+    "enabled": true,
+    "text": "\ud83c\udf42 Fall special: $99 furnace or AC tune-up \u2014 book before the first cold snap",
+    "cta": "Claim it",
+    "href": "/specials"
+  },
+  "exitOffer": {
+    "enabled": true,
+    "headline": "Wait \u2014 grab $500 off first",
+    "sub": "Leave your number and we'll hold $500 off a complete system installation for you \u2014 plus a free in-home estimate with every rebate you qualify for.",
+    "offer": "$500 OFF \u2014 Complete System Installation"
+  }
+}

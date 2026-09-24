@@ -1,4 +1,5 @@
 ---
+import { imageSize } from "../../lib/image-size";
 import Layout from "../../layouts/Layout.astro";
 import PageHero from "../../components/PageHero.astro";
 import OffersStats from "../../components/OffersStats.astro";
@@ -47,7 +48,7 @@ const breadcrumbSchema = {
   ],
 };
 ---
-<Layout title={service.title} description={service.metaDesc} ogImage={service.image}>
+<Layout title={service.title} description={service.metaDesc} ogImage={service.image} preloadImage={bannerFor(service.slug)}>
   <script type="application/ld+json" set:html={JSON.stringify(serviceSchema)} is:inline />
   <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} is:inline />
 
@@ -74,7 +75,7 @@ const breadcrumbSchema = {
         </div>
       </div>
       <div class="svc-intro__img">
-        <img src={service.image} alt={`${service.name} in San Jose by ${site.name}`} loading="lazy" />
+        <img src={service.image} alt={`${service.name} in San Jose by ${site.name}`} loading="lazy" decoding="async" {...imageSize(service.image) ?? {}} />
       </div>
     </div>
   </section>
@@ -128,6 +129,6 @@ const breadcrumbSchema = {
   .benefit h3 { color: var(--slate); font-size: 1.05rem; }
   .benefit p { color: var(--muted); font-size: .94rem; margin: 0; }
   .rel { text-align: left; }
-  .rel__link { color: var(--orange); font-weight: 600; font-size: .9rem; }
+  .rel__link { color: var(--orange-deep); font-weight: 600; font-size: .9rem; }
   @media (max-width: 860px) { .svc-intro { grid-template-columns: 1fr; } }
 </style>

@@ -1,5 +1,6 @@
 ---
 title: "How Much Does a Mini Split Cost in the Bay Area? Real 2026 Installed Prices"
+seoTitle: "Mini Split Cost in the Bay Area: 2026 Prices"
 description: "Real installed prices for ductless mini splits in San Jose and the Bay Area — single-zone vs multi-zone, what drives cost, and available rebates."
 date: 2026-04-25
 image: "/images/hva6.jpg"

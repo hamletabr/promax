@@ -1,0 +1,4 @@
+title: Mitsubishi Heat Pump Replacement
+category: ac-heat-pumps/heat-pumps
+brand: Mitsubishi Electric
+summary: Aging condenser replaced with a Mitsubishi Electric twin-fan heat pump on a new pad, with the electrical whip and disconnect brought up to current code.

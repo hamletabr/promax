@@ -25,6 +25,13 @@ export type Service = {
   primary?: boolean;   // shown in homepage services grid
   body: string[];      // unique on-page paragraphs (SEO content)
   faqs: Faq[];         // unique per-service FAQs (FAQPage schema)
+  // ── optional depth (rendered as their own sections when present) ──
+  kind?: "repair" | "install" | "maintenance" | "overview"; // picks the benefits variant
+  included?: string[]; // "What's included" checklist
+  signs?: string[];    // "Signs you need this" symptoms
+  brands?: string[];   // equipment brands serviced/installed
+  parent?: string;     // slug of the overview page this belongs under
+  children?: string[]; // slugs of the repair/install/maintenance pages under this one
 };
 
 export const services: Service[] = [
@@ -34,7 +41,7 @@ export const services: Service[] = [
     h1: "HVAC Systems in San Jose, CA",
     title: "HVAC Company San Jose, CA | Repair & Installation | Promax",
     metaDesc:
-      "Full-service HVAC company in San Jose, CA. System design, installation, repair & maintenance by licensed, EPA-certified techs. Free estimates — call (669) 777-1997.",
+      "Full-service HVAC company in San Jose, CA. Design, installation, repair and maintenance by licensed, EPA-certified techs. Free estimates: (669) 777-1997.",
     sub: "Ready for year-round comfort in the Bay Area? From full system design to repair and maintenance, we keep San Jose homes comfortable in every season.",
     image: "/images/hva1.jpg",
     primary: true,
@@ -121,7 +128,7 @@ export const services: Service[] = [
     h1: "Heat Pump Installation in San Jose, CA",
     title: "Heat Pump Installation San Jose | Rebates Available | Promax",
     metaDesc:
-      "Heat pump installation in San Jose with federal tax credits up to $2,000. Efficient heating & cooling in one system, installed by licensed pros. (669) 777-1997.",
+      "Heat pump installation in San Jose with federal tax credits up to $2,000 — efficient heating and cooling in one system. Call (669) 777-1997.",
     sub: "Want lower energy bills and year-round comfort? A heat pump delivers efficient heating and cooling in one system.",
     image: "/images/hva4.jpg",
     primary: true,
@@ -235,7 +242,7 @@ export const services: Service[] = [
     slug: "rooftop-package-unit",
     name: "Rooftop Package Units",
     h1: "Rooftop Package Unit Services in San Jose, CA",
-    title: "Rooftop HVAC Unit Installation San Jose | Commercial | Promax",
+    title: "Rooftop HVAC Units San Jose | Commercial | Promax",
     metaDesc:
       "Rooftop package unit installation, replacement & repair for San Jose businesses. Crane set, curb adapters, permits & commissioning. Call (669) 777-1997.",
     sub: "Reliable rooftop HVAC systems that stand up to Bay Area weather — perfect for commercial and light-commercial spaces.",
@@ -633,9 +640,9 @@ export const services: Service[] = [
     slug: "commercial-hvac",
     name: "Commercial HVAC",
     h1: "Commercial HVAC Services in San Jose, CA",
-    title: "Commercial HVAC San Jose | Installation & Maintenance | Promax",
+    title: "Commercial HVAC in San Jose | Install & Service | Promax",
     metaDesc:
-      "Commercial HVAC contractor in San Jose — rooftop units, VRF systems, maintenance contracts & emergency service for offices, retail & restaurants. (669) 777-1997.",
+      "Commercial HVAC contractor in San Jose — rooftop units, VRF, maintenance contracts and emergency service for offices and retail. (669) 777-1997.",
     sub: "Keep your tenants, staff, and customers comfortable — installation, replacement, and maintenance programs for commercial buildings across Silicon Valley.",
     image: "/images/hva8.jpg",
     body: [

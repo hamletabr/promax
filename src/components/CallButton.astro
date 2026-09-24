@@ -20,14 +20,14 @@ const { class: extra = "" } = Astro.props;
     text-decoration: none; color: #fff;
     font-family: var(--font-head); font-weight: 700; font-size: 1.0625rem; letter-spacing: .01em; line-height: 1;
     cursor: pointer; -webkit-tap-highlight-color: transparent;
-    background: linear-gradient(135deg, var(--amber) 0%, var(--orange) 50%, var(--orange-deep) 100%);
+    background: linear-gradient(135deg, var(--orange) 0%, var(--orange-deep) 25%, var(--orange-hover) 100%);
     box-shadow: 0 1px 0 rgba(255,255,255,.35) inset, 0 12px 28px rgba(232,116,12,.45), 0 4px 10px rgba(184,86,0,.32);
     transition: transform .28s cubic-bezier(.2,.8,.2,1), box-shadow .28s ease, filter .28s ease;
     isolation: isolate; will-change: transform;
   }
   .callbtn__lens {
     position: relative; flex: 0 0 auto; display: grid; place-items: center;
-    width: 40px; height: 40px; border-radius: 50%; color: var(--orange);
+    width: 40px; height: 40px; border-radius: 50%; color: var(--orange-deep);
     background: #fff; box-shadow: 0 3px 8px rgba(120,50,0,.28);
     transition: transform .28s cubic-bezier(.2,.8,.2,1);
   }
@@ -42,7 +42,7 @@ const { class: extra = "" } = Astro.props;
   }
   .callbtn__label { position: relative; white-space: nowrap; }
   .callbtn:hover {
-    transform: translateY(-3px); filter: saturate(1.08) brightness(1.04);
+    transform: translateY(-3px); filter: saturate(1.12);
     box-shadow: 0 1px 0 rgba(255,255,255,.4) inset, 0 18px 38px rgba(232,116,12,.55), 0 6px 14px rgba(184,86,0,.4);
   }
   .callbtn:hover .callbtn__lens, .callbtn:focus-visible .callbtn__lens { transform: scale(1.06); }

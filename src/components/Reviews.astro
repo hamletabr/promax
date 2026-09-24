@@ -1,4 +1,5 @@
 ---
+import { imageSize } from "../lib/image-size";
 import fs from "node:fs";
 import path from "node:path";
 import { reviews } from "../data/reviews";
@@ -121,10 +122,10 @@ const googleReviewsUrl = "https://www.google.com/maps/place/Promax+Service+Group
       {site.trustBadges.map((b) =>
         b.url ? (
           <a href={b.url} class="trust__link" target="_blank" rel="noopener" aria-label={`${b.alt} — view profile`}>
-            <img src={b.src} alt={b.alt} loading="lazy" />
+            <img src={b.src} alt={b.alt} loading="lazy" decoding="async" {...imageSize(b.src) ?? {}} />
           </a>
         ) : (
-          <img src={b.src} alt={b.alt} loading="lazy" />
+          <img src={b.src} alt={b.alt} loading="lazy" decoding="async" {...imageSize(b.src) ?? {}} />
         )
       )}
     </div>
@@ -196,7 +197,7 @@ const googleReviewsUrl = "https://www.google.com/maps/place/Promax+Service+Group
 
   .rev__text { color: var(--slate-2); font-size: .95rem; margin: 0; flex-grow: 1; }
   .rev__tag {
-    align-self: flex-start; background: var(--orange-soft); color: var(--orange);
+    align-self: flex-start; background: var(--orange-soft); color: var(--orange-deep);
     font-size: .76rem; font-weight: 600; padding: 5px 12px; border-radius: 999px;
   }
 

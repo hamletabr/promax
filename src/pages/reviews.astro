@@ -6,7 +6,7 @@ import { site } from "../data/site";
 import { reviews } from "../data/reviews";
 
 const title = "Reviews — Promax Service Group | 5-Star HVAC in San Jose, CA";
-const metaDesc = `Read ${reviews.length}+ verified 5-star Google reviews of Promax Service Group — HVAC repair, heat pump and mini split installation, and water heaters across San Jose & the Bay Area.`;
+const metaDesc = `Read ${reviews.length}+ verified 5-star Google reviews of Promax Service Group — HVAC repair, heat pumps, mini splits and water heaters in San Jose.`;
 
 const avg = (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1);
 
@@ -35,7 +35,7 @@ function initials(name: string) {
 }
 const colors = ["#ea580c", "#13273f", "#0a9d6e", "#3b6fd4", "#b4476f", "#7a55c9"];
 ---
-<Layout title={title} description={metaDesc}>
+<Layout title={title} description={metaDesc} preloadImage="/images/photo_hvac-min.jpg">
   <script type="application/ld+json" set:html={JSON.stringify(reviewsSchema)} is:inline />
 
   <PageHero

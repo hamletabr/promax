@@ -70,12 +70,33 @@ the forms — so chat conversations become leads too.
 
 ### Adding portfolio projects (Our Work page)
 
-1. Drop job photos into a new folder under `public/images/portfolio/`
-   (e.g. `public/images/portfolio/willow-glen-mitsubishi/`).
-2. Open `src/data/portfolio.ts` and add a project entry — full step-by-step
-   instructions are at the top of that file. Categories and subcategories
-   (HVAC → Mitsubishi/Bryant → Single Zone / Multi Zone → VRV / Ductless,
-   Water Heaters, …) are defined in the same file and fully editable.
+**Drop a folder of photos in, nothing else.** In `src/images/portfolio/`:
+
+1. Make a folder named after the job in plain English — spaces and capitals
+   are fine: `Campbell furnace swap`, `Los Gatos Mitsubishi 3 zone mini split`.
+2. Drag the photos in. Any filenames, any size — full-size phone photos are
+   resized, converted to WebP and measured automatically at build time.
+
+The category, brand and city are inferred from the folder name (see
+`CATEGORY_HINTS` / `BRAND_HINTS` in `portfolio.ts`), the date comes from the
+photos' timestamps, and the title from the folder name. Photos sort by
+filename, so phone photos land in capture order; `01`, `02`… overrides it.
+
+Nothing is ever lost or fatal:
+
+- Folder name with no recognisable job type → lands under **More Projects**
+  with a build warning naming the folder.
+- Photos dropped in loose with no folder → grouped as **Recent Work**.
+- Folders starting with `_` are ignored.
+
+For your best jobs, an optional `info.txt` in the folder overrides any of
+`title`, `category`, `brand`, `city`, `date`, `summary` — a written summary is
+what Google indexes, so it's worth adding there. Hand-written entries in
+`projects` (the current placeholders) still work and win over a folder of the
+same name.
+
+`src/images/portfolio/HOW-TO-ADD-PHOTOS.txt` is the plain-English version to
+hand to whoever adds the photos.
 
 ## Structure
 
@@ -99,10 +120,12 @@ src/
     privacy-policy.astro  terms-of-service.astro
     services/[slug].astro      # generates all service pages (Service schema)
     locations/[slug].astro     # generates all location pages
-  styles/global.css            # design tokens (Trust & Authority system)
+  styles/global.css            # design tokens ("Signage" system)
+  images/portfolio/            # job photos — auto-optimised, one folder per job
+  lib/image-size.ts            # reads image dimensions at build time (no CLS)
 public/
   robots.txt  og-image.jpg  apple-touch-icon.png
-  images/                      # photos; images/portfolio/ for job photos
+  images/                      # site photos, badges, logos
 .claude/skills/ui-ux-pro-max/  # design-intelligence skill used for the redesign
 ```
 

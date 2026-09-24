@@ -13,12 +13,17 @@ interface Props {
   description?: string;
   ogImage?: string;   // absolute path, e.g. "/images/hva1.jpg"
   noindex?: boolean;  // for thank-you / utility pages
+  /** Above-the-fold hero image for this page — preloaded so it isn't discovered
+      late by the CSS parser (improves Largest Contentful Paint). */
+  preloadImage?: string;
 }
-const { title, description, ogImage = "/og-image.jpg", noindex = false } = Astro.props;
-const pageTitle = title ?? `${site.name} | HVAC Repair & Installation in San Jose, CA`;
+const { title, description, ogImage = "/og-image.jpg", noindex = false, preloadImage } = Astro.props;
+const pageTitle = title ?? "HVAC Repair & Installation in San Jose, CA | Promax";
 const pageDesc = description ?? site.description;
 const canonical = new URL(Astro.url.pathname, site.url).href;
 const ogImageUrl = new URL(ogImage, site.url).href;
+const fontsHref =
+  "https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600;700;800&display=swap";
 
 // Sitewide HVACBusiness structured data (Google local-business rich results)
 const businessSchema = {
@@ -33,8 +38,12 @@ const businessSchema = {
   telephone: site.phone,
   email: site.email,
   priceRange: "$$",
+  alternateName: site.alternateName,
+  foundingDate: site.foundingDate,
   address: {
     "@type": "PostalAddress",
+    streetAddress: site.address.street,
+    postalCode: site.address.postalCode,
     addressLocality: site.address.locality,
     addressRegion: site.address.region,
     addressCountry: site.address.country,
@@ -52,7 +61,10 @@ const businessSchema = {
     { "@type": "City", name: "San Jose" },
     ...locations.map((l) => ({ "@type": "City", name: l.city })),
   ],
-  hasCredential: site.certifications,
+  hasCredential: site.certifications.map((c) => ({
+    "@type": "EducationalOccupationalCredential",
+    name: c,
+  })),
   sameAs: site.sameAs,
 };
 ---
@@ -98,24 +110,33 @@ const businessSchema = {
     <script type="application/ld+json" set:html={JSON.stringify(businessSchema)} is:inline />
     <script is:inline>document.documentElement.classList.add("js");</script>
 
+    <!-- Google Tag Manager — same container the previous site used, so
+         analytics / Ads conversions carry across the cutover. -->
+    <script is:inline>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-5WRQ9STK');</script>
+
+    {preloadImage && <link rel="preload" as="image" href={preloadImage} fetchpriority="high" />}
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600;700;800&display=swap"
-      rel="stylesheet"
-    />
+    <!-- Fonts load without blocking first paint; display=swap shows the system
+         fallback until Barlow arrives. -->
+    <link rel="preload" as="style" href={fontsHref} />
+    <link rel="stylesheet" href={fontsHref} media="print" onload="this.media='all'" />
+    <noscript><link rel="stylesheet" href={fontsHref} /></noscript>
   </head>
   <body>
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5WRQ9STK" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <a class="skip-link" href="#main">Skip to main content</a>
     <PromoBar />
     <Header />
-    <main>
+    <main id="main" tabindex="-1">
       <slot />
     </main>
     <Footer />
 
     <!-- Sticky mobile call bar -->
-    <a href={site.phoneHref} class="mobile-call">
-      <span>📞 Call Now — {site.phone}</span>
+    <a href={site.phoneHref} class="mobile-call" aria-label={`Call ${site.name} at ${site.phone}`}>
+      <span><span aria-hidden="true">📞</span> Call Now — {site.phone}</span>
     </a>
 
     <ChatWidget />
@@ -125,7 +146,7 @@ const businessSchema = {
       .mobile-call {
         display: none;
         position: fixed; left: 0; right: 0; bottom: 0; z-index: 60;
-        background: var(--orange); color: #fff; text-align: center;
+        background: var(--orange-deep); color: #fff; text-align: center;
         padding: 15px; font-family: var(--font-head); font-weight: 700;
         box-shadow: 0 -6px 20px rgba(0,0,0,.18);
       }

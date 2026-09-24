@@ -1,4 +1,5 @@
 ---
+import { imageSize } from "../lib/image-size";
 import Layout from "../layouts/Layout.astro";
 import PageHero from "../components/PageHero.astro";
 import CallBanner from "../components/CallBanner.astro";
@@ -6,9 +7,9 @@ import Stages from "../components/Stages.astro";
 import WhyChooseUs from "../components/WhyChooseUs.astro";
 import { site } from "../data/site";
 
-const title = "About Promax Service Group | Licensed HVAC Contractor San Jose";
+const title = "About Promax | Licensed HVAC Contractor, San Jose";
 const metaDesc =
-  "Meet Promax Service Group — a licensed, EPA-certified HVAC contractor in San Jose (Lic #1133885). Mitsubishi Diamond Contractor, Bryant Premier Dealer, open 7 days.";
+  "Promax Service Group is a licensed, EPA-certified HVAC contractor in San Jose (Lic #1133885) — Mitsubishi Diamond Contractor and Bryant Premier Dealer.";
 
 const aboutSchema = {
   "@context": "https://schema.org",
@@ -27,7 +28,7 @@ const guarantees = [
   ["Clean-home promise", "Shoe covers, drop cloths, and a full cleanup. You'd never know we were there — except for the comfort."],
 ];
 ---
-<Layout title={title} description={metaDesc}>
+<Layout title={title} description={metaDesc} preloadImage="/images/photo_hvac-min.jpg">
   <script type="application/ld+json" set:html={JSON.stringify(aboutSchema)} is:inline />
 
   <PageHero
@@ -98,10 +99,10 @@ const guarantees = [
         {site.certBadges.map((b) =>
           b.url ? (
             <a href={b.url} target="_blank" rel="noopener" aria-label={`${b.alt} — view credential`}>
-              <img src={b.src} alt={b.alt} loading="lazy" />
+              <img src={b.src} alt={b.alt} loading="lazy" decoding="async" {...imageSize(b.src) ?? {}} />
             </a>
           ) : (
-            <img src={b.src} alt={b.alt} loading="lazy" />
+            <img src={b.src} alt={b.alt} loading="lazy" decoding="async" {...imageSize(b.src) ?? {}} />
           )
         )}
       </div>

@@ -1,0 +1,102 @@
+=============================================================
+  ADDING JOB PHOTOS TO THE WEBSITE
+=============================================================
+
+  1. Make a folder in here. Name it after the job, in normal
+     English:
+
+         Campbell furnace swap
+         Los Gatos Mitsubishi 3 zone mini split
+         Saratoga tankless
+
+  2. Drag the photos into it. Any photos, any names, any size.
+
+  NEVER name a folder after the customer's street ("Beverly Dr").
+  That would publish their address next to photos of their home.
+  The site refuses folders named like that.
+
+  That's it. There is nothing else to fill in.
+
+
+-------------------------------------------------------------
+IF YOUR PHOTOS ARE IN THE PHOTOS APP
+-------------------------------------------------------------
+
+Make the job folder here FIRST, then:
+
+  Open Photos, select the photos for that job (click the first,
+  then shift-click the last, or Cmd-click to pick them out),
+  and DRAG them onto the folder.
+
+That's the whole export. If dragging is awkward, use the menu
+instead: File > Export > Export [N] Photos, set Photo Kind to
+JPEG and Size to Full Size, then pick the job folder.
+
+Don't worry that the exported files all get today's date - the
+real date the photo was taken is stored inside the photo, and
+the site reads that.
+
+
+-------------------------------------------------------------
+WHAT IT DOES FOR YOU
+-------------------------------------------------------------
+
+From the folder name it works out which tab the job goes under
+and which brand badge to show. From the photos it works out the
+date and shrinks them for the web.
+
+So "Campbell furnace swap" lands under Furnaces, in Campbell,
+dated from the photos.
+
+Photos show in the order their names sort, which for phone
+photos (IMG_4821, IMG_4822...) is the order you took them.
+Rename them 01, 02, 03 ONLY if you want a different order. The
+first photo is the cover.
+
+
+-------------------------------------------------------------
+THE ONE WORD THAT MATTERS
+-------------------------------------------------------------
+
+Put one of these in the folder name so it knows the job type:
+
+    furnace           mini split / ductless      heat pump
+    air conditioner   water heater / tankless    ductwork
+    rooftop           VRF / VRV                  zoning
+
+Add "3 zone" or "multi zone" for multi-room mini splits.
+Add the city and the brand if you want them shown:
+
+    "Los Gatos Mitsubishi 3 zone mini split"
+
+If you leave the job type out, the photos still go up - they
+just land under "More Projects" instead of the right tab.
+
+Photos dropped in here loose, with no folder at all, still show
+up. They group together under "Recent Work".
+
+
+-------------------------------------------------------------
+IF YOU WANT TO WRITE A PROPER DESCRIPTION
+-------------------------------------------------------------
+
+Optional, and only worth it for your best jobs - a written
+description helps that job show up on Google.
+
+Put a file called info.txt in the job folder with any of these
+lines. Anything you leave out is worked out automatically:
+
+    title: 96% AFUE Furnace Swap
+    city: Campbell, CA
+    brand: Bryant
+    summary: Replaced a 20-year-old furnace with a two-stage
+      96% AFUE unit. New plenum, sealed flue, done in a day.
+
+
+-------------------------------------------------------------
+LAST THING
+-------------------------------------------------------------
+
+Photos don't appear on the public website by themselves. The
+site has to be rebuilt and uploaded. Tell whoever handles the
+website that new photos are in.

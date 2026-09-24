@@ -3,14 +3,54 @@ import Layout from "../layouts/Layout.astro";
 import PageHero from "../components/PageHero.astro";
 import CallBanner from "../components/CallBanner.astro";
 import { site } from "../data/site";
+import { getImage } from "astro:assets";
 import {
   categories,
   sortedProjects,
   flattenCategories,
   countIn,
-  normalizeImage,
-  coverOf,
+  imagesOf,
+  brands,
+  countBrand,
+  type ResolvedImage,
 } from "../data/portfolio";
+import { imageSize } from "../lib/image-size";
+
+// ── Photos ──────────────────────────────────────────────────────────────────
+// Job photos dropped into src/images/portfolio/<folder>/ are optimised here:
+// resized, converted to WebP, and measured. Two sizes per photo — one for the
+// card, a larger one for the lightbox. Placeholder photos that still live in
+// public/ are passed through untouched.
+const CARD_W = 600;
+const LIGHTBOX_W = 1600;
+// Photos of equipment compress well; 80 (Astro's default) spends bytes on
+// detail nobody sees at card size.
+const CARD_Q = 68;
+const LIGHTBOX_Q = 76;
+
+async function prepare(img: ResolvedImage) {
+  if (typeof img.source === "string") {
+    const d = imageSize(img.source) ?? { width: CARD_W, height: 450 };
+    return { src: img.source, full: img.source, width: d.width, height: d.height, alt: img.alt };
+  }
+  const src = img.source;
+  const w = Math.min(CARD_W, src.width);
+  const h = Math.round(w * (src.height / src.width));
+  const [card, full] = await Promise.all([
+    getImage({ src, width: w, format: "webp", quality: CARD_Q }),
+    getImage({ src, width: Math.min(LIGHTBOX_W, src.width), format: "webp", quality: LIGHTBOX_Q }),
+  ]);
+  return { src: card.src, full: full.src, width: w, height: h, alt: img.alt };
+}
+
+const gallery = (
+  await Promise.all(
+    sortedProjects.map(async (project) => ({
+      project,
+      photos: await Promise.all(imagesOf(project).map(prepare)),
+    }))
+  )
+).filter((g) => g.photos.length > 0); // a job with no photos yet stays off the page
 
 const flat = flattenCategories();
 // Top-level tabs (only categories that actually contain projects)
@@ -25,6 +65,8 @@ const chipsByTab = Object.fromEntries(
   ])
 );
 
+const metaLine = (loc: string, date: string) => [loc, fmtDate(date)].filter(Boolean).join(" · ");
+
 const fmtDate = (d: string) => {
   const [y, m] = d.split("-").map(Number);
   return new Date(y, (m || 1) - 1).toLocaleString("en-US", { month: "long", year: "numeric" });
@@ -33,9 +75,9 @@ const fmtDate = (d: string) => {
 const pathLabel = (path: string[]) =>
   flat.find((f) => f.path.join("/") === path.join("/"))?.fullLabel ?? path.join(" · ");
 
-const title = "Our Work — HVAC & Water Heater Installations in San Jose, CA | Promax";
+const title = "Our Work — HVAC Installations in San Jose, CA | Promax";
 const description =
-  "Browse real HVAC installation projects by Promax Service Group: Mitsubishi & Bryant systems, ductless mini splits, VRV/VRF multi-zone, furnaces, heat pumps, and water heaters across San Jose & the Bay Area.";
+  "Real HVAC installations by Promax — Mitsubishi and Bryant systems, ductless mini splits, VRV/VRF, furnaces, heat pumps and water heaters in San Jose.";
 
 // ImageGallery structured data for rich results
 const gallerySchema = {
@@ -54,14 +96,16 @@ const gallerySchema = {
   mainEntity: {
     "@type": "ImageGallery",
     name: "HVAC installation photo gallery — San Jose & Bay Area",
-    image: sortedProjects.map((p) => {
-      const c = coverOf(p);
-      return { "@type": "ImageObject", contentUrl: `${site.url}${c.src}`, name: p.title, description: p.summary };
-    }),
+    image: gallery.map(({ project, photos }) => ({
+      "@type": "ImageObject",
+      contentUrl: `${site.url}${photos[0].full}`,
+      name: project.title,
+      description: project.summary,
+    })),
   },
 };
 ---
-<Layout title={title} description={description}>
+<Layout title={title} description={description} preloadImage="/images/photo_hvac-min.jpg">
   <PageHero
     eyebrow="Our Portfolio"
     title="Our Work Across San Jose & the Bay Area"
@@ -97,23 +141,36 @@ const gallerySchema = {
         </div>
       ))}
 
+      <!-- Brand filter — built from the `brand` field on each project -->
+      {brands.length > 1 && (
+        <div class="pf-brands" role="group" aria-label="Filter by equipment brand">
+          <span class="pf-brands__label">Brand</span>
+          <button class="pf-brand is-active" data-brand="">All</button>
+          {brands.map((b) => (
+            <button class="pf-brand" data-brand={b}>
+              {b} <span class="pf-chip__count">{countBrand(b)}</span>
+            </button>
+          ))}
+        </div>
+      )}
+
       <!-- Projects grid -->
       <div class="pf-grid" id="pf-grid">
-        {sortedProjects.map((p) => {
-          const cover = coverOf(p);
-          const imgs = p.images.map((i) => normalizeImage(i, `${p.title} — ${p.location}`));
+        {gallery.map(({ project: p, photos }) => {
+          const cover = photos[0];
           return (
             <article
               class="pf-card reveal"
               data-path={p.path.join("/")}
-              data-images={JSON.stringify(imgs)}
+              data-brand={p.brand ?? ""}
+              data-images={JSON.stringify(photos.map((ph) => ({ src: ph.full, alt: ph.alt })))}
               data-title={p.title}
-              data-meta={`${p.location} · ${fmtDate(p.date)}`}
+              data-meta={metaLine(p.location, p.date)}
             >
               <button class="pf-card__open" aria-label={`View photos of ${p.title}`}>
                 <div class="pf-card__img">
-                  <img src={cover.src} alt={cover.alt} loading="lazy" width="600" height="450" />
-                  <span class="pf-card__zoom" aria-hidden="true">🔍 {p.images.length} photo{p.images.length > 1 ? "s" : ""}</span>
+                  <img src={cover.src} alt={cover.alt} loading="lazy" decoding="async" width={cover.width} height={cover.height} />
+                  <span class="pf-card__zoom" aria-hidden="true">🔍 {photos.length} photo{photos.length > 1 ? "s" : ""}</span>
                 </div>
               </button>
               <div class="pf-card__body">
@@ -122,7 +179,7 @@ const gallerySchema = {
                   {p.brand && <span class="pf-badge pf-badge--brand">{p.brand}</span>}
                 </div>
                 <h3>{p.title}</h3>
-                <p class="pf-card__meta">📍 {p.location} · {fmtDate(p.date)}</p>
+                <p class="pf-card__meta"><span aria-hidden="true">📍</span> {metaLine(p.location, p.date)}</p>
                 <p class="pf-card__summary">{p.summary}</p>
               </div>
             </article>
@@ -175,37 +232,65 @@ const gallerySchema = {
   const tabs = Array.from(document.querySelectorAll<HTMLElement>(".pf-tab"));
   const chips = Array.from(document.querySelectorAll<HTMLElement>(".pf-chip"));
   const chipRows = Array.from(document.querySelectorAll<HTMLElement>("[data-chips-for]"));
+  const brandBtns = Array.from(document.querySelectorAll<HTMLElement>(".pf-brand"));
   const empty = document.getElementById("pf-empty")!;
 
-  function applyFilter(filter: string) {
+  // Two independent axes: category (type) and brand. A project matches when it
+  // satisfies both, so "Mini Splits" + "Mitsubishi" narrows rather than resets.
+  let category = "";
+  let brand = "";
+
+  function render() {
     let shown = 0;
     for (const card of cards) {
       const path = card.dataset.path || "";
-      const match = !filter || path === filter || path.startsWith(filter + "/");
+      const inCat = !category || path === category || path.startsWith(category + "/");
+      const isBrand = !brand || (card.dataset.brand || "") === brand;
+      const match = inCat && isBrand;
       card.hidden = !match;
       if (match) shown++;
     }
     empty.hidden = shown > 0;
 
-    const top = filter.split("/")[0];
+    const top = category.split("/")[0];
     for (const row of chipRows) row.hidden = row.dataset.chipsFor !== top;
     for (const t of tabs) {
-      const active = (t.dataset.filter || "") === top || (!filter && !t.dataset.filter);
+      const active = (t.dataset.filter || "") === top || (!category && !t.dataset.filter);
       t.classList.toggle("is-active", active);
       t.setAttribute("aria-selected", String(active));
     }
-    for (const c of chips) c.classList.toggle("is-active", c.dataset.filter === filter);
+    for (const c of chips) c.classList.toggle("is-active", c.dataset.filter === category);
+    for (const b of brandBtns) {
+      const active = (b.dataset.brand || "") === brand;
+      b.classList.toggle("is-active", active);
+      b.setAttribute("aria-pressed", String(active));
+    }
 
-    // keep the URL shareable: /our-work#hvac/mitsubishi
-    history.replaceState(null, "", filter ? "#" + filter : location.pathname);
+    // shareable URL, e.g. /our-work#c=mini-splits/multi-zone&b=Mitsubishi%20Electric
+    const q = new URLSearchParams();
+    if (category) q.set("c", category);
+    if (brand) q.set("b", brand);
+    const hash = q.toString();
+    history.replaceState(null, "", hash ? "#" + hash : location.pathname);
   }
 
   for (const el of [...tabs, ...chips]) {
-    el.addEventListener("click", () => applyFilter(el.dataset.filter || ""));
+    el.addEventListener("click", () => { category = el.dataset.filter || ""; render(); });
   }
-  // deep-link support
-  const initial = decodeURIComponent(location.hash.slice(1));
-  if (initial) applyFilter(initial);
+  for (const b of brandBtns) {
+    b.addEventListener("click", () => { brand = b.dataset.brand || ""; render(); });
+  }
+
+  // deep-link support — also re-applied on hashchange, so a link to
+  // /our-work#c=… still works when you're already on this page.
+  function readHash() {
+    const q = new URLSearchParams(location.hash.slice(1));
+    category = q.get("c") || "";
+    brand = q.get("b") || "";
+  }
+  readHash();
+  if (category || brand) render();
+  window.addEventListener("hashchange", () => { readHash(); render(); });
 
   // ── Lightbox ───────────────────────────────────────────────────────────────
   const lb = document.getElementById("lb")!;
@@ -265,7 +350,7 @@ const gallerySchema = {
     border-radius: var(--pill); padding: 11px 22px; cursor: pointer; transition: .18s ease;
   }
   .pf-tab:hover { border-color: var(--orange); color: var(--orange-deep); }
-  .pf-tab.is-active { background: var(--orange); border-color: var(--orange); color: #fff; }
+  .pf-tab.is-active { background: var(--orange-deep); border-color: var(--orange-deep); color: #fff; }
   .pf-tab__count { opacity: .65; font-weight: 600; margin-left: 4px; }
 
   .pf-chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 8px; }
@@ -277,6 +362,22 @@ const gallerySchema = {
   .pf-chip:hover { border-color: var(--orange); color: var(--orange-deep); }
   .pf-chip.is-active { background: var(--orange-soft); border-color: var(--orange); color: var(--orange-deep); }
   .pf-chip__count { opacity: .6; margin-left: 4px; }
+
+  .pf-brands {
+    display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center;
+    margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line);
+  }
+  .pf-brands__label {
+    font-family: var(--font-head); font-weight: 700; font-size: .78rem;
+    text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin-right: 2px;
+  }
+  .pf-brand {
+    font: inherit; font-size: .84rem; font-weight: 600;
+    background: #fff; color: var(--slate-2); border: 1px solid var(--line);
+    border-radius: var(--pill); padding: 7px 16px; cursor: pointer; transition: .18s ease;
+  }
+  .pf-brand:hover { border-color: var(--orange); color: var(--orange-deep); }
+  .pf-brand.is-active { background: var(--ink); border-color: var(--ink); color: #fff; }
 
   /* ── Grid & cards ── */
   .pf-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 34px; }
@@ -324,7 +425,7 @@ const gallerySchema = {
     border-radius: 50%; width: 48px; height: 48px; font-size: 1.5rem; cursor: pointer;
     display: grid; place-items: center; transition: background .18s ease;
   }
-  .lb__close:hover, .lb__nav:hover { background: var(--orange); }
+  .lb__close:hover, .lb__nav:hover { background: var(--orange-deep); }
   .lb__close { top: 20px; right: 20px; }
   .lb__nav { top: 50%; transform: translateY(-50%); font-size: 2.2rem; }
   .lb__nav--prev { left: 20px; }

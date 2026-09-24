@@ -14,7 +14,7 @@ export function getStaticPaths() {
 const { loc } = Astro.props;
 
 const pageUrl = `${site.url}/locations/${loc.slug}`;
-const metaDesc = `${loc.sub} Licensed HVAC repair, installation & maintenance in ${loc.city}, CA — open 7 days a week. Free estimates. Call ${site.phone}.`;
+const metaDesc = `HVAC repair & installation in ${loc.city}, CA — ${loc.hook}. Licensed, EPA-certified, open 7 days. Free estimates: ${site.phone}.`;
 const locationSchema = {
   "@context": "https://schema.org",
   "@type": "Service",
@@ -44,7 +44,7 @@ const issues = [
   ["Frequent Cycling", "Thermostat calibration and component checks to prevent short-cycling."],
 ];
 ---
-<Layout title={loc.title} description={metaDesc}>
+<Layout title={loc.title} description={metaDesc} preloadImage="/images/photo_loc-min.jpg">
   <script type="application/ld+json" set:html={JSON.stringify(locationSchema)} is:inline />
   <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} is:inline />
 
@@ -123,5 +123,5 @@ const issues = [
   .loc-feats strong { color: var(--slate); }
   .benefit h3 { color: var(--slate); font-size: 1.05rem; }
   .benefit p { color: var(--muted); font-size: .94rem; margin: 0; }
-  .rel__link { color: var(--orange); font-weight: 600; font-size: .9rem; }
+  .rel__link { color: var(--orange-deep); font-weight: 600; font-size: .9rem; }
 </style>

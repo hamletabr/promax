@@ -5,9 +5,9 @@ import { site, nav } from "../data/site";
   
   <div class="container hdr__main">
     <a href="/" class="hdr__logo">
-      <img src="/images/logo.jpg" alt={site.name} width="220" height="64" />
+      <img src="/images/logo.jpg" alt={site.name} width="328" height="100" fetchpriority="high" />
     </a>
-    <nav class="hdr__nav" id="nav">
+    <nav class="hdr__nav" id="nav" aria-label="Main">
       {nav.map((n) => <a href={n.href}>{n.label}</a>)}
     </nav>
     <div class="hdr__cta">
@@ -16,7 +16,7 @@ import { site, nav } from "../data/site";
         <strong>{site.phone}</strong>
       </a>
       <a href="/estimate" class="btn btn--primary hdr__book">Free Estimate</a>
-      <button class="hdr__burger" aria-label="Menu" id="burger"><span></span><span></span><span></span></button>
+      <button class="hdr__burger" type="button" aria-label="Menu" aria-expanded="false" aria-controls="nav" id="burger"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></button>
     </div>
   </div>
 </header>
@@ -31,7 +31,7 @@ import { site, nav } from "../data/site";
   .hdr__logo img { height: 56px; width: auto; border-radius: 6px; }
   .hdr__nav { display: flex; gap: 18px; margin-left: auto; }
   .hdr__nav a { color: var(--slate); font-family: var(--font-head); font-weight: 500; font-size: .9rem; white-space: nowrap; }
-  .hdr__nav a:hover { color: var(--orange); }
+  .hdr__nav a:hover { color: var(--orange-deep); }
   .hdr__cta { display: flex; align-items: center; gap: 16px; }
   .hdr__phone { display: flex; flex-direction: column; line-height: 1.1; color: var(--slate); }
   .hdr__phone-label { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
@@ -54,5 +54,18 @@ import { site, nav } from "../data/site";
 <script>
   const b = document.getElementById("burger");
   const n = document.getElementById("nav");
-  b?.addEventListener("click", () => n?.classList.toggle("open"));
+
+  const setOpen = (open: boolean) => {
+    n?.classList.toggle("open", open);
+    b?.setAttribute("aria-expanded", String(open));
+  };
+
+  b?.addEventListener("click", () => setOpen(!n?.classList.contains("open")));
+  // close after following a link, and on Escape
+  n?.addEventListener("click", (e) => {
+    if ((e.target as HTMLElement).closest("a")) setOpen(false);
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && n?.classList.contains("open")) { setOpen(false); b?.focus(); }
+  });
 </script>

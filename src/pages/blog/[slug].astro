@@ -37,13 +37,16 @@ const breadcrumbSchema = {
   ],
 };
 
+// Keep <title> under ~60 chars so it isn't truncated in search results.
+const pageTitle = `${post.data.seoTitle ?? post.data.title} | Promax`;
+
 const fmt = (d: Date) => d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
 const related = (await getCollection("blog"))
   .filter((p) => p.id !== post.id)
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
   .slice(0, 3);
 ---
-<Layout title={`${post.data.title} | Promax Service Group`} description={post.data.description} ogImage={post.data.image}>
+<Layout title={pageTitle} description={post.data.description} ogImage={post.data.image} preloadImage={post.data.image}>
   <script type="application/ld+json" set:html={JSON.stringify(postSchema)} is:inline />
   <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} is:inline />
 

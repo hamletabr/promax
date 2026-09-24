@@ -1,5 +1,6 @@
 ---
 title: "Why Is My AC Running but Not Cooling? 7 Common Causes (and What They Cost to Fix)"
+seoTitle: "AC Running but Not Cooling? 7 Causes & Fix Costs"
 description: "AC blowing warm air in San Jose? The 7 most common causes — from a $20 filter to a failing compressor — plus what each repair typically costs."
 date: 2026-06-28
 image: "/images/hva2.jpg"

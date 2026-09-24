@@ -7,7 +7,7 @@ import { specials } from "../data/specials";
 
 const title = "HVAC Specials & Coupons San Jose | Promax Service Group";
 const metaDesc =
-  "Current HVAC deals in San Jose: $99 tune-up, $500 off system installation, free service call with repair, senior & military discounts. Claim a coupon in 30 seconds.";
+  "Current HVAC deals in San Jose: $99 tune-up, $500 off a new system, free service call with repair, senior and military discounts. Claim a coupon online.";
 
 const offersSchema = {
   "@context": "https://schema.org",
@@ -23,7 +23,7 @@ const offersSchema = {
 };
 const config = { endpoint: site.formEndpoint, email: site.email, phone: site.phone };
 ---
-<Layout title={title} description={metaDesc}>
+<Layout title={title} description={metaDesc} preloadImage="/images/photo_hvac-min.jpg">
   <script type="application/ld+json" set:html={JSON.stringify(offersSchema)} is:inline />
 
   <PageHero

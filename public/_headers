@@ -1,0 +1,20 @@
+# Cloudflare Pages / Netlify response headers
+
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+
+# Hashed build assets never change — cache for a year
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Photos and badges change rarely
+/images/*
+  Cache-Control: public, max-age=604800
+
+# The admin console must never be cached or indexed
+/admin/*
+  Cache-Control: no-store
+  X-Robots-Tag: noindex, nofollow

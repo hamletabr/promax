@@ -1,5 +1,6 @@
 ---
 title: "Heat Pump vs. Furnace in San Jose: Which Should You Buy in 2026?"
+seoTitle: "Heat Pump vs. Furnace in San Jose (2026 Guide)"
 description: "Comparing heat pumps and gas furnaces for Bay Area homes — real installed costs, monthly bills, rebates, and which one wins for San Jose's climate."
 date: 2026-06-15
 image: "/images/heat-pump-photo-min.jpg"

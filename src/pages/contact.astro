@@ -6,7 +6,7 @@ import { primaryServices } from "../data/services";
 // Bound as an expression so the regex backslashes survive into the HTML attribute.
 const phonePattern = "\\(\\d{3}\\)-\\d{3}-\\d{4}";
 
-const metaDesc = `Contact ${site.name} — licensed HVAC contractor in San Jose, CA. Request a free estimate for AC, heating, or water heater service. Open 7 days, ${site.hours}. Call ${site.phone}.`;
+const metaDesc = `Contact Promax Service Group for HVAC help in San Jose — free estimates on AC, heating and water heaters. Open 7 days. Call ${site.phone}.`;
 const contactSchema = {
   "@context": "https://schema.org",
   "@type": "ContactPage",
@@ -23,15 +23,15 @@ const contactSchema = {
     <div class="container contact">
       <div class="contact__info">
         <span class="eyebrow">Contact Details</span>
-        <h2>We're Here to Help</h2>
+        <h1>Contact Our San Jose HVAC Team</h1>
         <p>Choosing a local technician from Promax Service Group means quick response times, personalized service, and cost-effective solutions without compromising quality. We're available 7 days a week.</p>
 
         <ul class="contact__list">
-          <li><span>📞</span><div><strong>Phone</strong><a href={site.phoneHref}>{site.phone}</a></div></li>
-          <li><span>✉️</span><div><strong>Email</strong><a href={`mailto:${site.email}`}>{site.email}</a></div></li>
-          <li><span>🕑</span><div><strong>Hours</strong>{site.hours}</div></li>
-          <li><span>📍</span><div><strong>Service Area</strong>{site.serviceArea}</div></li>
-          <li><span>📜</span><div><strong>License</strong>{site.license}</div></li>
+          <li><span aria-hidden="true">📞</span><div><strong>Phone</strong><a href={site.phoneHref}>{site.phone}</a></div></li>
+          <li><span aria-hidden="true">✉️</span><div><strong>Email</strong><a href={`mailto:${site.email}`}>{site.email}</a></div></li>
+          <li><span aria-hidden="true">🕑</span><div><strong>Hours</strong>{site.hours}</div></li>
+          <li><span aria-hidden="true">📍</span><div><strong>Service Area</strong>{site.serviceArea}</div></li>
+          <li><span aria-hidden="true">📜</span><div><strong>License</strong>{site.license}</div></li>
         </ul>
         <div class="contact__certs">
           {site.certifications.map((c) => <span>✓ {c}</span>)}
@@ -132,12 +132,14 @@ const contactSchema = {
 
 <style>
   .contact { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
+  /* page h1 sits in a column, so it reads at section scale rather than hero scale */
+  .contact__info h1 { font-size: clamp(2rem, 3.8vw, 3rem); }
   .contact__list { list-style: none; padding: 0; margin: 24px 0; }
   .contact__list li { display: flex; gap: 14px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line); }
   .contact__list span { font-size: 1.4rem; }
   .contact__list div { display: flex; flex-direction: column; }
   .contact__list strong { font-size: .78rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
-  .contact__list a { color: var(--orange); font-weight: 600; }
+  .contact__list a { color: var(--orange-deep); font-weight: 600; }
   .contact__certs { display: flex; flex-wrap: wrap; gap: 10px; }
   .contact__certs span { background: var(--bg-alt); border-radius: 999px; padding: 6px 14px; font-size: .85rem; color: var(--slate-2); }
   .contact__form h3 { margin-bottom: 4px; }

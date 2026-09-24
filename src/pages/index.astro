@@ -1,4 +1,5 @@
 ---
+import { imageSize } from "../lib/image-size";
 import Layout from "../layouts/Layout.astro";
 import OffersStats from "../components/OffersStats.astro";
 import WhyChooseUs from "../components/WhyChooseUs.astro";
@@ -17,7 +18,7 @@ import { primaryServices } from "../data/services";
 import { locations } from "../data/locations";
 
 ---
-<Layout>
+<Layout preloadImage="/images/photo_hvac-min.jpg">
   <!-- Hero -->
   <section class="hero">
     <div class="hero__overlay"></div>
@@ -99,10 +100,10 @@ import { locations } from "../data/locations";
         {site.certBadges.map((b) =>
           b.url ? (
             <a href={b.url} class="about__badge-link" target="_blank" rel="noopener" aria-label={`${b.alt} — view credential`}>
-              <img src={b.src} alt={b.alt} loading="lazy" />
+              <img src={b.src} alt={b.alt} loading="lazy" decoding="async" {...imageSize(b.src) ?? {}} />
             </a>
           ) : (
-            <img src={b.src} alt={b.alt} loading="lazy" />
+            <img src={b.src} alt={b.alt} loading="lazy" decoding="async" {...imageSize(b.src) ?? {}} />
           )
         )}
       </div>
@@ -125,7 +126,7 @@ import { locations } from "../data/locations";
         <p>Proudly serving homeowners and businesses across Silicon Valley and the Peninsula.</p>
       </div>
       <div class="area reveal">
-        <img class="area__map" src="/images/map.jpg" alt="Promax service area map — San Jose and the Bay Area" loading="lazy" />
+        <img class="area__map" src="/images/map.jpg" alt="Promax service area map — San Jose and the Bay Area" loading="lazy" decoding="async" width="820" height="716" />
         <div class="loc-grid">
           {locations.map((l) => (
             <a href={`/locations/${l.slug}`} class="loc">📍 {l.city}</a>
@@ -216,14 +217,14 @@ import { locations } from "../data/locations";
   .svc:hover .svc__img img { transform: scale(1.07); }
   .svc__body { padding: 20px 22px; }
   .svc__body h3 { font-size: 1.08rem; margin-bottom: 4px; color: var(--slate); }
-  .svc__link { color: var(--orange); font-weight: 600; font-size: .9rem; }
+  .svc__link { color: var(--orange-deep); font-weight: 600; font-size: .9rem; }
 
   /* Service area */
   .area { display: grid; grid-template-columns: 1.4fr 1fr; gap: 32px; align-items: center; }
   .area__map { width: 100%; border-radius: var(--radius); box-shadow: var(--shadow); }
   .loc-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
   .loc { background: var(--bg-alt); border: 1px solid var(--line); border-radius: 10px; padding: 13px 16px; color: var(--slate); font-weight: 500; font-size: .95rem; transition: .18s ease; }
-  .loc:hover { background: var(--orange); color: #fff; border-color: var(--orange); transform: translateY(-2px); }
+  .loc:hover { background: var(--orange-deep); color: #fff; border-color: var(--orange-deep); transform: translateY(-2px); }
 
   @media (max-width: 900px) {
     .area { grid-template-columns: 1fr; }

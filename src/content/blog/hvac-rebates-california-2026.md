@@ -1,6 +1,7 @@
 ---
 title: "California HVAC Rebates in 2026: TECH Clean California, HEEHRA & Federal Credits Explained"
-description: "Which HVAC rebates a San Jose homeowner can still claim in 2026 — federal tax credits, HEEHRA, utility programs — and the current status of TECH Clean California."
+seoTitle: "California HVAC Rebates 2026: HEEHRA & Tax Credits"
+description: "Which HVAC rebates a San Jose homeowner can still claim in 2026 — federal tax credits, HEEHRA and utility programs — plus TECH Clean California."
 date: 2026-05-20
 image: "/images/hva4.jpg"
 tags: ["Rebates", "Heat Pumps"]

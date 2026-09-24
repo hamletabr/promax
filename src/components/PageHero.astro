@@ -15,7 +15,7 @@ const {
   <div class="phero__overlay"></div>
   <div class="container phero__inner">
     {parentLabel && (
-      <nav class="phero__crumb">
+      <nav class="phero__crumb" aria-label="Breadcrumb">
         <a href="/">Home</a> <span>/</span> <a href={parentHref}>{parentLabel}</a>{current ? ` / ${current}` : ""}
       </nav>
     )}

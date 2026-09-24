@@ -1,0 +1,4 @@
+title: Mitsubishi Multi-Zone Ductless System
+category: mini-splits/multi-zone
+brand: Mitsubishi Electric
+summary: Whole-home Mitsubishi ductless system: one outdoor unit feeding a branch box in the attic, with insulated line sets run to individual indoor heads so every room gets its own temperature.

@@ -3,35 +3,46 @@
 // ----------------------------------------------------------------------------
 // THIS FILE IS THE ONLY PLACE YOU EDIT to manage the portfolio page (/our-work).
 //
-// ── HOW TO ADD PHOTOS ────────────────────────────────────────────────────────
-// 1. Create a folder for the job under  public/images/portfolio/
-//      e.g.  public/images/portfolio/willow-glen-mitsubishi/
-// 2. Drop your .jpg / .png photos in it (phone photos are fine — keep each
-//    under ~500 KB if you can; resize before uploading for a faster site).
-// 3. Add a project entry below and list the photos in `images`.
+// ── HOW TO ADD A JOB (the easy way) ──────────────────────────────────────────
+// 1. Make a folder for the job under  src/images/portfolio/
+//      e.g.  src/images/portfolio/willow-glen-mitsubishi/
+// 2. Drop the photos straight in — FULL SIZE IS FINE. Photos taken on your
+//    phone need no resizing: the site automatically shrinks them, converts
+//    them to WebP, and sets their dimensions. Photos are shown in filename
+//    order, so name them 01.jpg, 02.jpg, … to control the order. The first
+//    one becomes the cover.
+// 3. Add a short entry to `projects` below with  folder: "willow-glen-mitsubishi"
+//    — you do NOT list the individual photos.
 //
-// ── HOW TO ADD A PROJECT ─────────────────────────────────────────────────────
-// Copy any block between { ... } in `projects`, paste it at the TOP of the
-// list (newest first), and edit the fields:
+// ── THE FIELDS ───────────────────────────────────────────────────────────────
 //   title    – short job name shown on the card (city + system works great)
-//   path     – where it lives in the category tree below, from broadest to
-//              most specific, e.g. ["hvac", "mitsubishi", "multi-zone", "ductless"]
-//              (only use slugs that exist in `categories`)
-//   brand    – equipment brand shown as a badge (free text: "Mitsubishi", "Bryant", …)
+//   path     – which category it belongs to, e.g. ["mini-splits", "multi-zone"]
+//              (only use slugs from the `categories` tree below)
+//   brand    – "Mitsubishi Electric", "Bryant", … Brand filter buttons are
+//              built automatically from whatever you type here, so there is
+//              no brand list to maintain — just spell it consistently.
 //   location – city, e.g. "San Jose, CA"
-//   date     – "YYYY-MM" (used for sorting; newest shown first)
-//   summary  – 1–3 sentences. Mention the city, the equipment, and the result —
-//              this text is indexed by Google, so keep it descriptive.
-//   images   – photo paths; the FIRST one is the cover.
-//              Either plain strings, or { src, alt } to give a photo its own
-//              alt text (better for SEO — describe what's in the photo).
+//   date     – "YYYY-MM" (newest shown first)
+//   summary  – 1–3 sentences. Mention the city, the equipment and the result —
+//              Google indexes this text, so keep it descriptive.
+//   folder   – folder name under src/images/portfolio/ (preferred), OR
+//   images   – an explicit list of paths under public/ (used by the
+//              placeholder entries below; `folder` wins if both are set).
 //
-// ── HOW TO ADD A CATEGORY / SUBCATEGORY ──────────────────────────────────────
-// Edit the `categories` tree below. `slug` must be unique among siblings,
-// lowercase, hyphenated. Nest as deep as you need with `children`.
-// Categories with no projects are hidden automatically, so you can build the
-// tree out ahead of time.
+// ── HOW TO ADD A CATEGORY ────────────────────────────────────────────────────
+// Edit the `categories` tree below. Categories are organised BY SYSTEM TYPE,
+// because that is how customers search. Brands are a separate filter row, so
+// never add a brand as a category. Empty categories hide themselves, so you
+// can build the tree out ahead of the photos.
 // ============================================================================
+
+import { statSync } from "node:fs";
+import path from "node:path";
+import type { ImageMetadata } from "astro";
+import { locations } from "./locations";
+import { exifDate } from "../lib/image-date";
+
+const locationCities = locations.map((l) => l.city);
 
 export type PortfolioCategory = {
   slug: string;
@@ -48,51 +59,33 @@ export type PortfolioProject = {
   location: string;
   date: string; // "YYYY-MM"
   summary: string;
-  images: PortfolioImage[];
+  /** Folder name under src/images/portfolio/ — photos are picked up automatically. */
+  folder?: string;
+  /** Explicit public/ paths. Only used when `folder` is not set. */
+  images?: PortfolioImage[];
 };
 
 // ─── CATEGORY TREE ──────────────────────────────────────────────────────────
 export const categories: PortfolioCategory[] = [
   {
-    slug: "hvac",
-    label: "HVAC",
+    slug: "mini-splits",
+    label: "Ductless Mini Splits",
     children: [
-      {
-        slug: "mitsubishi",
-        label: "Mitsubishi",
-        children: [
-          { slug: "single-zone", label: "Single Zone" },
-          {
-            slug: "multi-zone",
-            label: "Multi Zone",
-            children: [
-              { slug: "vrv-systems", label: "VRV Systems" },
-              { slug: "ductless", label: "Ductless" },
-            ],
-          },
-        ],
-      },
-      {
-        slug: "bryant",
-        label: "Bryant",
-        children: [
-          { slug: "single-zone", label: "Single Zone" },
-          {
-            slug: "multi-zone",
-            label: "Multi Zone",
-            children: [
-              { slug: "vrv-systems", label: "VRV Systems" },
-              { slug: "ductless", label: "Ductless" },
-            ],
-          },
-        ],
-      },
-      { slug: "furnaces", label: "Furnaces" },
-      { slug: "heat-pumps", label: "Heat Pumps" },
-      { slug: "ductwork", label: "Ductwork" },
-      { slug: "rooftop-units", label: "Rooftop Units" },
+      { slug: "single-zone", label: "Single Zone" },
+      { slug: "multi-zone", label: "Multi Zone" },
     ],
   },
+  {
+    slug: "ac-heat-pumps",
+    label: "Central AC & Heat Pumps",
+    children: [
+      { slug: "air-conditioners", label: "Air Conditioners" },
+      { slug: "heat-pumps", label: "Heat Pumps" },
+    ],
+  },
+  { slug: "furnaces", label: "Furnaces" },
+  { slug: "vrf-systems", label: "VRF / VRV Multi-Zone" },
+  { slug: "ductwork", label: "Ductwork & Zoning" },
   {
     slug: "water-heaters",
     label: "Water Heaters",
@@ -102,8 +95,9 @@ export const categories: PortfolioCategory[] = [
       { slug: "heat-pump-water-heaters", label: "Heat Pump Water Heaters" },
     ],
   },
-  // Add more top-level categories here, e.g.:
-  // { slug: "commercial", label: "Commercial", children: [ ... ] },
+  { slug: "commercial", label: "Commercial & Rooftop" },
+  { slug: "other", label: "More Projects" },
+  // Add more categories here — by SYSTEM TYPE, never by brand.
 ];
 
 // ─── PROJECTS (newest first) ────────────────────────────────────────────────
@@ -111,159 +105,55 @@ export const categories: PortfolioCategory[] = [
 // site. Replace them with real installation photos in
 // public/images/portfolio/ as described at the top of this file.
 export const projects: PortfolioProject[] = [
-  {
-    title: "Mitsubishi Ductless Multi-Zone — 3 Rooms",
-    path: ["hvac", "mitsubishi", "multi-zone", "ductless"],
-    brand: "Mitsubishi Electric",
-    location: "San Jose, CA",
-    date: "2026-05",
-    summary:
-      "Three-zone Mitsubishi ductless mini split installation in a San Jose ranch home with no existing ductwork. One outdoor condenser feeds three wall-mounted indoor heads for quiet, room-by-room heating and cooling.",
-    images: [
-      { src: "/images/hva6.jpg", alt: "Mitsubishi ductless mini split multi-zone installation in San Jose" },
-      { src: "/images/hv1.jpg", alt: "Wall-mounted ductless mini split indoor unit installed by Promax" },
-      { src: "/images/duc-photo-min.jpg", alt: "Promax technician installing a ductless split system" },
-    ],
-  },
-  {
-    title: "Mitsubishi Single-Zone Mini Split — Garage Conversion",
-    path: ["hvac", "mitsubishi", "single-zone"],
-    brand: "Mitsubishi Electric",
-    location: "Santa Clara, CA",
-    date: "2026-04",
-    summary:
-      "Single-zone Mitsubishi hyper-heat mini split for a Santa Clara garage conversion ADU. Full electrical hookup, condensate management, and a clean line-set run — installed to Mitsubishi Diamond Contractor standards.",
-    images: [
-      { src: "/images/duc-photo-min.jpg", alt: "Single-zone Mitsubishi mini split installation in Santa Clara" },
-      { src: "/images/hva2.jpg", alt: "Outdoor condenser unit for a single-zone ductless system" },
-    ],
-  },
-  {
-    title: "VRV/VRF Multi-Zone System — Office Building",
-    path: ["hvac", "mitsubishi", "multi-zone", "vrv-systems"],
-    brand: "Mitsubishi Electric",
-    location: "Sunnyvale, CA",
-    date: "2026-03",
-    summary:
-      "Commercial VRF (VRV) installation across two floors of a Sunnyvale office. Variable refrigerant flow gives each zone independent temperature control while cutting energy use versus the old rooftop package units.",
-    images: [
-      { src: "/images/vrf-photo-min.jpg", alt: "VRF VRV multi-zone system installation in Sunnyvale office" },
-      { src: "/images/hva7.jpg", alt: "VRV system outdoor units installed by Promax Service Group" },
-    ],
-  },
-  {
-    title: "Bryant High-Efficiency AC + Coil Replacement",
-    path: ["hvac", "bryant", "single-zone"],
-    brand: "Bryant",
-    location: "Campbell, CA",
-    date: "2026-02",
-    summary:
-      "Full Bryant air conditioner replacement in Campbell: new high-efficiency condenser, matched evaporator coil, refrigerant line flush, and a smart thermostat — installed by a Bryant Premier Dealer.",
-    images: [
-      { src: "/images/hva1.jpg", alt: "Bryant high-efficiency air conditioner installation in Campbell" },
-      { src: "/images/hva2.jpg", alt: "New Bryant AC condenser installed on a concrete pad" },
-    ],
-  },
-  {
-    title: "Bryant Ducted Multi-Zone System with Zoning Dampers",
-    path: ["hvac", "bryant", "multi-zone", "ductless"],
-    brand: "Bryant",
-    location: "Los Gatos, CA",
-    date: "2026-01",
-    summary:
-      "Two-story Los Gatos home upgraded to a Bryant multi-zone system with motorized dampers and dual thermostats — no more freezing downstairs while upstairs overheats.",
-    images: [
-      { src: "/images/zone-photo-min.jpg", alt: "Bryant multi-zone HVAC system with zoning dampers in Los Gatos" },
-      { src: "/images/hva10.jpg", alt: "Zone control panel wiring for a multi-zone HVAC system" },
-    ],
-  },
-  {
-    title: "96% AFUE Furnace Replacement",
-    path: ["hvac", "furnaces"],
-    brand: "Bryant",
-    location: "San Jose, CA",
-    date: "2025-12",
-    summary:
-      "Replaced a failing 20-year-old furnace in San Jose with a 96% AFUE two-stage Bryant furnace. New plenum, sealed flue, and combustion safety testing — finished in a single day.",
-    images: [
-      { src: "/images/furnace-photo-min.jpg", alt: "High-efficiency furnace replacement in a San Jose home" },
-      { src: "/images/hva3.jpg", alt: "New gas furnace installed and vented to code" },
-    ],
-  },
-  {
-    title: "Whole-Home Heat Pump Conversion (All-Electric)",
-    path: ["hvac", "heat-pumps"],
-    brand: "Mitsubishi Electric",
-    location: "Cupertino, CA",
-    date: "2025-11",
-    summary:
-      "Gas furnace to all-electric heat pump conversion in Cupertino, which qualified for TECH Clean California rebates while program funding was still available. The homeowner now heats and cools with one efficient system.",
-    images: [
-      { src: "/images/heat-pump-photo-min.jpg", alt: "All-electric heat pump conversion installation in Cupertino" },
-      { src: "/images/hva4.jpg", alt: "New heat pump outdoor unit replacing a gas furnace system" },
-    ],
-  },
-  {
-    title: "Full Ductwork Replacement + Aeroseal",
-    path: ["hvac", "ductwork"],
-    location: "Milpitas, CA",
-    date: "2025-10",
-    summary:
-      "Complete attic duct replacement in Milpitas: new R-8 insulated ducts, balanced airflow room to room, and sealed connections that cut the homeowner's energy loss by roughly 25%.",
-    images: [
-      { src: "/images/hvac-ductwork-photo-min.jpg", alt: "New insulated HVAC ductwork installation in a Milpitas attic" },
-      { src: "/images/hva9.jpg", alt: "Sealed and insulated duct runs installed by Promax" },
-    ],
-  },
-  {
-    title: "Commercial Rooftop Package Unit Swap",
-    path: ["hvac", "rooftop-units"],
-    location: "San Jose, CA",
-    date: "2025-09",
-    summary:
-      "Crane-set replacement of two aging rooftop package units for a San Jose retail building, including new curbs, gas and electrical hookups, and startup commissioning.",
-    images: [
-      { src: "/images/rooftop-photo-min.jpg", alt: "Commercial rooftop HVAC package unit replacement in San Jose" },
-      { src: "/images/hva8.jpg", alt: "Rooftop package unit installed on a commercial building" },
-    ],
-  },
-  {
-    title: "Tankless Water Heater Upgrade",
-    path: ["water-heaters", "tankless"],
-    brand: "Navien",
-    location: "Saratoga, CA",
-    date: "2025-08",
-    summary:
-      "Swapped a leaking 50-gallon tank for a Navien condensing tankless water heater in Saratoga — endless hot water, new gas line sizing, and earthquake-code strapping and venting.",
-    images: [
-      { src: "/images/water-heater-photo-min.jpg", alt: "Navien tankless water heater installation in Saratoga" },
-      { src: "/images/hva5.jpg", alt: "New tankless water heater mounted and plumbed by Promax" },
-    ],
-  },
-  {
-    title: "Heat Pump Water Heater (Rebate-Eligible)",
-    path: ["water-heaters", "heat-pump-water-heaters"],
-    location: "Mountain View, CA",
-    date: "2025-07",
-    summary:
-      "Installed a 65-gallon heat pump water heater in Mountain View, qualifying the homeowner for utility rebates. Uses about 70% less energy than the electric tank it replaced.",
-    images: [
-      { src: "/images/hva5.jpg", alt: "Heat pump water heater installation in Mountain View" },
-      { src: "/images/water-heater-photo-min.jpg", alt: "Rebate-eligible heat pump water heater installed by Promax" },
-    ],
-  },
+  // Hand-written entries go here only when a job cannot be expressed as a
+  // photo folder. Real work lives in src/images/portfolio/<job>/ — see
+  // HOW-TO-ADD-PHOTOS.txt there. Never invent projects: the page presents
+  // every card as a real installation.
 ];
 
 // ─── helpers (no need to edit below this line) ──────────────────────────────
 
-export function normalizeImage(img: PortfolioImage, fallbackAlt: string) {
-  return typeof img === "string" ? { src: img, alt: fallbackAlt } : img;
+/**
+ * Every photo under src/images/portfolio/, keyed by file path. Vite resolves
+ * this at build time, which is what lets you add a job by dropping a folder of
+ * photos in — no filenames to type out here.
+ */
+const portfolioFiles = import.meta.glob<ImageMetadata>(
+  "/src/images/portfolio/**/*.{jpg,jpeg,JPG,JPEG,png,PNG,webp,avif}",
+  { eager: true, import: "default" }
+);
+
+/** A photo ready for the page: either a build-optimised import or a public/ path. */
+export type ResolvedImage = { source: ImageMetadata | string; alt: string };
+
+/** Photos for a project — from its folder when set, otherwise its explicit list. */
+export function imagesOf(p: PortfolioProject): ResolvedImage[] {
+  const baseAlt = `${p.title} — ${p.location}`;
+
+  if (p.folder !== undefined) {
+    // "." = loose photos sitting directly in src/images/portfolio/
+    const root = p.folder === ".";
+    const prefix = root ? "/src/images/portfolio/" : `/src/images/portfolio/${p.folder}/`;
+    const found = Object.keys(portfolioFiles)
+      .filter((k) => k.startsWith(prefix) && (!root || !k.slice(prefix.length).includes("/")))
+      // Same order as the folder shows in Finder: by filename, natural sort so
+      // 2.jpg comes before 10.jpg. Rename a photo to change where it lands.
+      .sort((a, b) => a.localeCompare(b, "en", { numeric: true }));
+    if (found.length) {
+      return found.map((k, i) => ({
+        source: portfolioFiles[k],
+        alt: found.length > 1 ? `${baseAlt} (photo ${i + 1})` : baseAlt,
+      }));
+    }
+    // folder declared but no photos in it yet — fall through to `images`
+  }
+
+  return (p.images ?? []).map((img) =>
+    typeof img === "string" ? { source: img, alt: baseAlt } : { source: img.src, alt: img.alt }
+  );
 }
 
-export function coverOf(p: PortfolioProject) {
-  return normalizeImage(p.images[0], `${p.title} — ${p.location}`);
-}
-
+/** Brand filter buttons are derived from the projects — nothing to maintain. */
 /** Flatten the category tree into [{ path, label, depth, fullLabel }] in display order. */
 export function flattenCategories(
   cats: PortfolioCategory[] = categories,
@@ -280,6 +170,222 @@ export function flattenCategories(
   return out;
 }
 
+// ─── Jobs added by dropping in a folder ─────────────────────────────────────
+// A folder under src/images/portfolio/ that contains photos AND an info.txt is
+// turned into a project automatically — nothing in this file needs editing.
+// See src/images/portfolio/HOW-TO-ADD-PHOTOS.txt for the owner-facing version.
+
+const infoFiles = import.meta.glob<string>("/src/images/portfolio/*/info.txt", {
+  eager: true,
+  query: "?raw",
+  import: "default",
+});
+
+const KEYS: Record<string, string> = {
+  title: "title",
+  category: "category", path: "category", type: "category",
+  brand: "brand", make: "brand",
+  city: "city", location: "city",
+  date: "date",
+  summary: "summary", description: "summary",
+};
+
+/**
+ * Parse an OPTIONAL "key: value" info.txt. Nothing here is required — it only
+ * exists to override what we work out from the folder name.
+ */
+function parseInfo(text: string): Record<string, string> {
+  const out: Record<string, string> = {};
+  let last = "";
+  for (const raw of text.split(/\r?\n/)) {
+    const line = raw.trim();
+    if (!line || line.startsWith("#")) continue;
+    const m = /^([A-Za-z]+)\s*:\s*(.*)$/.exec(line);
+    const key = m && KEYS[m[1].toLowerCase()];
+    if (key) {
+      out[key] = m[2].trim();
+      last = key;
+    } else if (last) {
+      out[last] = `${out[last]} ${line}`.trim();
+    }
+  }
+  return out;
+}
+
+// ─── Working things out from the folder name ────────────────────────────────
+// The whole point: name a folder "Campbell furnace swap", drop photos in, done.
+// First match wins, so the most specific patterns are listed first.
+
+const CATEGORY_HINTS: [RegExp, string][] = [
+  [/tankless/i, "water-heaters/tankless"],
+  [/(heat.?pump.?water|hpwh)/i, "water-heaters/heat-pump-water-heaters"],
+  [/(water.?heater|boiler|\btank\b)/i, "water-heaters/tank"],
+  [/\b(vrf|vrv)\b/i, "vrf-systems"],
+  [/(rooftop|\brtu\b|commercial|package.?unit)/i, "commercial"],
+  [/(duct(work)?|zoning|damper|aeroseal|plenum)/i, "ductwork"],
+  [/furnace/i, "furnaces"],
+  [/(mini.?split|ductless|split).*(multi|dual|two|three|four|[2-9].?(zone|room|head)|zones)/i, "mini-splits/multi-zone"],
+  [/(multi|dual|two|three|four|[2-9].?(zone|room|head)).*(mini.?split|ductless|split)/i, "mini-splits/multi-zone"],
+  [/(mini.?split|ductless)/i, "mini-splits/single-zone"],
+  [/heat.?pump/i, "ac-heat-pumps/heat-pumps"],
+  [/(air.?condition|\bac\b|a\/c|condenser|cooling|coil)/i, "ac-heat-pumps/air-conditioners"],
+];
+
+// left = what you might type, right = how it should read on the site
+const BRAND_HINTS: [RegExp, string][] = [
+  [/mitsubishi/i, "Mitsubishi Electric"],
+  [/bryant/i, "Bryant"],
+  [/carrier/i, "Carrier"],
+  [/trane/i, "Trane"],
+  [/lennox/i, "Lennox"],
+  [/daikin/i, "Daikin"],
+  [/rheem/i, "Rheem"],
+  [/goodman/i, "Goodman"],
+  [/navien/i, "Navien"],
+  [/(cooper|c&h)/i, "Cooper & Hunter"],
+  [/fujitsu/i, "Fujitsu"],
+];
+
+const CITY_HINTS: string[] = [
+  "San Jose", ...locationCities,
+];
+
+const firstMatch = (text: string, table: [RegExp, string][]) =>
+  table.find(([re]) => re.test(text))?.[1];
+
+const titleFromSlug = (slug: string) =>
+  slug
+    .replace(/[-_]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+
+/**
+ * Newest photo in the folder decides the job date — no typing required.
+ *
+ * Prefers the EXIF capture date, because photos exported out of the macOS
+ * Photos app all get today's file timestamp, which would otherwise stamp every
+ * job with the day they were exported. Falls back to the file date when a
+ * photo has no EXIF (screenshots, PNGs, already-processed images).
+ */
+function newestMonth(paths: string[]): string {
+  let newest = 0;
+  for (const rel of paths) {
+    const abs = path.join(process.cwd(), rel.replace(/^\//, ""));
+    const shot = exifDate(abs)?.getTime();
+    let t = shot ?? 0;
+    if (!t) {
+      try {
+        t = statSync(abs).mtimeMs;
+      } catch {
+        t = 0;
+      }
+    }
+    if (t > newest) newest = t;
+  }
+  return new Date(newest || Date.now()).toISOString().slice(0, 7);
+}
+
+/** A "2026-07" or "2026 07" anywhere in the folder name pins the date by hand. */
+function monthInName(name: string): string | undefined {
+  const m = /\b(20\d{2})[-_. ](0[1-9]|1[0-2])\b/.exec(name);
+  return m ? `${m[1]}-${m[2]}` : undefined;
+}
+
+function buildFolderProjects(): PortfolioProject[] {
+  const validPaths = new Set(flattenCategories().map((c) => c.path.join("/")));
+  const takenFolders = new Set(projects.map((p) => p.folder).filter(Boolean));
+  const out: PortfolioProject[] = [];
+
+  // group every photo by the folder it sits in ("" = dropped in loose)
+  const byFolder = new Map<string, string[]>();
+  for (const key of Object.keys(portfolioFiles)) {
+    const rest = key.replace("/src/images/portfolio/", "");
+    const folder = rest.includes("/") ? rest.slice(0, rest.indexOf("/")) : "";
+    if (folder.startsWith("_")) continue;
+    if (!byFolder.has(folder)) byFolder.set(folder, []);
+    byFolder.get(folder)!.push(key);
+  }
+
+  for (const [folder, files] of [...byFolder].sort()) {
+    if (takenFolders.has(folder)) continue; // described by hand in `projects`
+
+    // loose photos, not in any folder — keep them rather than lose them
+    if (folder === "") {
+      out.push({
+        title: "Recent Work",
+        path: ["other"],
+        location: "",
+        date: newestMonth(files),
+        summary: "",
+        folder: ".",
+      });
+      continue;
+    }
+
+    const raw = infoFiles[`/src/images/portfolio/${folder}/info.txt`];
+    const info = raw === undefined ? {} : parseInfo(raw);
+    const name = folder.replace(/[-_]+/g, " ");
+
+    // A folder named like "Beverly Dr" or "1234 Byron St" is a customer's
+    // address. Publishing that next to photos of their house is a privacy
+    // problem, so it is excluded until it gets a real title (info.txt) or a
+    // descriptive name.
+    const looksLikeStreet =
+      /\b(dr|drive|st|street|ct|court|cir|circle|ln|lane|ave|avenue|blvd|rd|road|way|loop|pl|place|ter|terrace)\.?$/i.test(name.trim()) ||
+      /^\d{2,6}\s+\w/.test(name.trim());
+    if (looksLikeStreet && !info.title) {
+      console.warn(
+        `[portfolio] "${folder}" looks like a street address, so it is NOT on the site. ` +
+          `Rename the folder to describe the job (e.g. "Mitsubishi 3 zone mini split") ` +
+          `or add an info.txt with a title.`
+      );
+      continue;
+    }
+
+    // info.txt wins where it's filled in; otherwise read it off the folder name
+    let category = (info.category || "").replace(/^\/+|\/+$/g, "");
+    if (!validPaths.has(category)) {
+      if (category) {
+        console.warn(
+          `[portfolio] "${folder}": info.txt category "${category}" isn't one we ` +
+            `have, so the folder name was used instead.`
+        );
+      }
+      category = firstMatch(name, CATEGORY_HINTS) ?? "other";
+    }
+    if (category === "other") {
+      console.warn(
+        `[portfolio] "${folder}" went under "More Projects" because the folder ` +
+          `name doesn't say what the job was. Put a word like furnace, mini ` +
+          `split, heat pump, ductwork, water heater or rooftop in the name.`
+      );
+    }
+
+    out.push({
+      title: info.title || titleFromSlug(folder),
+      path: category.split("/"),
+      brand: info.brand || firstMatch(name, BRAND_HINTS),
+      location:
+        info.city ||
+        CITY_HINTS.find((c) => new RegExp(`\\b${c}\\b`, "i").test(name)) ||
+        "",
+      date:
+        (/^\d{4}-\d{2}$/.test(info.date || "") ? info.date : undefined) ??
+        monthInName(name) ??
+        newestMonth(files),
+      summary: info.summary || "",
+      folder,
+    });
+  }
+  return out;
+}
+
+export const folderProjects = buildFolderProjects();
+
+/** Everything on the Our Work page: folder-added jobs plus hand-written ones. */
+export const allProjects: PortfolioProject[] = [...folderProjects, ...projects];
+
 /** True if a project belongs to (or under) the given category path. */
 export function inCategory(project: PortfolioProject, path: string[]) {
   return path.every((slug, i) => project.path[i] === slug);
@@ -287,7 +393,16 @@ export function inCategory(project: PortfolioProject, path: string[]) {
 
 /** Count of projects under a category path (used to hide empty categories). */
 export function countIn(path: string[]) {
-  return projects.filter((p) => inCategory(p, path)).length;
+  return allProjects.filter((p) => inCategory(p, path)).length;
 }
 
-export const sortedProjects = [...projects].sort((a, b) => (a.date < b.date ? 1 : -1));
+/** Brand filter buttons are derived from the projects — nothing to maintain. */
+export const brands = [
+  ...new Set(allProjects.map((p) => p.brand).filter((b): b is string => Boolean(b))),
+].sort((a, b) => a.localeCompare(b));
+
+export function countBrand(brand: string) {
+  return allProjects.filter((p) => p.brand === brand).length;
+}
+
+export const sortedProjects = [...allProjects].sort((a, b) => (a.date < b.date ? 1 : -1));

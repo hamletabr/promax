@@ -339,7 +339,7 @@ const config = {
     background: rgba(255,255,255,.12); color: #fff; border-radius: 999px;
     padding: 8px 14px; font-size: .82rem; font-weight: 600; min-height: 36px;
   }
-  .chatw__call:hover { background: var(--orange); }
+  .chatw__call:hover { background: var(--orange-deep); }
 
   .chatw__msgs {
     height: 320px; max-height: 46vh; overflow-y: auto;
@@ -351,7 +351,7 @@ const config = {
     font-size: .9rem; line-height: 1.5; white-space: pre-wrap; word-wrap: break-word;
   }
   .chatw__msg--assistant { background: #fff; border: 1px solid var(--line); color: var(--slate-2); border-bottom-left-radius: 4px; align-self: flex-start; }
-  .chatw__msg--user { background: var(--orange); color: #fff; border-bottom-right-radius: 4px; align-self: flex-end; }
+  .chatw__msg--user { background: var(--orange-deep); color: #fff; border-bottom-right-radius: 4px; align-self: flex-end; }
   .chatw__msg--typing { color: var(--muted); }
   @media (prefers-reduced-motion: no-preference) {
     .chatw__msg--typing { animation: chatw-pulse 1.2s ease infinite; }
@@ -374,10 +374,10 @@ const config = {
   .chatw__inputrow input:focus { outline: 2px solid var(--orange); border-color: var(--orange); }
   .chatw__send {
     width: 44px; height: 44px; border-radius: 50%; border: 0; cursor: pointer;
-    background: var(--orange); color: #fff; display: grid; place-items: center; flex: none;
+    background: var(--orange-deep); color: #fff; display: grid; place-items: center; flex: none;
     transition: background .15s ease;
   }
-  .chatw__send:hover { background: var(--orange-bright); }
+  .chatw__send:hover { background: var(--orange-hover); }
 
   .chatw__foot { padding: 8px 14px 12px; background: var(--bg-alt); border-top: 1px solid var(--line); }
   .chatw__tolead {
@@ -399,8 +399,8 @@ const config = {
     font: inherit; font-weight: 600; cursor: pointer; min-height: 44px;
     border-radius: 999px; padding: 10px 20px; border: 1px solid var(--line); background: #fff; color: var(--slate-2);
   }
-  .chatw__lead-send { background: var(--orange) !important; border-color: var(--orange) !important; color: #fff !important; }
-  .chatw__lead-send:hover { background: var(--orange-bright) !important; }
+  .chatw__lead-send { background: var(--orange-deep) !important; border-color: var(--orange-deep) !important; color: #fff !important; }
+  .chatw__lead-send:hover { background: var(--orange-hover) !important; }
   .chatw__leadstatus { margin-top: 12px; font-size: .85rem; color: var(--slate); background: var(--orange-soft); border-radius: 10px; padding: 10px 13px; }
 
   .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
