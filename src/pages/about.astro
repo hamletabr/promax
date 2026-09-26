@@ -9,7 +9,7 @@ import { site } from "../data/site";
 
 const title = "About Promax | Licensed HVAC Contractor, San Jose";
 const metaDesc =
-  "Promax Service Group is a licensed, EPA-certified HVAC contractor in San Jose (Lic #1133885) — Mitsubishi Diamond Contractor and Bryant Premier Dealer.";
+  "Licensed, EPA-certified HVAC contractor in San Jose (Lic #1133885) — Mitsubishi Diamond Contractor and Bryant Factory Authorized Dealer.";
 
 const aboutSchema = {
   "@context": "https://schema.org",
@@ -54,15 +54,17 @@ const guarantees = [
         <p>
           Today we serve hundreds of homes and businesses across Santa Clara County and the Peninsula, and we've earned
           the industry's top factory credentials: <strong>Mitsubishi Diamond Contractor</strong> (their highest tier of training
-          and warranty backing), <strong>Bryant Premier Dealer</strong>, and <strong>Navien Service Specialist</strong>. We're
+          and warranty backing), <strong>Bryant Factory Authorized Dealer</strong>, and <strong>Navien Service Specialist</strong>. We're
           EPA-certified and licensed by the state ({site.license}).
         </p>
         <p>
-          Growth hasn't changed the rules: answer the phone 7 days a week, quote the real price before work starts,
+          Founded in {site.foundingDate} and based at {site.address.street}, {site.address.locality}, {site.address.region} {site.address.postalCode},
+          growth hasn't changed the rules: answer the phone 7 days a week, quote the real price before work starts,
           and leave every home cleaner — and more comfortable — than we found it.
         </p>
       </div>
       <div class="ab-story__facts reveal">
+        <div class="ab-fact"><strong>{site.foundingDate}</strong><span>founded in San Jose, still local</span></div>
         <div class="ab-fact"><strong>350+</strong><span>happy clients across the Bay Area</span></div>
         <div class="ab-fact"><strong>7 days</strong><span>open every week, 7 AM – 10 PM</span></div>
         <div class="ab-fact"><strong>{site.license.replace("Lic ", "")}</strong><span>California C-20 HVAC license</span></div>

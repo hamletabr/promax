@@ -7,7 +7,7 @@ import { locations } from "../data/locations";
 
 const title = "Emergency HVAC Repair San Jose | Same-Day Service | Promax";
 const metaDesc =
-  "HVAC emergency in San Jose? No heat, no cooling, or a leaking water heater — call (669) 777-1997. Open 7 days a week, 7 AM–10 PM, same-day priority dispatch.";
+  "HVAC emergency in San Jose? No heat, no cooling, or a leaking water heater — call (669) 777-1997. Same-day service, 7 days a week, 7 AM–10 PM.";
 
 const emergencySchema = {
   "@context": "https://schema.org",
@@ -24,7 +24,7 @@ const emergencySchema = {
 const situations = [
   ["No heat on a cold night", "Furnace won't ignite, blows cold air, or keeps shutting off — we prioritize homes with kids, seniors, and medical needs."],
   ["AC down in a heat wave", "When it's 100° out, a dead AC is a safety issue, not a comfort issue. Same-day priority dispatch."],
-  ["Water heater leaking", "A leaking tank can fail suddenly and flood. Shut off the water supply and call — we replace most tanks same or next day."],
+  ["Water heater leaking", "A leaking tank can fail suddenly and flood. Shut off the water supply and call — no-hot-water calls get same-day service, 7 days a week."],
   ["Gas smell near the furnace", "Leave the house first, call PG&E at 1-800-743-5000, then call us to inspect and repair the system safely."],
   ["Thermostat / system dead", "Blank thermostat, tripping breakers, burning smells — stop running the system and have it diagnosed before damage spreads."],
   ["Frozen AC or refrigerant leak", "Ice on the lines means shut it down. Running a frozen system destroys the compressor — the most expensive part."],
@@ -36,13 +36,16 @@ const situations = [
   <!-- call-first hero -->
   <section class="em-hero">
     <div class="container em-hero__inner">
-      <span class="em-hero__badge">⚡ Same-Day Priority Dispatch · Open 7 Days, 7 AM – 10 PM</span>
+      <span class="em-hero__badge">⚡ {site.hours}</span>
       <h1>HVAC Emergency? We're On It.</h1>
-      <p>No heat, no cooling, or no hot water in the San Jose area — call now and a live person will get a technician headed your way, usually the same day.</p>
-      <a href={site.phoneHref} class="em-hero__call">
-        <span class="em-hero__call-label">Tap to call now</span>
-        <strong>{site.phone}</strong>
-      </a>
+      <p>{site.promises.repair}.</p>
+      <div class="em-hero__ctas">
+        <a href={site.phoneHref} class="em-hero__call">
+          <span class="em-hero__call-label">Tap to call now</span>
+          <strong>{site.phone}</strong>
+        </a>
+        <a href={site.bookingUrl} class="em-hero__book" target="_blank" rel="noopener">Book Online →</a>
+      </div>
       <p class="em-hero__alt">Prefer text-style booking? <a href="/contact">Send a request</a> and mark it urgent.</p>
     </div>
   </section>
@@ -66,15 +69,51 @@ const situations = [
   </section>
 
   <section class="section section--alt">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow">Emergency Repairs</span>
+        <h2>We Handle These Emergencies Every Day</h2>
+        <p>Same urgency, different system — here's exactly what we fix, with same-day priority.</p>
+      </div>
+      <div class="grid cols-3">
+        <a href="/services/air-conditioner-repair" class="card em-link reveal">
+          <h3>AC Not Cooling</h3>
+          <p>Emergency air conditioner repair →</p>
+        </a>
+        <a href="/services/furnace-repair" class="card em-link reveal">
+          <h3>No Heat</h3>
+          <p>Emergency furnace repair →</p>
+        </a>
+        <a href="/services/water-heater-repair" class="card em-link reveal">
+          <h3>No Hot Water / Leaking Tank</h3>
+          <p>Emergency water heater repair →</p>
+        </a>
+        <a href="/services/heat-pump-repair" class="card em-link reveal">
+          <h3>Heat Pump Down</h3>
+          <p>Emergency heat pump repair →</p>
+        </a>
+        <a href="/services/mini-split-repair" class="card em-link reveal">
+          <h3>Mini Split Not Working</h3>
+          <p>Emergency ductless mini split repair →</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
     <div class="container em-promise reveal">
       <h2>Our Emergency Promise</h2>
       <ul>
-        <li><strong>A human answers.</strong> 7 days a week, 7 AM to 10 PM — no phone trees, no "leave a message."</li>
-        <li><strong>Same-day priority.</strong> Urgent no-heat / no-cool calls jump the queue, with priority for seniors, infants, and medical needs.</li>
+        <li><strong>A human answers.</strong> {site.hours} — no phone trees, no "leave a message."</li>
+        <li><strong>Same-day priority.</strong> {site.promises.repair}, with priority for seniors, infants, and medical needs.</li>
         <li><strong>Stocked trucks.</strong> Capacitors, igniters, motors, and common parts on board — most emergency repairs finish in one visit.</li>
         <li><strong>No weekend surcharge.</strong> Saturday and Sunday cost the same as Tuesday. Emergencies don't respect business hours; neither do our rates.</li>
-        <li><strong>Free service call with repair.</strong> The diagnostic fee is waived when you approve the fix.</li>
+        <li><strong>{site.promises.diagnostic}.</strong> Approve the fix and the visit is free.</li>
       </ul>
+      <div class="em-promise-ctas">
+        <a href={site.phoneHref} class="btn btn--primary">Call {site.phone}</a>
+        <a href={site.bookingUrl} class="btn btn--outline" target="_blank" rel="noopener">Book Online</a>
+      </div>
     </div>
   </section>
 
@@ -100,15 +139,27 @@ const situations = [
   .em-hero__call:hover { transform: translateY(-3px); box-shadow: 0 24px 54px rgba(234,88,12,.55); }
   .em-hero__call-label { font-size: .82rem; text-transform: uppercase; letter-spacing: .08em; opacity: .9; }
   .em-hero__call strong { font-family: var(--font-head); font-weight: 800; font-size: clamp(1.6rem, 4vw, 2.2rem); }
+  .em-hero__ctas { display: flex; align-items: center; justify-content: center; gap: 18px; flex-wrap: wrap; }
+  .em-hero__book {
+    color: #fdba74; font-family: var(--font-head); font-weight: 700; font-size: 1.02rem;
+    text-decoration: underline; text-underline-offset: 3px;
+  }
+  .em-hero__book:hover { color: #fff; }
   .em-hero__alt { margin-top: 22px !important; font-size: .92rem !important; }
   .em-hero__alt a { color: #fdba74; font-weight: 600; text-decoration: underline; }
 
   .em-card h3 { font-size: 1.05rem; }
   .em-card p { color: var(--muted); font-size: .93rem; margin: 0; }
 
+  .em-link { display: block; text-decoration: none; transition: transform .2s ease, box-shadow .2s ease; }
+  .em-link:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+  .em-link h3 { font-size: 1.05rem; color: var(--slate); }
+  .em-link p { color: var(--orange-deep); font-weight: 700; font-size: .92rem; margin: 0; }
+
   .em-promise { max-width: 820px; }
   .em-promise ul { list-style: none; padding: 0; margin: 20px 0 0; }
   .em-promise li { padding: 13px 0 13px 34px; position: relative; border-bottom: 1px solid var(--line); color: var(--slate-2); }
   .em-promise li::before { content: "✓"; position: absolute; left: 0; color: var(--orange); font-weight: 800; font-size: 1.1rem; }
   .em-promise strong { color: var(--slate); }
+  .em-promise-ctas { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 28px; }
 </style>

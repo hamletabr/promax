@@ -18,7 +18,7 @@ San Jose's climate is almost ideal for heat pumps. Winters rarely drop below 35�
 | | Gas furnace (96% AFUE) | Heat pump (whole-home) |
 |---|---|---|
 | Installed cost | ~$9,000–$13,000 | ~$13,000–$20,000 |
-| Rebates & credits | Up to ~$600 | Up to $2,000 federal credit (more if income-qualified via HEEHRA) |
+| Rebates & credits | Up to ~$600 | Utility rebates (SVCE/PCE/PG&E) vary; the federal 25C credit ended for installs after 2025 and single-family HEEHRA funding is fully reserved |
 | Also replaces your AC? | No | **Yes** |
 | Monthly winter bill | Rising with PG&E gas rates | Lower for most homes, especially with solar |
 
@@ -34,7 +34,7 @@ The sticker price gap looks big — until you remember the heat pump **replaces 
 
 - Both your furnace and AC are aging — one system replaces both.
 - You have (or plan to add) solar panels — your heating becomes nearly free.
-- You want incentives: [the federal 25C credit and HEEHRA](/financing) only apply to heat pumps, not gas furnaces. (TECH Clean California funding is currently exhausted.)
+- You want incentives: what's left in 2026 is utility-level money, and it [only applies to heat pumps](/financing), not gas furnaces. The federal 25C credit ended for installations after December 31, 2025, single-family HEEHRA funding is fully reserved statewide (waitlist only), and TECH Clean California is exhausted — we check every active program at your estimate.
 - You care about air quality: no combustion in the home means no carbon monoxide risk.
 
 ## What we recommend

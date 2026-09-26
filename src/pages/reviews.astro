@@ -10,6 +10,11 @@ const metaDesc = `Read ${reviews.length}+ verified 5-star Google reviews of Prom
 
 const avg = (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1);
 
+// HVAC reviews lead the page (this is an HVAC site); electrical/handyman jobs
+// for the same customers are real work too, so they stay — just grouped below.
+const hvacReviews = reviews.filter((r) => r.category === "hvac");
+const otherReviews = reviews.filter((r) => r.category !== "hvac");
+
 const reviewsSchema = {
   "@context": "https://schema.org",
   "@type": "HVACBusiness",
@@ -62,7 +67,7 @@ const colors = ["#ea580c", "#13273f", "#0a9d6e", "#3b6fd4", "#b4476f", "#7a55c9"
       </div>
 
       <div class="rv-grid">
-        {reviews.map((r, i) => (
+        {hvacReviews.map((r, i) => (
           <article class="rv card reveal">
             <div class="rv__head">
               <span class="rv__avatar" style={`background:${colors[i % colors.length]}`}>{initials(r.name)}</span>
@@ -83,6 +88,37 @@ const colors = ["#ea580c", "#13273f", "#0a9d6e", "#3b6fd4", "#b4476f", "#7a55c9"
           </article>
         ))}
       </div>
+
+      {otherReviews.length > 0 && (
+        <>
+          <div class="section-head reveal rv-other-head">
+            <h2>Other Work Our Customers Mention</h2>
+            <p>Promax also handles electrical and handyman requests for the same San Jose homeowners who trust us with HVAC — these reviews are real, so we're not hiding them, just keeping them separate from the HVAC feedback above.</p>
+          </div>
+          <div class="rv-grid">
+            {otherReviews.map((r, i) => (
+              <article class="rv card reveal">
+                <div class="rv__head">
+                  <span class="rv__avatar" style={`background:${colors[i % colors.length]}`}>{initials(r.name)}</span>
+                  <div>
+                    <strong>{r.name}</strong>
+                    <span class="rv__meta">{r.date}{r.source ? ` · ${r.source}` : ""}</span>
+                  </div>
+                  <span class="rv__stars" aria-label={`${r.rating} out of 5 stars`}>{"★".repeat(r.rating)}</span>
+                </div>
+                {r.service && <span class="rv__tag">{r.service}</span>}
+                <p class="rv__text">{r.text}{r.truncated ? "…" : ""}</p>
+                {r.ownerResponse && (
+                  <details class="rv__reply">
+                    <summary>Response from Promax</summary>
+                    <p>{r.ownerResponse}{r.ownerResponseTruncated ? "…" : ""}</p>
+                  </details>
+                )}
+              </article>
+            ))}
+          </div>
+        </>
+      )}
 
       <p class="rv-foot reveal">
         Had a great experience with our team? <a href={site.googleReviewsUrl} target="_blank" rel="noopener">Share it on Google</a> —
@@ -107,6 +143,7 @@ const colors = ["#ea580c", "#13273f", "#0a9d6e", "#3b6fd4", "#b4476f", "#7a55c9"
   .rv-actions { display: flex; gap: 12px; flex-wrap: wrap; }
 
   .rv-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+  .rv-other-head { margin-top: 48px; margin-bottom: 24px; }
   .rv { padding: 24px; }
   .rv__head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
   .rv__avatar {

@@ -18,6 +18,11 @@ npm run preview
 static host (Vercel, Cloudflare Pages, GitHub Pages, shared hosting, S3…).
 No server, no environment variables, no host-specific features required.
 
+**Replacing the old WordPress site:** follow [docs/LAUNCH-RUNBOOK.md](docs/LAUNCH-RUNBOOK.md)
+step by step — it covers Cloudflare Pages, the email DNS records that must be
+recreated before nameservers move, the 301 checks, Search Console and the admin
+console login. `public/_redirects` already maps every old URL to its new home.
+
 After launch: add the site to [Google Search Console](https://search.google.com/search-console)
 and submit `https://promax-service.com/sitemap-index.xml`.
 

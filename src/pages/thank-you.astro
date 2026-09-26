@@ -2,18 +2,18 @@
 import Layout from "../layouts/Layout.astro";
 import { site } from "../data/site";
 ---
-<Layout title={`Thank You | ${site.name}`} description="Your request has been received — we'll get back to you shortly." noindex>
+<Layout title={`Thank You | ${site.name}`} description="Thanks — your request reached Promax Service Group. We call back within one business hour, 7 AM to 10 PM, or you can book a visit online right now." noindex>
   <section class="section">
     <div class="container ty">
       <span class="ty__icon">✅</span>
       <h1>Request Received!</h1>
       <p class="lead">
-        Thanks for reaching out to {site.name}. Our team will contact you shortly —
-        usually within 1–2 business days.
+        Thanks for reaching out to {site.name}. {site.promises.callback}.
       </p>
-      <p>Need help sooner? We answer the phone 7 days a week, {site.hours}.</p>
+      <p>Need help sooner, or want to lock in a time now? Book online, or call us — open {site.hours}.</p>
       <div class="ty__btns">
         <a href={site.phoneHref} class="btn btn--primary">Call {site.phone}</a>
+        <a href={site.bookingUrl} class="btn btn--outline" target="_blank" rel="noopener">Book Online</a>
         <a href="/" class="btn btn--outline">Back to Home</a>
       </div>
     </div>

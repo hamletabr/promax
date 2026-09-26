@@ -53,7 +53,10 @@
 }
 
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+/* offset anchor/scrollIntoView targets so the sticky header never covers
+   the thing being scrolled to (e.g. the estimator's progress bar) */
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; scroll-padding-top: 96px; }
+@media (max-width: 1120px) { html { scroll-padding-top: 88px; } }
 body {
   margin: 0;
   font-family: var(--font-body);
@@ -122,6 +125,10 @@ img { max-width: 100%; height: auto; display: block; }
 .btn--soft:hover { border-color: var(--ink); transform: translateY(-2px); }
 .btn--lg { padding: 16px 34px; font-size: 1.02rem; }
 .btn:focus-visible { outline: 3px solid var(--orange); outline-offset: 2px; }
+
+/* baseline input font-size — anything smaller triggers an unwanted
+   zoom-in on focus in iOS Safari */
+input, select, textarea { font-size: 16px; }
 
 /* keyboard focus for every other interactive element */
 a:focus-visible, button:focus-visible, summary:focus-visible,

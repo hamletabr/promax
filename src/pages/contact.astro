@@ -29,6 +29,7 @@ const contactSchema = {
         <ul class="contact__list">
           <li><span aria-hidden="true">📞</span><div><strong>Phone</strong><a href={site.phoneHref}>{site.phone}</a></div></li>
           <li><span aria-hidden="true">✉️</span><div><strong>Email</strong><a href={`mailto:${site.email}`}>{site.email}</a></div></li>
+          <li><span aria-hidden="true">🏢</span><div><strong>Address</strong><a href={site.sameAs[0]} target="_blank" rel="noopener">{site.address.street}, {site.address.locality}, {site.address.region} {site.address.postalCode}</a></div></li>
           <li><span aria-hidden="true">🕑</span><div><strong>Hours</strong>{site.hours}</div></li>
           <li><span aria-hidden="true">📍</span><div><strong>Service Area</strong>{site.serviceArea}</div></li>
           <li><span aria-hidden="true">📜</span><div><strong>License</strong>{site.license}</div></li>
@@ -39,12 +40,17 @@ const contactSchema = {
       </div>
 
       <div class="contact__form card">
-        <h3>Request Service</h3>
-        <p class="contact__note">Fill out the form and our team will get back to you, usually within 1–2 days.</p>
+        <div class="contact__form-head">
+          <h3>Request Service</h3>
+          <a href={site.bookingUrl} target="_blank" rel="noopener" class="btn btn--outline contact__book">Book Online</a>
+        </div>
+        <p class="contact__note">{site.promises.callback}.</p>
         <!-- Leads are POSTed to site.formEndpoint (see src/data/site.ts for the
-             5-minute setup). Until it's configured, submissions fall back to
-             opening the visitor's email app pre-filled with the request. -->
-        <form id="contact-form" method="POST" data-endpoint={site.formEndpoint} data-email={site.email} data-phone={site.phone}>
+             5-minute setup). Until it's configured, submitting reveals a
+             fallback panel (Book Online / Call / email) instead of relying
+             on a mailto: link, which silently does nothing on devices with
+             no mail client configured. -->
+        <form id="contact-form" method="POST" data-endpoint={site.formEndpoint} data-email={site.email} data-phone={site.phone} data-booking={site.bookingUrl}>
           <p class="hp" aria-hidden="true"><label>Leave this empty: <input name="_gotcha" tabindex="-1" autocomplete="off" /></label></p>
           <div class="field"><label>Name<input type="text" name="name" autocomplete="name" required /></label></div>
           <div class="field"><label>Phone<input type="tel" name="phone" id="phone" inputmode="numeric" pattern={phonePattern} placeholder="(xxx)-xxx-xxxx" title="Enter a 10-digit US phone number" autocomplete="tel" maxlength="14" required /></label></div>
@@ -62,17 +68,26 @@ const contactSchema = {
           <button type="submit" class="btn btn--primary" id="contact-submit">Send Request</button>
           <p class="contact__status" id="contact-status" role="alert" hidden></p>
         </form>
+
+        <div class="contact__fallback" id="contact-fallback" hidden>
+          <p class="contact__fallback-lead">Fastest way: book online (2 minutes)</p>
+          <a class="btn btn--primary btn--lg" id="contact-fallback-book" href={site.bookingUrl} target="_blank" rel="noopener">Book Online Now</a>
+          <p class="contact__fallback-or">or call <a href={site.phoneHref}>{site.phone}</a></p>
+          <a class="contact__fallback-email" id="contact-fallback-email" href="#">Email us your request instead</a>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- Phone formatting + lead submission (endpoint or mailto fallback) -->
+  <!-- Phone formatting + lead submission (endpoint or fallback panel) -->
   <script is:inline>
     (function () {
       var p = document.getElementById("phone");
       if (!p) return;
       p.addEventListener("input", function () {
-        var d = this.value.replace(/[^0-9]/g, "").slice(0, 10);
+        var d = this.value.replace(/\D/g, "");
+        if (d.length === 11 && d[0] === "1") d = d.slice(1);
+        d = d.slice(0, 10);
         this.value =
           d.length > 6 ? "(" + d.slice(0, 3) + ")-" + d.slice(3, 6) + "-" + d.slice(6) :
           d.length > 3 ? "(" + d.slice(0, 3) + ")-" + d.slice(3) :
@@ -82,6 +97,8 @@ const contactSchema = {
       var form = document.getElementById("contact-form");
       var status = document.getElementById("contact-status");
       var submit = document.getElementById("contact-submit");
+      var fallback = document.getElementById("contact-fallback");
+      var fallbackEmail = document.getElementById("contact-fallback-email");
 
       form.addEventListener("submit", function (e) {
         e.preventDefault();
@@ -100,13 +117,18 @@ const contactSchema = {
 
         var endpoint = form.dataset.endpoint || "";
         if (!endpoint || endpoint.indexOf("YOUR_FORM_ID") !== -1) {
+          // Endpoint isn't configured yet — a mailto: link silently does
+          // nothing on devices with no mail client, so show a working
+          // fallback (Book Online / Call) instead, with the mailto kept
+          // only as a small secondary option.
           var body = Object.keys(data).filter(function (k) { return k !== "_subject"; })
             .map(function (k) { return k + ": " + data[k]; }).join("\n");
-          location.href = "mailto:" + form.dataset.email +
+          fallbackEmail.href = "mailto:" + form.dataset.email +
             "?subject=" + encodeURIComponent(data._subject) +
             "&body=" + encodeURIComponent(body);
-          status.hidden = false;
-          status.textContent = "Your email app should open with your request. If it didn't, call us at " + form.dataset.phone + ".";
+          form.hidden = true;
+          fallback.hidden = false;
+          fallback.scrollIntoView({ behavior: "smooth", block: "nearest" });
           return;
         }
 
@@ -142,8 +164,22 @@ const contactSchema = {
   .contact__list a { color: var(--orange-deep); font-weight: 600; }
   .contact__certs { display: flex; flex-wrap: wrap; gap: 10px; }
   .contact__certs span { background: var(--bg-alt); border-radius: 999px; padding: 6px 14px; font-size: .85rem; color: var(--slate-2); }
-  .contact__form h3 { margin-bottom: 4px; }
+  .contact__form-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; margin-bottom: 4px; }
+  .contact__form-head h3 { margin-bottom: 0; }
+  .contact__book { padding: 10px 18px; min-height: 40px; font-size: .88rem; }
   .contact__note { color: var(--muted); font-size: .92rem; }
+
+  /* success-style fallback panel (shown instead of a mailto dead-end while
+     site.formEndpoint is still the "YOUR_FORM_ID" placeholder) */
+  .contact__fallback {
+    text-align: center; margin-top: 8px; padding: 26px 22px; border-radius: var(--radius-lg);
+    background: var(--orange-soft); border: 1px solid var(--line);
+  }
+  .contact__fallback-lead { font-family: var(--font-head); font-weight: 700; color: var(--slate); font-size: 1.1rem; margin-bottom: 16px; }
+  .contact__fallback .btn { width: 100%; max-width: 360px; }
+  .contact__fallback-or { color: var(--slate-2); font-size: .95rem; margin: 14px 0 4px; }
+  .contact__fallback-or a { font-weight: 700; }
+  .contact__fallback-email { display: inline-block; margin-top: 10px; font-size: .85rem; color: var(--muted); text-decoration: underline; }
   .field { margin-bottom: 14px; }
   .field label { display: flex; flex-direction: column; gap: 6px; font-weight: 600; color: var(--slate); font-size: .9rem; }
   .field input, .field select, .field textarea {

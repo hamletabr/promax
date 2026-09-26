@@ -7,6 +7,7 @@
 
 export type SqftTier = { label: string; sub: string; low: number; high: number };
 export type DuctPricing = { perDuctLow: number; perDuctHigh: number; min: number; max: number };
+export type RepairRange = { label: string; low: number; high: number };
 
 // Step 1 — house size → base system price range
 export const sqftTiers: SqftTier[] = [
@@ -36,6 +37,16 @@ export const ductPricing: DuctPricing = {
   min: 1,   // stepper limits
   max: 30,
 };
+
+// Step 0 (Repair branch) — typical repair ranges shown instead of the
+// install wizard. These are ballparks only — always confirmed on site.
+export const repairRanges: RepairRange[] = [
+  { label: "Capacitor / contactor replacement", low: 150, high: 350 },
+  { label: "Blower / fan motor replacement", low: 350, high: 650 },
+  { label: "Refrigerant leak repair", low: 400, high: 1200 },
+  { label: "Control board replacement", low: 400, high: 900 },
+  { label: "Furnace igniter replacement", low: 200, high: 450 },
+];
 
 export const disclaimer =
   "This is a ballpark range based on typical Promax installations in the San Jose area. " +

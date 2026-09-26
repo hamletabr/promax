@@ -1,0 +1,110 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import PageHero from "../../components/PageHero.astro";
+import CallBanner from "../../components/CallBanner.astro";
+import { locations } from "../../data/locations";
+import { site } from "../../data/site";
+
+const title = "HVAC Service Areas — San Jose & Santa Clara County";
+const metaDesc =
+  "Licensed HVAC repair, installation, and maintenance across San Jose and 15 Santa Clara County cities from Promax. Free estimates: (669) 777-1997.";
+const pageUrl = `${site.url}/locations`;
+
+const collectionSchema = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  name: title,
+  description: metaDesc,
+  url: pageUrl,
+  breadcrumb: {
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: site.url },
+      { "@type": "ListItem", position: 2, name: "Locations", item: pageUrl },
+    ],
+  },
+  hasPart: [
+    { "@type": "City", name: "San Jose", url: site.url },
+    ...locations.map((l) => ({ "@type": "City", name: l.city, url: `${site.url}/locations/${l.slug}` })),
+  ],
+};
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Home", item: site.url },
+    { "@type": "ListItem", position: 2, name: "Locations", item: pageUrl },
+  ],
+};
+---
+<Layout title={title} description={metaDesc} preloadImage="/images/photo_loc-min.jpg">
+  <script type="application/ld+json" set:html={JSON.stringify(collectionSchema)} is:inline />
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} is:inline />
+
+  <PageHero
+    eyebrow="Local Technicians"
+    title="HVAC Service Areas — San Jose & Santa Clara County"
+    sub="Same licensed team, same upfront pricing, everywhere we go — find your city below."
+    image="/images/photo_loc-min.jpg"
+    parentLabel="Locations"
+    parentHref="/locations"
+  />
+
+  <section class="section">
+    <div class="container loc-idx-intro">
+      <div>
+        <span class="eyebrow">Where We Work</span>
+        <h2>Serving San Jose &amp; {locations.length} Santa Clara County Cities</h2>
+        <p>
+          Promax Service Group is based in Santa Clara and serves homes and businesses across the South Bay —
+          from Silicon Valley tech corridors to Peninsula suburbs. Wherever you are in our service area, you get
+          the same licensed technicians, upfront pricing, and {site.promises.repair.toLowerCase()}.
+        </p>
+      </div>
+      <div class="loc-idx-map">
+        <img src="/images/map.jpg" width="820" height="716" alt="Promax Service Group HVAC service area — San Jose and Santa Clara County" loading="lazy" decoding="async" />
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--alt">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">Find Your City</span>
+        <h2>All Service Areas</h2>
+      </div>
+      <div class="grid cols-4 loc-idx-grid">
+        <a href="/" class="loc-idx-card">
+          <h3>San Jose</h3>
+          <p>Our home turf — the heart of Silicon Valley.</p>
+          <span class="loc-idx-card__link">View services &rarr;</span>
+        </a>
+        {locations.map((l) => (
+          <a href={`/locations/${l.slug}`} class="loc-idx-card">
+            <h3>{l.city}</h3>
+            <p>{l.hook}</p>
+            <span class="loc-idx-card__link">View services &rarr;</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <CallBanner heading="Don't see your city? Call us — we probably still serve it." />
+</Layout>
+
+<style>
+  .loc-idx-intro { display: grid; grid-template-columns: 1.1fr 1fr; gap: 44px; align-items: center; }
+  .loc-idx-map img { border-radius: var(--radius); box-shadow: var(--shadow-lg); }
+  .loc-idx-grid { align-items: stretch; }
+  .loc-idx-card {
+    display: flex; flex-direction: column; text-align: left;
+    background: #fff; border: 1px solid var(--line); border-radius: var(--radius-lg);
+    padding: 24px; transition: transform 200ms var(--ease-out), box-shadow 200ms ease, border-color 200ms ease;
+  }
+  .loc-idx-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-4px); border-color: transparent; }
+  .loc-idx-card h3 { margin-bottom: 6px; }
+  .loc-idx-card p { color: var(--muted); font-size: .92rem; margin: 0 0 14px; flex: 1; }
+  .loc-idx-card__link { color: var(--orange-deep); font-weight: 600; font-size: .9rem; }
+  @media (max-width: 860px) { .loc-idx-intro { grid-template-columns: 1fr; } }
+</style>

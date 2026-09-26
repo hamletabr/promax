@@ -1,0 +1,153 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import PageHero from "../../components/PageHero.astro";
+import CallBanner from "../../components/CallBanner.astro";
+import { services, type Service } from "../../data/services";
+import { site } from "../../data/site";
+
+const title = "HVAC Services in San Jose, CA | Promax Service Group";
+const metaDesc =
+  "Every HVAC service from Promax Service Group in San Jose, CA — AC and furnace repair, installation, maintenance, water heaters, ductwork. (669) 777-1997.";
+const pageUrl = `${site.url}/services`;
+
+// ── Group every service in src/data/services.ts into a readable set of
+// sections. Grouping prefers the parent/children relationship Agent A is
+// filling in; until that lands, services fall back to matching by slug so
+// the page still renders correctly today. Whatever isn't claimed by a named
+// group lands in "Everything Else" — so every service is always linked,
+// however many end up in the array. ─────────────────────────────────────────
+type Group = { label: string; test: (s: Service) => boolean };
+
+const inSlugs = (slug: string | undefined, list: string[]) => !!slug && list.includes(slug);
+
+const namedGroups: Group[] = [
+  {
+    label: "Cooling",
+    test: (s) => s.slug === "air-conditioner" || s.parent === "air-conditioner",
+  },
+  {
+    label: "Heating",
+    test: (s) => s.slug === "furnace" || s.parent === "furnace",
+  },
+  {
+    label: "Heat Pumps & Ductless",
+    test: (s) =>
+      ["heat-pump", "ductless-split-systems"].includes(s.slug) ||
+      inSlugs(s.parent, ["heat-pump", "ductless-split-systems"]),
+  },
+  {
+    label: "Water Heaters",
+    test: (s) =>
+      s.slug === "water-heater" ||
+      s.parent === "water-heater" ||
+      ["heat-pump-water-heater", "tankless-water-heater"].includes(s.slug),
+  },
+  {
+    label: "Ducts, Air Quality & Zoning",
+    test: (s) =>
+      ["hvac-ductwork", "indoor-air-quality-system", "zone-control-system"].includes(s.slug) ||
+      inSlugs(s.parent, ["hvac-ductwork", "indoor-air-quality-system", "zone-control-system"]),
+  },
+  {
+    label: "Commercial",
+    test: (s) =>
+      ["commercial-hvac", "rooftop-package-unit", "vrf-installation-system"].includes(s.slug) ||
+      inSlugs(s.parent, ["commercial-hvac", "rooftop-package-unit", "vrf-installation-system"]),
+  },
+];
+
+const assigned = new Set<string>();
+const groups = namedGroups
+  .map((g) => {
+    const members = services.filter((s) => !assigned.has(s.slug) && g.test(s));
+    members.forEach((s) => assigned.add(s.slug));
+    return { label: g.label, services: members };
+  })
+  .filter((g) => g.services.length > 0);
+
+const rest = services.filter((s) => !assigned.has(s.slug));
+if (rest.length > 0) groups.push({ label: "Everything Else", services: rest });
+
+const collectionSchema = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  name: title,
+  description: metaDesc,
+  url: pageUrl,
+  breadcrumb: {
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: site.url },
+      { "@type": "ListItem", position: 2, name: "Services", item: pageUrl },
+    ],
+  },
+  hasPart: services.map((s) => ({
+    "@type": "Service",
+    name: s.h1,
+    url: `${site.url}/services/${s.slug}`,
+  })),
+};
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Home", item: site.url },
+    { "@type": "ListItem", position: 2, name: "Services", item: pageUrl },
+  ],
+};
+---
+<Layout title={title} description={metaDesc} preloadImage="/images/photo_hvac-min.jpg">
+  <script type="application/ld+json" set:html={JSON.stringify(collectionSchema)} is:inline />
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} is:inline />
+
+  <PageHero
+    eyebrow="Every HVAC Need, One Team"
+    title="All HVAC Services in San Jose, CA"
+    sub="Repair, installation, maintenance, and replacement — browse every service Promax Service Group offers across San Jose and Santa Clara County."
+    image="/images/photo_hvac-min.jpg"
+    parentLabel="Services"
+    parentHref="/services"
+  />
+
+  {groups.map((group, i) => (
+    <section class={`section ${i % 2 === 1 ? "section--alt" : ""}`}>
+      <div class="container">
+        <div class="section-head">
+          <span class="eyebrow">{group.label}</span>
+          <h2>{group.label} Services in San Jose</h2>
+        </div>
+        <div class="grid cols-4 svc-idx-grid">
+          {group.services.map((s) => (
+            <a href={`/services/${s.slug}`} class="svc-idx">
+              <div class="svc-idx__img">
+                <img src={s.image} alt={`${s.name} in San Jose, CA`} loading="lazy" decoding="async" width="400" height="300" />
+              </div>
+              <div class="svc-idx__body">
+                <h3>{s.name}</h3>
+                <span class="svc-idx__link">View Service &rarr;</span>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  ))}
+
+  <CallBanner heading="Not sure which service you need? Just call us." />
+</Layout>
+
+<style>
+  .svc-idx-grid { align-items: stretch; }
+  .svc-idx {
+    display: flex; flex-direction: column; text-align: left;
+    background: #fff; border: 1px solid var(--line); border-radius: var(--radius-lg);
+    overflow: hidden; transition: transform 200ms var(--ease-out), box-shadow 200ms ease, border-color 200ms ease;
+  }
+  .svc-idx:hover { box-shadow: var(--shadow-lg); transform: translateY(-4px); border-color: transparent; }
+  .svc-idx__img { aspect-ratio: 4/3; overflow: hidden; background: var(--bg-alt); }
+  .svc-idx__img img { width: 100%; height: 100%; object-fit: cover; transition: transform .35s ease; }
+  .svc-idx:hover .svc-idx__img img { transform: scale(1.06); }
+  .svc-idx__body { padding: 16px 18px 20px; }
+  .svc-idx__body h3 { font-size: 1.05rem; margin-bottom: 4px; }
+  .svc-idx__link { color: var(--orange-deep); font-weight: 600; font-size: .9rem; }
+</style>

@@ -16,7 +16,8 @@ const {
   <div class="container phero__inner">
     {parentLabel && (
       <nav class="phero__crumb" aria-label="Breadcrumb">
-        <a href="/">Home</a> <span>/</span> <a href={parentHref}>{parentLabel}</a>{current ? ` / ${current}` : ""}
+        <a href="/">Home</a> <span aria-hidden="true">/</span> <a href={parentHref}>{parentLabel}</a>
+        {current && <> <span aria-hidden="true">/</span> <span aria-current="page">{current}</span></>}
       </nav>
     )}
     <span class="eyebrow eyebrow--light">{eyebrow}</span>

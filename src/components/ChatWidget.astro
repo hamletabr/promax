@@ -4,25 +4,33 @@
 //   src/data/site.ts for the 5-minute setup). Without a key, a built-in
 //   assistant answers from site data (services, hours, price ranges).
 // - Leads: the "Send to our team" flow posts the transcript + contact info to
-//   site.formEndpoint (same pipeline as the estimator/contact form), with a
-//   mailto fallback while the endpoint isn't configured yet.
+//   site.formEndpoint (same pipeline as the estimator/contact form). While
+//   the endpoint isn't configured yet, it shows a Book Online + Call fallback
+//   instead of a lead form that would have nowhere real to go.
 import { site } from "../data/site";
 import { sqftTiers, ductPricing } from "../data/estimator";
 
 const priceLines = sqftTiers.map((t) => `${t.label}: $${t.low.toLocaleString()}–$${t.high.toLocaleString()}`).join("; ");
+const formConfigured = !!site.formEndpoint && !site.formEndpoint.includes("YOUR_FORM_ID");
+// Typical parts-and-labor range for a common repair (capacitor, igniter,
+// blower motor, contactor, etc.) — not a full-installation price.
+const repairRange = "$150–$650";
 
 const systemPrompt = `You are the friendly virtual assistant for ${site.name}, a licensed HVAC contractor (${site.license}) in San Jose, CA.
 Business facts: phone ${site.phone}; email ${site.email}; hours ${site.hours}; service area: San Jose, Santa Clara, Sunnyvale, Cupertino, Campbell, Milpitas, Mountain View, Palo Alto and the greater Bay Area.
-Services: AC repair/installation/maintenance, furnace repair/installation, heat pumps, ductless mini splits (Mitsubishi Diamond Contractor), VRF/VRV systems, Bryant systems (Premier Dealer), ductwork, zoning, indoor air quality, tank/tankless/heat-pump water heaters (Navien specialist).
-Typical full-installation ballpark ranges by home size: ${priceLines}. Ductwork replacement adds about $${ductPricing.perDuctLow}–$${ductPricing.perDuctHigh} per duct. These are ballparks only — exact quotes require a free on-site visit.
-Rebates: the federal 25C tax credit (30%, up to $2,000/yr) applies to heat pumps and heat-pump water heaters, and HEEHRA offers point-of-sale discounts for income-qualified households. IMPORTANT: TECH Clean California rebate funding is currently EXHAUSTED — if asked about TECH, say it is not available right now and that we monitor new funding waves and will apply it automatically if the program reopens.
-Rules: Be warm, concise (2-4 sentences), and practical. Never invent prices beyond the ranges above. For anything urgent or specific, recommend calling ${site.phone} (open 7 days) or the online estimator at /estimate. If the visitor wants a callback, a quote, or a human, ask for their name and phone number, then tell them to tap "Send to our team" below the chat so our staff receives the conversation. Only discuss topics related to HVAC, home comfort, and this company.`;
+Services: AC repair/installation/maintenance, furnace repair/installation, heat pumps, ductless mini splits (Mitsubishi Diamond Contractor), VRF/VRV systems, Bryant systems (Bryant Factory Authorized Dealer), ductwork, zoning, indoor air quality, tank/tankless/heat-pump water heaters (Navien specialist).
+Typical FULL-INSTALLATION ballpark ranges by home size: ${priceLines}. Ductwork replacement adds about $${ductPricing.perDuctLow}–$${ductPricing.perDuctHigh} per duct. A typical REPAIR (capacitor, igniter, blower motor, contactor, etc.) instead runs about ${repairRange} — always ask whether the visitor needs a repair or a new system before quoting a price, and never give an installation price when they're describing a repair (broken, not working, warm air, no heat, no hot water, leak, noise, etc.).
+Response times & fees — quote these exactly, word for word, and never invent your own numbers or timeframes: repair calls: "${site.promises.repair}." Other scheduled visits: "${site.promises.scheduled}." Callbacks: "${site.promises.callback}." Diagnostic fee: "${site.promises.diagnostic}." New-system estimates: "${site.promises.estimate}."
+Rebates — state these precisely: the federal 25C tax credit (30% up to $2,000/yr) EXPIRED for installations completed after December 31, 2025 — never say it is currently available. HEEHRA (income-qualified) single-family funding is fully reserved statewide; we can add the household to a waitlist and apply it if funds return. TECH Clean California rebate funding is currently EXHAUSTED. For any rebate question, say we check every rebate and incentive the visitor qualifies for at their free estimate.
+Rules: Be warm, concise (2-4 sentences), and practical. Never invent prices beyond the ranges above. For anything urgent or specific, recommend calling ${site.phone} (${site.hours}) or booking online. If the visitor wants a callback, a quote, or a human, ask for their name and phone number, then tell them to tap "Send to our team" below the chat so our staff receives the conversation. Only discuss topics related to HVAC, home comfort, and this company.`;
 
 const config = {
   endpoint: site.formEndpoint,
+  formConfigured,
   email: site.email,
   phone: site.phone,
   phoneHref: site.phoneHref,
+  bookingUrl: site.bookingUrl,
   systemPrompt,
   gemini: site.ai,
   // facts for the built-in (no-API-key) assistant
@@ -30,6 +38,8 @@ const config = {
     hours: site.hours,
     priceLines: sqftTiers.map((t) => `${t.label}: $${t.low.toLocaleString()}–$${t.high.toLocaleString()}`),
     perDuct: `$${ductPricing.perDuctLow}–$${ductPricing.perDuctHigh}`,
+    repairRange,
+    promises: site.promises,
   },
 };
 ---
@@ -51,10 +61,16 @@ const config = {
         <strong>Promax Assistant</strong>
         <span>Ask about services, pricing &amp; scheduling</span>
       </div>
-      <a href={site.phoneHref} class="chatw__call" aria-label={`Call ${site.phone}`}>
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.24 11.3 11.3 0 0 0 3.55.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.3a1 1 0 0 1 1 1 11.3 11.3 0 0 0 .57 3.55 1 1 0 0 1-.24 1Z"/></svg>
-        Call
-      </a>
+      <div class="chatw__head-actions">
+        <a href={site.bookingUrl} class="chatw__call chatw__book" target="_blank" rel="noopener" aria-label="Book online">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/></svg>
+          Book
+        </a>
+        <a href={site.phoneHref} class="chatw__call" aria-label={`Call ${site.phone}`}>
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.24 11.3 11.3 0 0 0 3.55.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.3a1 1 0 0 1 1 1 11.3 11.3 0 0 0 .57 3.55 1 1 0 0 1-.24 1Z"/></svg>
+          Call
+        </a>
+      </div>
     </header>
 
     <div class="chatw__msgs" id="chatw-msgs" aria-live="polite"></div>
@@ -80,17 +96,28 @@ const config = {
     <!-- lead capture overlay -->
     <div class="chatw__lead" id="chatw-lead" hidden>
       <h3>Send to our team</h3>
-      <p>We'll get the whole conversation and follow up — usually within 1 business day.</p>
-      <form id="chatw-leadform">
-        <label for="chatw-name">Name *<input id="chatw-name" type="text" autocomplete="name" required /></label>
-        <label for="chatw-phone">Phone *<input id="chatw-phone" type="tel" inputmode="numeric" placeholder="(xxx)-xxx-xxxx" maxlength="14" autocomplete="tel" required /></label>
-        <label for="chatw-email">Email<input id="chatw-email" type="email" autocomplete="email" /></label>
-        <div class="chatw__lead-btns">
-          <button type="button" id="chatw-leadback">Back</button>
-          <button type="submit" class="chatw__lead-send" id="chatw-leadsend">Send</button>
+      {formConfigured ? (
+        <form id="chatw-leadform">
+          <p>We'll get the whole conversation and follow up — usually within 1 business day.</p>
+          <label for="chatw-name">Name *<input id="chatw-name" type="text" autocomplete="name" required /></label>
+          <label for="chatw-phone">Phone *<input id="chatw-phone" type="tel" inputmode="numeric" placeholder="(xxx)-xxx-xxxx" maxlength="14" autocomplete="tel" required /></label>
+          <label for="chatw-email">Email<input id="chatw-email" type="email" autocomplete="email" /></label>
+          <div class="chatw__lead-btns">
+            <button type="button" id="chatw-leadback">Back</button>
+            <button type="submit" class="chatw__lead-send" id="chatw-leadsend">Send</button>
+          </div>
+          <p class="chatw__leadstatus" id="chatw-leadstatus" role="alert" hidden></p>
+        </form>
+      ) : (
+        <div class="chatw__lead-fallback">
+          <p>The fastest way to reach a real person: book your appointment online, or call us directly.</p>
+          <div class="chatw__lead-ctas">
+            <a href={site.bookingUrl} class="chatw__lead-send" target="_blank" rel="noopener">Book Online →</a>
+            <a href={site.phoneHref} class="chatw__lead-callbtn">Call {site.phone}</a>
+          </div>
+          <button type="button" id="chatw-leadback" class="chatw__lead-back">Back</button>
         </div>
-        <p class="chatw__leadstatus" id="chatw-leadstatus" role="alert" hidden></p>
-      </form>
+      )}
     </div>
   </section>
 </div>
@@ -160,29 +187,34 @@ const config = {
   function localAnswer(q: string): string {
     const s = q.toLowerCase();
     const f = cfg.facts;
+    // Repair intent is checked FIRST, before the price/cost pattern below —
+    // otherwise "my AC is blowing warm air, how much to fix?" matches "how
+    // much" and answers with a full-installation price instead of a repair one.
+    if (/(repair|fix|broken|not cooling|warm air|not working|no heat|no hot water|leak|noise)/.test(s))
+      return `That sounds like a repair, not a new system — most common fixes (a failed capacitor, igniter, blower motor, or contactor) run about ${f.repairRange}, and ${f.promises.diagnostic.toLowerCase()}. ${f.promises.repair}. Call ${cfg.phone} or tap Book above and we'll get a tech out to diagnose it.`;
     if (/(price|cost|how much|quote|estimate|ballpark|\$)/.test(s))
-      return `Typical full-installation ranges: ${f.priceLines.join(" · ")}. Ductwork replacement adds about ${f.perDuct} per duct. For a personalized number in 60 seconds, try our online estimator at promax-service.com/estimate — or call ${cfg.phone} for an exact free quote.`;
+      return `Typical full-installation ranges: ${f.priceLines.join(" · ")}. Ductwork replacement adds about ${f.perDuct} per duct. ${f.promises.estimate}. Try our online estimator at promax-service.com/estimate, tap Book above, or call ${cfg.phone}.`;
     if (/(hour|open|when|schedule|weekend|sunday|saturday|today)/.test(s))
-      return `We're open ${f.hours} — including weekends, at no extra charge. Call ${cfg.phone} and we can usually schedule a visit within 1–2 days.`;
+      return `We're open ${f.hours} — including weekends, at no extra charge. ${f.promises.scheduled} Call ${cfg.phone} or tap Book above any time.`;
     if (/(area|serve|where|city|location|come to|near)/.test(s))
       return `We serve San Jose and the greater Bay Area — Santa Clara, Sunnyvale, Cupertino, Campbell, Milpitas, Mountain View, Los Gatos, Palo Alto, Fremont, and more. If you're nearby, we've got you covered — call ${cfg.phone} to confirm.`;
     if (/(mitsubishi|mini split|ductless|multi.?zone|single.?zone)/.test(s))
       return `Yes — we're a Mitsubishi Diamond Contractor (their highest certification) and install single-zone and multi-zone ductless mini splits, ideal for ADUs, additions, and homes without ducts. See real installs at promax-service.com/our-work.`;
     if (/(bryant|carrier|furnace|heater|heating)/.test(s))
-      return `We're a Bryant Premier Dealer and service all major brands. We handle furnace repair, replacement, and high-efficiency (96% AFUE) installations, with a carbon-monoxide safety check on every heating visit. Call ${cfg.phone} — open 7 days.`;
+      return `We're a Bryant Factory Authorized Dealer and service all major brands. We handle furnace repair, replacement, and high-efficiency (96% AFUE) installations, with a carbon-monoxide safety check on every heating visit. Call ${cfg.phone} — ${f.hours}.`;
     if (/(water heater|tankless|hot water|navien)/.test(s))
-      return `We repair, replace, and install tank, tankless, and heat-pump water heaters (Navien Service Specialists). Heat-pump models qualify for big rebates right now. No hot water? Call ${cfg.phone} for fast service.`;
+      return `We repair, replace, and install tank, tankless, and heat-pump water heaters (Navien Service Specialists). ${f.promises.repair} No hot water? Call ${cfg.phone} for fast service.`;
     if (/(duct|vent|airflow)/.test(s))
       return `We design, replace, seal, and balance ductwork — replacement runs about ${f.perDuct} per duct. Leaky ducts waste up to 30% of the air you pay for, so it's often the best-value fix for uneven rooms and high bills.`;
-    if (/(rebate|tax credit|tech clean|incentive|financing)/.test(s))
-      return `Heat pumps and heat-pump water heaters qualify for the federal 25C tax credit (up to $2,000/yr), and income-qualified households may get HEEHRA discounts. Heads up: TECH Clean California rebate funding is currently exhausted — if a new wave opens, we apply it to eligible quotes automatically. Financing is available too.`;
+    if (/(rebate|tax credit|heehra|tech clean|incentive|financing)/.test(s))
+      return `The federal 25C tax credit ended for installations after 2025, and HEEHRA's income-qualified single-family funding is fully reserved statewide right now — we can add you to the waitlist and apply it if funds return. We check every rebate and incentive you qualify for at your free estimate, and financing is available too.`;
     if (/(human|person|callback|call me|agent|someone|representative|staff)/.test(s))
-      return `Absolutely — tap "Send this conversation to our team" just below and leave your name and number, and a real person will follow up. Or call us right now at ${cfg.phone} (open 7 days, 7 AM–10 PM).`;
-    if (/(emergency|urgent|broken|not working|no heat|no cool|no ac|leak)/.test(s))
-      return `Sorry you're dealing with that! For anything urgent, the fastest path is calling ${cfg.phone} — we answer 7 days a week, 7 AM–10 PM, and prioritize no-heat/no-cooling calls.`;
+      return `Absolutely — tap "Send this conversation to our team" just below and leave your name and number. ${f.promises.callback} Or call us right now at ${cfg.phone}, or tap Book above.`;
+    if (/(emergency|urgent)/.test(s))
+      return `Sorry you're dealing with that! ${f.promises.repair}. Call ${cfg.phone} now and we'll prioritize you.`;
     if (/(hi|hello|hey|thanks|thank you)/.test(s))
       return `Happy to help! Ask me about pricing, services, rebates, or scheduling — or get an instant price range at promax-service.com/estimate.`;
-    return `Great question! I can help with pricing, services (AC, heating, heat pumps, mini splits, water heaters, ducts), rebates, and scheduling. For anything specific, call ${cfg.phone} (open 7 days) or tap "Send this conversation to our team" below and our staff will follow up by email.`;
+    return `Great question! I can help with pricing, services (AC, heating, heat pumps, mini splits, water heaters, ducts), rebates, and scheduling. For anything specific, call ${cfg.phone} (${f.hours}), tap Book above, or tap "Send this conversation to our team" below and our staff will follow up.`;
   }
 
   async function ask(question: string) {
@@ -224,6 +256,20 @@ const config = {
     if (e.key === "Escape" && !panel.hidden) toggle(false);
   });
 
+  // On narrow screens the FAB sits right over the hero's Call button (and
+  // any hero CTA on other pages). Hide it while that hero is in view; the
+  // CSS below only applies this at ≤760px, and never while the chat is open.
+  const heroEl = document.querySelector(".hero, .phero");
+  if (heroEl) {
+    const heroIO = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) root.classList.toggle("chatw--hero-visible", entry.isIntersecting);
+      },
+      { threshold: 0.12 }
+    );
+    heroIO.observe(heroEl);
+  }
+
   form.addEventListener("submit", (e) => {
     e.preventDefault();
     const q = input.value.trim();
@@ -237,19 +283,23 @@ const config = {
     if (btn) ask(btn.dataset.q!);
   });
 
-  // ── lead capture: email the transcript to the team ──
-  const leadForm = document.getElementById("chatw-leadform") as HTMLFormElement;
-  const leadStatus = document.getElementById("chatw-leadstatus")!;
-  const leadSend = document.getElementById("chatw-leadsend") as HTMLButtonElement;
-  const leadPhone = document.getElementById("chatw-phone") as HTMLInputElement;
+  // ── lead capture: send the transcript to the team ──
+  // cfg.formConfigured mirrors formConfigured at build time. When it's false
+  // the markup above renders a Book Online + Call fallback instead of a form
+  // that would otherwise go nowhere, so no lead form exists to wire up here.
+  const leadForm = document.getElementById("chatw-leadform") as HTMLFormElement | null;
+  const leadStatus = document.getElementById("chatw-leadstatus");
+  const leadSend = document.getElementById("chatw-leadsend") as HTMLButtonElement | null;
+  const leadPhone = document.getElementById("chatw-phone") as HTMLInputElement | null;
 
   document.getElementById("chatw-tolead")!.addEventListener("click", () => {
     leadPane.hidden = false;
-    (document.getElementById("chatw-name") as HTMLInputElement).focus();
+    const name = document.getElementById("chatw-name") as HTMLInputElement | null;
+    name?.focus();
   });
   document.getElementById("chatw-leadback")!.addEventListener("click", () => { leadPane.hidden = true; });
 
-  leadPhone.addEventListener("input", function () {
+  leadPhone?.addEventListener("input", function () {
     const d = this.value.replace(/[^0-9]/g, "").slice(0, 10);
     this.value =
       d.length > 6 ? `(${d.slice(0, 3)})-${d.slice(3, 6)}-${d.slice(6)}` :
@@ -257,9 +307,9 @@ const config = {
       d.length > 0 ? `(${d.slice(0, 3)}` : "";
   });
 
-  leadForm.addEventListener("submit", async (e) => {
+  leadForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
-    if (!leadForm.reportValidity()) return;
+    if (!leadForm.reportValidity() || !leadPhone || !leadSend || !leadStatus) return;
     const transcript = history.map((m) => `${m.role === "user" ? "Visitor" : "Assistant"}: ${m.content}`).join("\n") || "(no messages — visitor requested contact)";
     const payload = {
       _subject: "New chat lead (website AI assistant)",
@@ -269,15 +319,6 @@ const config = {
       transcript,
       source: "promax-service.com (chat widget)",
     };
-
-    const configured = cfg.endpoint && !cfg.endpoint.includes("YOUR_FORM_ID");
-    if (!configured) {
-      const body = `name: ${payload.name}\nphone: ${payload.phone}\nemail: ${payload.email}\n\n--- conversation ---\n${transcript}`;
-      location.href = `mailto:${cfg.email}?subject=${encodeURIComponent(payload._subject)}&body=${encodeURIComponent(body)}`;
-      leadStatus.hidden = false;
-      leadStatus.textContent = `Your email app should open with the conversation. If it didn't, call us at ${cfg.phone}.`;
-      return;
-    }
 
     leadSend.disabled = true;
     leadSend.textContent = "Sending…";
@@ -310,7 +351,7 @@ const config = {
     background: linear-gradient(135deg, var(--orange-bright), var(--orange-deep));
     color: #fff; display: grid; place-items: center;
     box-shadow: 0 10px 26px rgba(234, 88, 12, .45), 0 3px 8px rgba(15, 32, 56, .2);
-    transition: transform .2s ease, box-shadow .2s ease;
+    transition: transform .2s ease, box-shadow .2s ease, opacity .2s ease;
   }
   .chatw__fab:hover { transform: translateY(-3px) scale(1.04); box-shadow: 0 16px 34px rgba(234, 88, 12, .55); }
   .chatw__fab:focus-visible { outline: 3px solid var(--orange); outline-offset: 3px; }
@@ -334,12 +375,15 @@ const config = {
   }
   .chatw__head strong { font-family: var(--font-head); font-size: .98rem; display: block; }
   .chatw__head span { font-size: .76rem; color: var(--ondark-muted); }
+  .chatw__head-actions { display: flex; align-items: center; gap: 8px; flex: none; }
   .chatw__call {
     display: inline-flex; align-items: center; gap: 6px;
     background: rgba(255,255,255,.12); color: #fff; border-radius: 999px;
     padding: 8px 14px; font-size: .82rem; font-weight: 600; min-height: 36px;
   }
   .chatw__call:hover { background: var(--orange-deep); }
+  .chatw__book { background: var(--orange-deep); }
+  .chatw__book:hover { background: var(--orange-hover); }
 
   .chatw__msgs {
     height: 320px; max-height: 46vh; overflow-y: auto;
@@ -399,15 +443,37 @@ const config = {
     font: inherit; font-weight: 600; cursor: pointer; min-height: 44px;
     border-radius: 999px; padding: 10px 20px; border: 1px solid var(--line); background: #fff; color: var(--slate-2);
   }
-  .chatw__lead-send { background: var(--orange-deep) !important; border-color: var(--orange-deep) !important; color: #fff !important; }
+  .chatw__lead-send {
+    display: inline-flex; align-items: center; justify-content: center; text-decoration: none;
+    background: var(--orange-deep) !important; border-color: var(--orange-deep) !important; color: #fff !important;
+  }
   .chatw__lead-send:hover { background: var(--orange-hover) !important; }
   .chatw__leadstatus { margin-top: 12px; font-size: .85rem; color: var(--slate); background: var(--orange-soft); border-radius: 10px; padding: 10px 13px; }
 
+  /* fallback (no form endpoint configured yet): Book Online + Call, no dead-end mailto */
+  .chatw__lead-ctas { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+  .chatw__lead-callbtn {
+    display: inline-flex; align-items: center; justify-content: center; text-decoration: none;
+    font: inherit; font-weight: 600; min-height: 44px; border-radius: 999px; padding: 10px 20px;
+    border: 1px solid var(--line); background: #fff; color: var(--slate-2);
+  }
+  .chatw__lead-callbtn:hover { border-color: var(--orange); color: var(--orange-deep); }
+  .chatw__lead-back {
+    font: inherit; font-weight: 600; cursor: pointer; min-height: 40px;
+    border-radius: 999px; padding: 8px 18px; border: 1px solid var(--line); background: #fff; color: var(--slate-2);
+  }
+
   .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 
-  /* keep clear of the sticky mobile call bar */
+  /* keep clear of the sticky mobile call bar; shrink the FAB and hide it
+     while the page's hero (with its own Call button) is in view so the two
+     never overlap */
   @media (max-width: 760px) {
     .chatw { bottom: 74px; right: 14px; }
     .chatw__msgs { height: 300px; max-height: 38vh; }
+    .chatw__fab { width: 48px; height: 48px; }
+    .chatw.chatw--hero-visible:not(.is-open) .chatw__fab {
+      opacity: 0; transform: scale(.85); pointer-events: none;
+    }
   }
 </style>

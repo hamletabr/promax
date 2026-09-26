@@ -6,13 +6,13 @@ import { site } from "../data/site";
     <!-- floating offer cards -->
     <div class="ps__offers reveal">
       {site.promos.map((p) => (
-        <div class="ps__offer">
+        <a href="/specials" class="ps__offer">
           <span class="ps__offer-icon"><img src={p.icon} alt="" width="30" height="30" /></span>
           <span class="ps__offer-text">
             <strong>{p.big}</strong>
             <span>{p.small}</span>
           </span>
-        </div>
+        </a>
       ))}
     </div>
 
@@ -41,8 +41,9 @@ import { site } from "../data/site";
     display: flex; align-items: center; gap: 14px;
     background: var(--white); border: 1px solid var(--line);
     border-radius: var(--radius); box-shadow: var(--shadow-lg);
-    padding: 18px 22px;
+    padding: 18px 22px; text-decoration: none; transition: .2s ease;
   }
+  .ps__offer:hover { border-color: var(--orange); transform: translateY(-3px); box-shadow: var(--shadow-lg), 0 0 0 1px var(--orange-soft); }
   .ps__offer-icon {
     flex: none; display: grid; place-items: center;
     width: 52px; height: 52px; border-radius: 14px; background: var(--orange-soft);

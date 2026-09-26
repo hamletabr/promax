@@ -11,6 +11,7 @@ const { heading } = Astro.props;
     <div class="callban__cta">
       <span>Call Us Today!</span>
       <a href={site.phoneHref}>{site.phone}</a>
+      <a href={site.bookingUrl} class="callban__book" target="_blank" rel="noopener">or Book Online →</a>
     </div>
   </div>
 </section>
@@ -24,5 +25,11 @@ const { heading } = Astro.props;
   .callban__cta span { display: block; font-size: .85rem; color: var(--muted); }
   .callban__cta a { font-family: var(--font-head); font-weight: 800; font-size: 1.9rem; color: var(--orange); }
   .callban__cta a:hover { color: var(--orange-deep); }
+  .callban__cta .callban__book {
+    display: block; margin-top: 4px; font-family: var(--font-sans, inherit);
+    font-weight: 700; font-size: .92rem; color: var(--orange-deep);
+    text-decoration: underline; text-underline-offset: 3px;
+  }
+  .callban__cta .callban__book:hover { color: var(--orange-hover); }
   @media (max-width: 640px) { .callban__cta { text-align: left; } }
 </style>

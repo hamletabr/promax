@@ -17,6 +17,11 @@ import { site } from "../data/site";
 import { primaryServices } from "../data/services";
 import { locations } from "../data/locations";
 
+// Cap the homepage grid at 8 cards — primaryServices can grow past a dozen,
+// and a wall of 14 cards is exactly what made the mobile page absurdly tall.
+// The rest live one click away on /services.
+const homeServices = primaryServices.slice(0, 8);
+const moreServices = primaryServices.length > homeServices.length;
 ---
 <Layout preloadImage="/images/photo_hvac-min.jpg">
   <!-- Hero -->
@@ -26,12 +31,15 @@ import { locations } from "../data/locations";
       <div class="hero__text">
         <span class="eyebrow eyebrow--ondark">San Jose &amp; the Bay Area · Open 7 Days</span>
         <h1>San Jose HVAC experts keeping your home <em>comfortable</em>, all year round.</h1>
-        <p>Friendly, licensed HVAC pros for AC repair, heating installation &amp; maintenance across San Jose and Santa Clara County — same-day service and honest, upfront pricing you can trust.</p>
+        <p>Friendly, licensed HVAC pros for AC repair, heating installation &amp; maintenance across San Jose and Santa Clara County. {site.promises.repair}, and {site.promises.diagnostic.toLowerCase()}.</p>
 
         <div class="hero__btns">
           <CallButton />
           <EstimateButton />
+          <a href={site.bookingUrl} class="hero__book" target="_blank" rel="noopener">Book Online →</a>
         </div>
+
+        <a href="/emergency" class="hero__emergency">⚡ AC or heat out? Same-day dispatch →</a>
 
         <div class="hero__proof">
           <div class="hero__stars"><span>★★★★★</span> Rated 5 stars by local homeowners</div>
@@ -56,7 +64,7 @@ import { locations } from "../data/locations";
         <p>Repair, installation, maintenance &amp; replacement for every part of your home comfort system.</p>
       </div>
       <div class="grid cols-4 svc-grid">
-        {primaryServices.map((s) => (
+        {homeServices.map((s) => (
           <a href={`/services/${s.slug}`} class="svc reveal">
             <div class="svc__img"><img src={s.image} alt={`${s.name} services in San Jose, CA`} loading="lazy" width="400" height="300" /></div>
             <div class="svc__body">
@@ -66,6 +74,11 @@ import { locations } from "../data/locations";
           </a>
         ))}
       </div>
+      {moreServices && (
+        <div class="svc-more reveal">
+          <a href="/services" class="btn btn--outline">See all services →</a>
+        </div>
+      )}
     </div>
   </section>
 
@@ -84,14 +97,14 @@ import { locations } from "../data/locations";
         <h2>A Licensed Local Team You Can Trust</h2>
         <p>
           Promax Service Group is a licensed, EPA-certified HVAC contractor serving San Jose and the greater Bay Area.
-          As a <strong>Mitsubishi Diamond Contractor</strong> and <strong>Bryant Premier Dealer</strong>,
-          we install and service top-tier equipment to the highest standards — and we help you unlock federal tax credits
-          and income-qualified HEEHRA rebates on qualifying high-efficiency systems.
+          As a <strong>Mitsubishi Diamond Contractor</strong> and <strong>Bryant Factory Authorized Dealer</strong>,
+          we install and service top-tier equipment to the highest standards. {site.promises.estimate} — and
+          we check every rebate and incentive you qualify for at your free estimate.
         </p>
       </div>
       <div class="about__creds reveal">
         <div class="cred"><strong>Mitsubishi</strong><span>Diamond Contractor</span></div>
-        <div class="cred"><strong>Bryant</strong><span>Premier Dealer</span></div>
+        <div class="cred"><strong>Bryant</strong><span>Factory Authorized Dealer</span></div>
         <div class="cred"><strong>Navien</strong><span>Service Specialist</span></div>
         <div class="cred"><strong>EPA</strong><span>Certified</span></div>
         <div class="cred"><strong>Licensed</strong><span>{site.license}</span></div>
@@ -169,8 +182,23 @@ import { locations } from "../data/locations";
   .hero h1 em { font-style: normal; color: var(--orange-bright); }
   .hero p { font-size: 1.14rem; color: #d4d4d8; max-width: 540px; margin-top: 16px; }
 
-  .hero__btns { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin: 32px 0 28px; }
+  .hero__btns { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin: 32px 0 20px; }
 
+  .hero__book {
+    display: inline-flex; align-items: center; height: 56px; padding: 0 24px;
+    border-radius: 14px; border: 1.5px solid rgba(255,255,255,.5);
+    color: #fff; font-family: var(--font-head); font-weight: 700; font-size: 1.0625rem;
+    text-decoration: none; transition: .22s ease;
+  }
+  .hero__book:hover { background: rgba(255,255,255,.14); border-color: #fff; transform: translateY(-3px); }
+  .hero__book:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+  .hero__emergency {
+    display: inline-flex; align-items: center; gap: 6px; margin-bottom: 26px;
+    color: var(--amber); font-weight: 700; font-size: .96rem; text-decoration: underline;
+    text-underline-offset: 3px; text-decoration-color: rgba(251,191,36,.5);
+  }
+  .hero__emergency:hover { text-decoration-color: var(--amber); }
 
   .hero__proof { display: flex; flex-direction: column; gap: 16px; }
   .hero__stars { display: flex; align-items: center; gap: 9px; color: #d4d4d8; font-weight: 600; font-size: .94rem; }
@@ -190,6 +218,7 @@ import { locations } from "../data/locations";
     .hero__text > *:nth-child(3) { animation-delay: .23s; }
     .hero__text > *:nth-child(4) { animation-delay: .32s; }
     .hero__text > *:nth-child(5) { animation-delay: .41s; }
+    .hero__text > *:nth-child(6) { animation-delay: .5s; }
     .hero__media { opacity: 0; transform: translateY(20px) scale(.98); animation: heroIn .85s cubic-bezier(.2,.7,.3,1) .3s forwards; }
     @keyframes heroIn { to { opacity: 1; transform: none; } }
   }
@@ -218,6 +247,7 @@ import { locations } from "../data/locations";
   .svc__body { padding: 20px 22px; }
   .svc__body h3 { font-size: 1.08rem; margin-bottom: 4px; color: var(--slate); }
   .svc__link { color: var(--orange-deep); font-weight: 600; font-size: .9rem; }
+  .svc-more { text-align: center; margin-top: 30px; }
 
   /* Service area */
   .area { display: grid; grid-template-columns: 1.4fr 1fr; gap: 32px; align-items: center; }
@@ -229,6 +259,21 @@ import { locations } from "../data/locations";
   @media (max-width: 900px) {
     .area { grid-template-columns: 1fr; }
   }
+
+  /* The mobile homepage was ~23,000px tall — a big chunk of that was the
+     services grid dropping to a single wide column below 600px. Two columns
+     with a tighter image ratio and less padding cuts its height by ~45%
+     without touching the content itself. (The "why choose us" feature grid —
+     the other big contributor — is handled in WhyChooseUs.astro itself,
+     which isn't owned by this page.) */
+  @media (max-width: 600px) {
+    .svc-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .svc__img { aspect-ratio: 16/10; }
+    .svc__body { padding: 12px 14px; }
+    .svc__body h3 { font-size: .92rem; }
+    .svc__link { font-size: .8rem; }
+  }
+
   @media (max-width: 560px) {
     .hero__inner { min-height: 70vh; padding: 80px 22px; }
     .hero__overlay { background: linear-gradient(180deg, rgba(10,10,12,.64), rgba(10,10,12,.76)); }

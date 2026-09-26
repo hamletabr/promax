@@ -58,7 +58,9 @@ const config = { endpoint: site.formEndpoint, email: site.email, phone: site.pho
 
       <div class="coupons__note reveal">
         <p>
-          <strong>Stack your savings:</strong> many offers combine with <a href="/financing">federal tax credits and income-qualified HEEHRA rebates</a> —          heat pumps and heat-pump water heaters can qualify for thousands in incentives. Ask us during your free estimate.
+          <strong>Stack your savings:</strong> we check every rebate and incentive you qualify for at your free estimate.
+          HEEHRA single-family funding is fully reserved statewide; we can add you to the waitlist and apply it if funds return.
+          See current <a href="/financing">financing options</a>.
         </p>
       </div>
     </div>
@@ -71,13 +73,20 @@ const config = { endpoint: site.formEndpoint, email: site.email, phone: site.pho
     <div class="claim__card">
       <button type="button" class="claim__close" id="claim-close" aria-label="Close">✕</button>
       <h3>Claim: <span id="claim-offer"></span></h3>
-      <p>Leave your name and number — we'll confirm the offer and book your visit, usually within 1 business day.</p>
+      <p>Leave your name and number. {site.promises.callback}.</p>
       <form id="claim-form">
         <label for="claim-name">Name *<input id="claim-name" type="text" autocomplete="name" required /></label>
         <label for="claim-phone">Phone *<input id="claim-phone" type="tel" inputmode="numeric" placeholder="(xxx)-xxx-xxxx" maxlength="14" autocomplete="tel" required /></label>
         <button type="submit" class="btn btn--primary" id="claim-send">Claim Offer</button>
         <p class="claim__status" id="claim-status" role="alert" hidden></p>
       </form>
+
+      <div class="claim__fallback" id="claim-fallback" hidden>
+        <p class="claim__fallback-lead">Fastest way: book online (2 minutes)</p>
+        <a class="btn btn--primary btn--lg" href={site.bookingUrl} target="_blank" rel="noopener">Book Online Now</a>
+        <p class="claim__fallback-or">or call <a href={site.phoneHref}>{site.phone}</a></p>
+        <a class="claim__fallback-email" id="claim-fallback-email" href="#">Email us your request instead</a>
+      </div>
     </div>
   </div>
 </Layout>
@@ -91,6 +100,8 @@ const config = { endpoint: site.formEndpoint, email: site.email, phone: site.pho
   const status = document.getElementById("claim-status")!;
   const send = document.getElementById("claim-send") as HTMLButtonElement;
   const phone = document.getElementById("claim-phone") as HTMLInputElement;
+  const fallback = document.getElementById("claim-fallback")!;
+  const fallbackEmail = document.getElementById("claim-fallback-email") as HTMLAnchorElement;
   let currentOffer = "";
 
   section.addEventListener("click", (e) => {
@@ -98,6 +109,10 @@ const config = { endpoint: site.formEndpoint, email: site.email, phone: site.pho
     if (!btn) return;
     currentOffer = btn.dataset.offer!;
     offerEl.textContent = currentOffer;
+    form.hidden = false;
+    form.reset();
+    fallback.hidden = true;
+    status.hidden = true;
     modal.hidden = false;
     document.body.style.overflow = "hidden";
     (document.getElementById("claim-name") as HTMLInputElement).focus();
@@ -108,7 +123,9 @@ const config = { endpoint: site.formEndpoint, email: site.email, phone: site.pho
   window.addEventListener("keydown", (e) => { if (e.key === "Escape" && !modal.hidden) close(); });
 
   phone.addEventListener("input", function () {
-    const d = this.value.replace(/[^0-9]/g, "").slice(0, 10);
+    let d = this.value.replace(/\D/g, "");
+    if (d.length === 11 && d[0] === "1") d = d.slice(1);
+    d = d.slice(0, 10);
     this.value =
       d.length > 6 ? `(${d.slice(0, 3)})-${d.slice(3, 6)}-${d.slice(6)}` :
       d.length > 3 ? `(${d.slice(0, 3)})-${d.slice(3)}` :
@@ -127,10 +144,14 @@ const config = { endpoint: site.formEndpoint, email: site.email, phone: site.pho
     };
     const configured = cfg.endpoint && !cfg.endpoint.includes("YOUR_FORM_ID");
     if (!configured) {
+      // Endpoint isn't configured yet — a mailto: link silently does
+      // nothing on devices with no mail client, so show a working
+      // fallback (Book Online / Call) instead, with the mailto kept
+      // only as a small secondary option.
       const body = `offer: ${payload.offer}\nname: ${payload.name}\nphone: ${payload.phone}`;
-      location.href = `mailto:${cfg.email}?subject=${encodeURIComponent(payload._subject)}&body=${encodeURIComponent(body)}`;
-      status.hidden = false;
-      status.textContent = `Your email app should open with the claim. If it didn't, call us at ${cfg.phone}.`;
+      fallbackEmail.href = `mailto:${cfg.email}?subject=${encodeURIComponent(payload._subject)}&body=${encodeURIComponent(body)}`;
+      form.hidden = true;
+      fallback.hidden = false;
       return;
     }
     send.disabled = true; send.textContent = "Sending…";
@@ -187,6 +208,15 @@ const config = { endpoint: site.formEndpoint, email: site.email, phone: site.pho
   .claim__card input:focus { outline: 2px solid var(--orange); border-color: var(--orange); }
   .claim__card .btn { width: 100%; margin-top: 6px; }
   .claim__status { margin-top: 12px; font-size: .88rem; color: var(--slate); background: var(--orange-soft); border-radius: 10px; padding: 11px 14px; }
+
+  /* success-style fallback panel (shown instead of a mailto dead-end while
+     site.formEndpoint is still the "YOUR_FORM_ID" placeholder) */
+  .claim__fallback { text-align: center; margin-top: 6px; }
+  .claim__fallback-lead { font-family: var(--font-head); font-weight: 700; color: var(--slate); font-size: 1.02rem; margin-bottom: 14px; }
+  .claim__fallback .btn { width: 100%; margin-top: 0; }
+  .claim__fallback-or { color: var(--slate-2); font-size: .9rem; margin: 12px 0 2px; }
+  .claim__fallback-or a { font-weight: 700; }
+  .claim__fallback-email { display: inline-block; margin-top: 8px; font-size: .82rem; color: var(--muted); text-decoration: underline; }
 
   @media (max-width: 760px) {
     .coupons { grid-template-columns: 1fr; }

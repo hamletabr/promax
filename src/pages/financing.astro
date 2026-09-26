@@ -9,18 +9,20 @@ import { site } from "../data/site";
 
 const title = "HVAC Financing & Rebates in San Jose | Promax";
 const metaDesc =
-  "Finance a new HVAC system in San Jose with monthly plans on approved credit, plus federal tax credits up to $2,000 and HEEHRA rebates. Free estimates.";
+  "Finance a new HVAC system in San Jose with monthly plans on approved credit. We check every rebate and utility incentive you qualify for at your estimate.";
 
 const rebates = [
   {
     name: "Federal 25C Tax Credit",
-    amount: "Up to $2,000 / yr",
-    text: "30% of the cost of a qualifying heat pump or heat pump water heater (max $2,000/year), plus up to $600 for qualifying AC/furnace upgrades. We provide the documentation for your tax filing.",
+    amount: "Expired",
+    gone: true,
+    text: "The federal 25C credit (30% of cost, up to $2,000/yr) expired for installations completed after December 31, 2025, and is no longer available for new projects. We check every rebate and incentive you qualify for at your free estimate.",
   },
   {
     name: "HEEHRA (income-qualified)",
-    amount: "Up to $8,000",
-    text: "The Home Electrification and Appliance Rebate program offers major point-of-sale discounts on heat pumps for income-qualified households. We'll check your eligibility during the estimate.",
+    amount: "Waitlist only",
+    gone: true,
+    text: "HEEHRA single-family funding is fully reserved statewide. We can add income-qualified households to the waitlist and apply the rebate to your project automatically if funds return.",
   },
   {
     name: "Utility & local programs",
@@ -38,29 +40,29 @@ const rebates = [
 const steps = [
   ["Get your free estimate", "In-home visit with good/better/best options and real numbers — including every rebate you qualify for."],
   ["Pick payments that fit", "Apply for financing in minutes (approved credit). Many customers pay for a new system with the money it saves on utilities."],
-  ["We install & you relax", "Permits, HERS testing, rebate paperwork, and cleanup handled. Most installations finish in 1–2 days."],
+  ["We install & you relax", "Permits, HERS testing, rebate paperwork, and cleanup handled — we confirm the exact timeline in your free estimate."],
 ];
 
 const faqs = [
   {
     q: "What financing options do you offer?",
-    a: "We offer approved-credit financing plans with terms to fit most budgets, including low-APR and deferred-interest promotional options. Ask for current plans when you book your free estimate — approval usually takes just a few minutes.",
+    a: "We offer plans on approved credit through our financing partner, with terms from 12 to 120 months. We show you the exact monthly payment for your project during your free estimate — approval usually takes just a few minutes.",
   },
   {
     q: "Can I combine financing with rebates?",
-    a: "Yes — that's the smart way to do it. The federal tax credit returns up to $2,000 at tax time, income-qualified households can get HEEHRA discounts at the point of sale, and financing spreads the remainder into a comfortable monthly payment.",
+    a: "Yes. Any live utility incentive is applied at the point of sale, and financing spreads what's left into a comfortable monthly payment. Note: the federal 25C tax credit has expired for installs after 2025, and HEEHRA's income-qualified single-family funding is fully reserved statewide (we can add you to the waitlist). We check every rebate and incentive you currently qualify for at your free estimate.",
   },
   {
-    q: "Are TECH Clean California rebates still available?",
-    a: "Not at the moment — TECH's rebate funding is currently exhausted statewide. The federal 25C tax credit and HEEHRA income-qualified rebates are still active. We monitor TECH funding waves, and if the program reopens we'll apply it to eligible quotes automatically.",
+    q: "Are TECH Clean California, 25C, or HEEHRA rebates still available?",
+    a: "TECH Clean California's funding is exhausted statewide, and the federal 25C tax credit expired for installations after December 31, 2025 — neither is available right now. HEEHRA's income-qualified single-family funding is fully reserved statewide; we can add you to the waitlist and apply it if funds return. Utility programs are still active, and we check every rebate and incentive you qualify for at your free estimate.",
   },
   {
     q: "Do rebates apply to repairs too?",
-    a: "Rebates target high-efficiency equipment upgrades — heat pumps, heat pump water heaters, and sometimes duct sealing or smart thermostats. Repairs don't qualify, but our free-service-call-with-repair offer always applies.",
+    a: "Rebates target high-efficiency equipment upgrades — heat pumps, heat pump water heaters, and sometimes duct sealing or smart thermostats. Repairs don't qualify, but the diagnostic fee is waived with any repair.",
   },
   {
     q: "How do I know what my new system will really cost?",
-    a: "Use our online estimator for an instant ballpark range, then get exact numbers with a free on-site estimate. Your written quote itemizes equipment, labor, permits, and every rebate — no surprises.",
+    a: "Use our online estimator for an instant ballpark range, then get exact numbers with a free on-site estimate. Your written quote itemizes equipment, labor, permits, every rebate you qualify for, and — if you finance — the exact monthly payment.",
   },
 ];
 ---
@@ -68,7 +70,7 @@ const faqs = [
   <PageHero
     eyebrow="Financing & Rebates"
     title="A New HVAC System, Without the Sticker Shock"
-    sub="Split the cost into comfortable monthly payments and let California rebates plus federal tax credits pay for a serious chunk of your upgrade. We handle all the paperwork."
+    sub="Split the cost into a comfortable monthly payment, and let every rebate and utility incentive you qualify for cover part of the rest. We handle all the paperwork."
     image="/images/heat-pump-photo-min.jpg"
     parentLabel="Financing"
     parentHref="/financing"
@@ -115,6 +117,33 @@ const faqs = [
     </div>
   </section>
 
+  <section class="section">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow">The Real Question</span>
+        <h2>How the Monthly Payment Works</h2>
+        <p>
+          We finance through our financing partner, on approved credit, with terms from 12 to 120 months.
+          Rather than quote a generic rate online, we show you the exact monthly figure — and the price net of every rebate
+          you qualify for — during your free in-home estimate.
+        </p>
+      </div>
+      <!-- TODO(owner): lender name, representative APR/term, apply link -->
+      <div class="fin-monthly reveal">
+        <ul>
+          <li><strong>Approved credit, flexible terms.</strong> 12 to 120 months through our financing partner — pick a term that fits your budget.</li>
+          <li><strong>No guessing.</strong> Your free estimate shows the exact monthly payment and the price after every rebate and incentive you qualify for.</li>
+          <li><strong>Apply when you're ready.</strong> Once you've picked your equipment, financing approval typically takes just a few minutes.</li>
+        </ul>
+        <div class="fin-ctas">
+          <CallButton />
+          <EstimateButton label="See My Monthly Payment" />
+          <a href={site.bookingUrl} class="btn btn--outline" target="_blank" rel="noopener">Book Online</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <CallBanner heading="Wondering what you qualify for? One call answers it." />
   <FAQ items={faqs} />
 </Layout>
@@ -141,4 +170,11 @@ const faqs = [
   }
   .fstep p { color: var(--muted); font-size: .94rem; margin: 0; }
   .fin-ctas { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-top: 40px; }
+
+  .fin-monthly { max-width: 720px; margin: 0 auto; }
+  .fin-monthly ul { list-style: none; padding: 0; margin: 0 0 32px; }
+  .fin-monthly li { padding: 14px 0 14px 34px; position: relative; border-bottom: 1px solid var(--line); color: var(--slate-2); }
+  .fin-monthly li::before { content: "✓"; position: absolute; left: 0; color: var(--orange); font-weight: 800; font-size: 1.1rem; }
+  .fin-monthly strong { color: var(--slate); }
+  .fin-monthly .fin-ctas { margin-top: 0; }
 </style>

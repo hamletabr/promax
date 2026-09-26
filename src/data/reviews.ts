@@ -26,7 +26,8 @@ export type Review = {
   source?: string;             // "Google" | "Yelp" | "Thumbtack" ...
   location?: string;
   service?: string;            // inferred from the review text
-  featured?: boolean;          // show on the homepage (keep this to ~3 best)
+  category?: "hvac" | "electrical" | "handyman"; // classified from the review text
+  featured?: boolean;          // show on the homepage (keep this to ~3 best HVAC reviews)
   tech?: string;               // technician mentioned, if any
   googlePhotos?: number;       // # of photos this reviewer posted on Google
   ownerResponse?: string;      // business reply

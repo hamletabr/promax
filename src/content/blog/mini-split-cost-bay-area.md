@@ -28,7 +28,7 @@ Permits and HERS testing (required in California), condensate management, line-s
 
 ## Rebates make a real difference
 
-Mini splits are heat pumps, which means they qualify for [the federal 25C tax credit (up to $2,000)](/financing), and income-qualified households may get HEEHRA discounts on top. (TECH Clean California rebate funding is currently exhausted — we monitor new funding waves and apply them automatically when available.) On multi-zone whole-home conversions, stacked incentives can still knock thousands off.
+Mini splits are heat pumps, so they qualify for whatever heat-pump incentives are active — in 2026 that mostly means [utility rebates](/financing) from SVCE, Peninsula Clean Energy or PG&E, which change by city and season. The federal 25C tax credit ended for installations after December 31, 2025, single-family HEEHRA funding is fully reserved statewide (we can add you to the waitlist), and TECH Clean California is exhausted. We check every active program at your free estimate and apply anything you qualify for.
 
 ## Get your number in 60 seconds
 

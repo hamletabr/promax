@@ -9,6 +9,14 @@ import { site, nav } from "../data/site";
     </a>
     <nav class="hdr__nav" id="nav" aria-label="Main">
       {nav.map((n) => <a href={n.href}>{n.label}</a>)}
+      <!-- Mobile-drawer-only quick actions (hidden on the desktop horizontal
+           nav via CSS) so a call, a free estimate, and online booking are
+           always one tap away even when the top-bar CTA is collapsed. -->
+      <div class="hdr__nav-actions">
+        <a href={site.phoneHref} class="hdr__nav-call">Call {site.phone}</a>
+        <a href="/estimate" class="hdr__nav-est">Free Estimate</a>
+        <a href={site.bookingUrl} class="hdr__nav-book" target="_blank" rel="noopener">Book Online</a>
+      </div>
     </nav>
     <div class="hdr__cta">
       <a href={site.phoneHref} class="hdr__phone">
@@ -39,15 +47,44 @@ import { site, nav } from "../data/site";
   .hdr__burger { display: none; flex-direction: column; gap: 5px; background: none; border: 0; cursor: pointer; padding: 6px; }
   .hdr__burger span { width: 26px; height: 3px; background: var(--slate); border-radius: 2px; }
 
+  .hdr__nav-actions { display: none; }
+
   @media (max-width: 1120px) {
     .hdr__nav {
       position: absolute; top: 100%; left: 0; right: 0; flex-direction: column;
       background: #fff; padding: 14px 20px; gap: 6px; box-shadow: var(--shadow);
-      display: none;
+      display: none; max-height: 80vh; overflow-y: auto;
     }
     .hdr__nav.open { display: flex; }
-    .hdr__phone, .hdr__book { display: none; }
+    /* Only the text nav collapses into the burger — the phone stays visible
+       in the header bar at every width (see the narrower breakpoint below
+       for a compact version). The filled CTA button collapses here; its
+       actions move into the drawer instead (below). */
+    .hdr__book { display: none; }
     .hdr__burger { display: flex; }
+
+    .hdr__nav-actions {
+      display: flex; flex-direction: column; gap: 8px;
+      margin-top: 8px; padding-top: 14px; border-top: 1px solid var(--line);
+    }
+    .hdr__nav-actions a {
+      text-align: center; border-radius: 10px; padding: 12px 16px; min-height: 44px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-head); font-weight: 700; font-size: .92rem;
+    }
+    .hdr__nav-call { background: var(--bg-alt); color: var(--slate); }
+    .hdr__nav-est, .hdr__nav-book { background: var(--orange-deep); color: #fff; }
+    .hdr__nav-est:hover, .hdr__nav-book:hover { background: var(--orange-hover); }
+  }
+
+  /* Narrow phones: the header still needs room for logo + phone + burger,
+     so drop the "Call Us Today" label and shrink the number. The link stays
+     visible and tappable — nothing about the CTA disappears, it just
+     compacts. */
+  @media (max-width: 480px) {
+    .hdr__phone-label { display: none; }
+    .hdr__phone strong { font-size: 1rem; }
+    .hdr__cta { gap: 10px; }
   }
 </style>
 

@@ -2,7 +2,7 @@
 import Layout from "../layouts/Layout.astro";
 import CallBanner from "../components/CallBanner.astro";
 import { site } from "../data/site";
-import { sqftTiers, floorOptions, priorityOptions, ductPricing, disclaimer } from "../data/estimator";
+import { sqftTiers, floorOptions, priorityOptions, ductPricing, repairRanges, disclaimer } from "../data/estimator";
 
 const title = "Free Instant HVAC Estimate | San Jose, CA | Promax";
 const metaDesc =
@@ -35,7 +35,7 @@ const config = {
     <div class="container est-hero__inner">
       <span class="eyebrow">Online Estimator</span>
       <h1>Get Your HVAC Price Range in 60 Seconds</h1>
-      <p>Answer four quick questions and see a real ballpark price for your San Jose home — no waiting, no pressure, no obligation.</p>
+      <p>Tell us what you need and see a real ballpark price for your San Jose home — no waiting, no pressure, no obligation.</p>
     </div>
   </section>
 
@@ -43,14 +43,96 @@ const config = {
     <div class="container">
       <div class="est card" id="est" data-config={JSON.stringify(config)}>
 
-        <!-- progress -->
-        <div class="est__progress" aria-hidden="true">
+        <!-- progress (hidden on the step-0 gate and on the repair/tune-up result panels) -->
+        <div class="est__progress" id="est-progress" aria-hidden="true">
           <div class="est__bar"><span id="est-bar"></span></div>
           <span class="est__stepcount"><b id="est-stepnum">1</b> / 5</span>
         </div>
 
-        <!-- STEP 1: sqft -->
-        <fieldset class="est__step" data-step="1">
+        <!-- STEP 0: gate — repair vs. new system vs. tune-up -->
+        <fieldset class="est__step" data-step="0">
+          <legend><h2>What do you need?</h2></legend>
+          <p class="est__hint">Pick what's going on and we'll show you the right numbers — no need to sit through a full install wizard for a repair or a tune-up.</p>
+          <div class="est__opts est__opts--3" role="radiogroup" aria-label="What do you need">
+            <button type="button" class="est__opt" data-field="need" data-value="repair">
+              <strong>Repair</strong>
+              <span>Something's broken, or not cooling/heating right</span>
+            </button>
+            <button type="button" class="est__opt" data-field="need" data-value="install">
+              <strong>New System or Replacement</strong>
+              <span>Full install, upgrade, or replacement</span>
+            </button>
+            <button type="button" class="est__opt" data-field="need" data-value="tuneup">
+              <strong>Tune-Up</strong>
+              <span>Seasonal maintenance &amp; inspection</span>
+            </button>
+          </div>
+        </fieldset>
+
+        <!-- REPAIR branch: typical ranges, diagnostic-fee promise, and a short request form -->
+        <fieldset class="est__step" data-step="repair" hidden>
+          <legend><h2>Typical Repair Costs</h2></legend>
+          <p class="est__hint">Every repair is different — these ranges are typical, confirmed on site before any work begins.</p>
+          <ul class="est__repair-list">
+            {repairRanges.map((r) => (
+              <li>
+                <strong>{r.label}</strong>
+                <span>${r.low.toLocaleString()}–${r.high.toLocaleString()}</span>
+              </li>
+            ))}
+          </ul>
+          <p class="est__repair-note">{site.promises.diagnostic}.</p>
+
+          <div class="est__repair-actions">
+            <a href={site.phoneHref} class="btn btn--primary btn--lg">Call {site.phone}</a>
+            <a href={site.bookingUrl} target="_blank" rel="noopener" class="btn btn--outline btn--lg">Book Online</a>
+          </div>
+
+          <form id="repair-form" novalidate>
+            <h3>Or send us a quick request</h3>
+            <div class="est__fields est__fields--repair">
+              <div class="field">
+                <label for="repair-name">Name *<input id="repair-name" type="text" name="name" autocomplete="name" required /></label>
+                <span class="field__err" hidden>Please enter your name</span>
+              </div>
+              <div class="field">
+                <label for="repair-phone">Phone *<input id="repair-phone" type="tel" name="phone" inputmode="numeric" autocomplete="tel" placeholder="(xxx)-xxx-xxxx" maxlength="14" required /></label>
+                <span class="field__err" hidden>Please enter a 10-digit phone number</span>
+              </div>
+              <div class="field field--wide">
+                <label for="repair-issue">What's going on?<input id="repair-issue" type="text" name="issue" placeholder="e.g. AC blowing warm air" /></label>
+              </div>
+            </div>
+            <p class="hp" aria-hidden="true"><label>Leave this empty: <input name="_gotcha" tabindex="-1" autocomplete="off" /></label></p>
+            <button type="submit" class="btn btn--primary" id="repair-submit">Send My Request</button>
+            <p class="est__formstatus" id="repair-status" role="alert" hidden></p>
+          </form>
+
+          <div class="est__fallback" id="repair-fallback" hidden>
+            <p class="est__fallback-lead">Fastest way: book online (2 minutes)</p>
+            <a class="btn btn--primary btn--lg" href={site.bookingUrl} target="_blank" rel="noopener">Book Online Now</a>
+            <p class="est__fallback-or">or call <a href={site.phoneHref}>{site.phone}</a></p>
+            <a class="est__fallback-email" id="repair-fallback-email" href="#">Email us your request instead</a>
+          </div>
+        </fieldset>
+
+        <!-- TUNE-UP branch: the $99 special + Book Online + Call -->
+        <fieldset class="est__step" data-step="tuneup" hidden>
+          <legend><h2>$99 Tune-Up Special</h2></legend>
+          <p class="est__hint">A precision tune-up catches small issues before they become expensive repairs, and keeps your system running efficiently.</p>
+          <div class="est__tuneup">
+            <span class="est__tuneup-price">$99</span>
+            <span class="est__tuneup-label">Precision AC or Furnace Tune-Up</span>
+          </div>
+          <p class="est__tuneup-link"><a href="/specials">See all current specials →</a></p>
+          <div class="est__repair-actions">
+            <a href={site.phoneHref} class="btn btn--primary btn--lg">Call {site.phone}</a>
+            <a href={site.bookingUrl} target="_blank" rel="noopener" class="btn btn--outline btn--lg">Book Online</a>
+          </div>
+        </fieldset>
+
+        <!-- INSTALL branch, STEP 1: sqft -->
+        <fieldset class="est__step" data-step="1" hidden>
           <legend><h2>How big is your home?</h2></legend>
           <p class="est__hint">Approximate living area that needs heating &amp; cooling.</p>
           <div class="est__opts" role="radiogroup" aria-label="Square footage">
@@ -114,13 +196,14 @@ const config = {
           <legend><h2>Your Estimated Price Range</h2></legend>
           <div class="est__result">
             <span class="est__range" id="est-range" aria-live="polite">$0 – $0</span>
+            <a href={site.phoneHref} class="est__result-call">Call {site.phone}</a>
             <p class="est__summary" id="est-summary"></p>
             <p class="est__disclaimer">{disclaimer}</p>
           </div>
 
           <form id="est-form" novalidate>
             <h3>Lock in your free on-site quote</h3>
-            <p class="est__hint">Send us your answers and we'll confirm the exact price — usually within 1 business day.</p>
+            <p class="est__hint">Send us your answers. {site.promises.callback}.</p>
             <div class="est__fields">
               <div class="field">
                 <label for="lead-name">Name *<input id="lead-name" type="text" name="name" autocomplete="name" required /></label>
@@ -141,6 +224,13 @@ const config = {
             <button type="submit" class="btn btn--primary btn--lg" id="est-submit">Send My Estimate Request</button>
             <p class="est__formstatus" id="est-status" role="alert" hidden></p>
           </form>
+
+          <div class="est__fallback" id="est-fallback" hidden>
+            <p class="est__fallback-lead">Fastest way: book online (2 minutes)</p>
+            <a class="btn btn--primary btn--lg" href={site.bookingUrl} target="_blank" rel="noopener">Book Online Now</a>
+            <p class="est__fallback-or">or call <a href={site.phoneHref}>{site.phone}</a></p>
+            <a class="est__fallback-email" id="est-fallback-email" href="#">Email us your request instead</a>
+          </div>
         </fieldset>
 
         <!-- nav -->
@@ -163,7 +253,7 @@ const config = {
         from hundreds of completed Promax installations across Santa Clara County — sized by your home's square footage,
         with ductwork replacement priced per duct — so you know what to expect before anyone steps in your door.
         The final quote is always confirmed with a <strong>free on-site assessment</strong>, and as a Mitsubishi Diamond
-        Contractor and Bryant Premier Dealer we'll also check whether federal tax credits or income-qualified HEEHRA rebates can lower your cost.
+        Contractor and Bryant Factory Authorized Dealer, we check every rebate and incentive you qualify for at your free estimate.
       </p>
     </div>
   </section>
@@ -175,23 +265,30 @@ const config = {
   const root = document.getElementById("est")!;
   const cfg = JSON.parse(root.dataset.config!);
 
+  type Need = "repair" | "install" | "tuneup" | null;
   type State = {
+    need: Need;
     sqft: number | null;
     floors: string | null;
     priorities: string[];
     ductwork: string | null;
     ducts: number;
   };
-  const state: State = { sqft: null, floors: null, priorities: [], ductwork: null, ducts: 8 };
+  const state: State = { need: null, sqft: null, floors: null, priorities: [], ductwork: null, ducts: 8 };
 
   const steps = Array.from(root.querySelectorAll<HTMLElement>(".est__step"));
+  const progress = document.getElementById("est-progress")!;
   const nextBtn = document.getElementById("est-next") as HTMLButtonElement;
   const backBtn = document.getElementById("est-back") as HTMLButtonElement;
   const bar = document.getElementById("est-bar")!;
   const stepnum = document.getElementById("est-stepnum")!;
   const ductPanel = document.getElementById("est-ducts")!;
   const ductInput = document.getElementById("duct-count") as HTMLInputElement;
-  let step = 1;
+
+  // Wizard steps are "1".."5" (install branch, numbered progress bar shown).
+  // "0" is the gate, "repair" and "tuneup" are terminal result panels.
+  const WIZARD_STEPS = ["1", "2", "3", "4", "5"];
+  let step = "0";
 
   const money = (n: number) => "$" + n.toLocaleString("en-US");
 
@@ -207,28 +304,34 @@ const config = {
   }
 
   function valid(): boolean {
-    if (step === 1) return state.sqft !== null;
-    if (step === 2) return state.floors !== null;
-    if (step === 3) return true; // priorities optional
-    if (step === 4) return state.ductwork !== null;
-    return true;
+    if (step === "0") return state.need !== null;
+    if (step === "1") return state.sqft !== null;
+    if (step === "2") return state.floors !== null;
+    if (step === "3") return true; // priorities optional
+    if (step === "4") return state.ductwork !== null;
+    return true; // "5", "repair", "tuneup" have no Continue button
   }
 
   function render(scroll = true) {
-    for (const s of steps) s.hidden = Number(s.dataset.step) !== step;
-    bar.style.width = `${(step / 5) * 100}%`;
-    stepnum.textContent = String(step);
-    backBtn.hidden = step === 1;
-    nextBtn.hidden = step === 5;
+    for (const s of steps) s.hidden = s.dataset.step !== step;
+    const numbered = WIZARD_STEPS.includes(step);
+    progress.hidden = !numbered;
+    if (numbered) {
+      bar.style.width = `${(Number(step) / 5) * 100}%`;
+      stepnum.textContent = step;
+    }
+    backBtn.hidden = step === "0";
+    nextBtn.hidden = step === "5" || step === "repair" || step === "tuneup";
     nextBtn.disabled = !valid();
-    if (step === 5) renderResult();
+    if (step === "5") renderResult();
     if (scroll) root.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   function renderResult() {
+    if (state.sqft === null) return;
     const [lo, hi] = range();
     document.getElementById("est-range")!.textContent = `${money(lo)} – ${money(hi)}`;
-    const tier = cfg.sqftTiers[state.sqft!];
+    const tier = cfg.sqftTiers[state.sqft];
     const parts = [
       `${tier.label} · ${state.floors}`,
       state.ductwork === "yes"
@@ -256,61 +359,98 @@ const config = {
     } else {
       btn.parentElement!.querySelectorAll(".est__opt").forEach((b) => b.classList.remove("is-picked"));
       btn.classList.add("is-picked");
+      if (field === "need") state.need = value as Need;
       if (field === "sqft") state.sqft = Number(value);
       if (field === "floors") state.floors = value;
       if (field === "ductwork") {
         state.ductwork = value;
         ductPanel.hidden = value !== "yes";
+        if (!ductPanel.hidden) nextBtn.scrollIntoView({ behavior: "smooth", block: "nearest" });
       }
     }
     nextBtn.disabled = !valid();
   });
 
-  nextBtn.addEventListener("click", () => { if (valid() && step < 5) { step++; render(); } });
-  backBtn.addEventListener("click", () => { if (step > 1) { step--; render(); } });
-
-  // duct stepper
-  const clampDucts = () => {
-    const v = Math.min(cfg.ductPricing.max, Math.max(cfg.ductPricing.min, Number(ductInput.value) || cfg.ductPricing.min));
-    ductInput.value = String(v);
-    state.ducts = v;
-  };
-  document.getElementById("duct-minus")!.addEventListener("click", () => { ductInput.value = String(Number(ductInput.value) - 1); clampDucts(); });
-  document.getElementById("duct-plus")!.addEventListener("click", () => { ductInput.value = String(Number(ductInput.value) + 1); clampDucts(); });
-  ductInput.addEventListener("input", clampDucts);
-
-  // phone live-format
-  const phoneEl = document.getElementById("lead-phone") as HTMLInputElement;
-  phoneEl.addEventListener("input", function () {
-    const d = this.value.replace(/[^0-9]/g, "").slice(0, 10);
-    this.value =
-      d.length > 6 ? `(${d.slice(0, 3)})-${d.slice(3, 6)}-${d.slice(6)}` :
-      d.length > 3 ? `(${d.slice(0, 3)})-${d.slice(3)}` :
-      d.length > 0 ? `(${d.slice(0, 3)}` : "";
-  });
-
-  // submit lead
-  const form = document.getElementById("est-form") as HTMLFormElement;
-  const status = document.getElementById("est-status")!;
-  const submitBtn = document.getElementById("est-submit") as HTMLButtonElement;
-
-  function leadPayload() {
-    const [lo, hi] = range();
-    const tier = cfg.sqftTiers[state.sqft!];
-    return {
-      _subject: "New HVAC estimate request (website estimator)",
-      name: (document.getElementById("lead-name") as HTMLInputElement).value.trim(),
-      phone: phoneEl.value.trim(),
-      email: (document.getElementById("lead-email") as HTMLInputElement).value.trim(),
-      city: (document.getElementById("lead-city") as HTMLInputElement).value.trim(),
-      "house size": tier.label,
-      floors: state.floors,
-      priorities: state.priorities.join(", ") || "(none selected)",
-      "ductwork replacement": state.ductwork === "yes" ? `Yes — ${state.ducts} ducts` : state.ductwork,
-      "estimate shown": `${money(lo)} – ${money(hi)}`,
-      source: "promax-service.com/estimate",
-    };
+  function goNext() {
+    if (!valid()) return;
+    if (step === "0") {
+      step = state.need === "repair" ? "repair" : state.need === "tuneup" ? "tuneup" : "1";
+      render();
+      return;
+    }
+    const n = Number(step);
+    if (!Number.isNaN(n) && n < 5) {
+      step = String(n + 1);
+      render();
+    }
   }
+  function goBack() {
+    if (step === "0") return;
+    if (step === "repair" || step === "tuneup") { step = "0"; render(); return; }
+    const n = Number(step);
+    if (!Number.isNaN(n)) {
+      step = n === 1 ? "0" : String(n - 1);
+      render();
+    }
+  }
+  nextBtn.addEventListener("click", goNext);
+  backBtn.addEventListener("click", goBack);
+
+  // duct stepper — only sync state on "input" when the value is a complete,
+  // valid integer; clamp/rewrite the field itself on change/blur (and via
+  // the +/- buttons) so a partial keystroke like "20" never gets rewritten
+  // mid-type into something like "30".
+  function isValidDuctCount(v: number): boolean {
+    return Number.isInteger(v) && v >= cfg.ductPricing.min && v <= cfg.ductPricing.max;
+  }
+  function clampDuctCount(v: number): number {
+    const n = Number.isFinite(v) ? Math.round(v) : cfg.ductPricing.min;
+    return Math.min(cfg.ductPricing.max, Math.max(cfg.ductPricing.min, n));
+  }
+  function setDucts(v: number) {
+    state.ducts = v;
+    if (step === "5") renderResult();
+  }
+  function syncDuctsOnInput() {
+    const parsed = Number(ductInput.value);
+    if (isValidDuctCount(parsed)) setDucts(parsed);
+  }
+  function clampDuctsOnCommit() {
+    const clamped = clampDuctCount(Number(ductInput.value));
+    ductInput.value = String(clamped);
+    setDucts(clamped);
+  }
+  document.getElementById("duct-minus")!.addEventListener("click", () => {
+    const next = clampDuctCount((Number(ductInput.value) || cfg.ductPricing.min) - 1);
+    ductInput.value = String(next);
+    setDucts(next);
+  });
+  document.getElementById("duct-plus")!.addEventListener("click", () => {
+    const next = clampDuctCount((Number(ductInput.value) || cfg.ductPricing.min) + 1);
+    ductInput.value = String(next);
+    setDucts(next);
+  });
+  ductInput.addEventListener("input", syncDuctsOnInput);
+  ductInput.addEventListener("change", clampDuctsOnCommit);
+  ductInput.addEventListener("blur", clampDuctsOnCommit);
+
+  // phone live-format — strip a leading US country code ("+1 (669)...") from
+  // autofill before slicing to 10 digits, so it can't shift the area code.
+  function attachPhoneFormatter(input: HTMLInputElement) {
+    input.addEventListener("input", function () {
+      let d = this.value.replace(/\D/g, "");
+      if (d.length === 11 && d[0] === "1") d = d.slice(1);
+      d = d.slice(0, 10);
+      this.value =
+        d.length > 6 ? `(${d.slice(0, 3)})-${d.slice(3, 6)}-${d.slice(6)}` :
+        d.length > 3 ? `(${d.slice(0, 3)})-${d.slice(3)}` :
+        d.length > 0 ? `(${d.slice(0, 3)}` : "";
+    });
+  }
+  const phoneEl = document.getElementById("lead-phone") as HTMLInputElement;
+  const repairPhoneEl = document.getElementById("repair-phone") as HTMLInputElement;
+  attachPhoneFormatter(phoneEl);
+  attachPhoneFormatter(repairPhoneEl);
 
   function showError(input: HTMLInputElement, show: boolean) {
     const err = input.closest(".field")?.querySelector<HTMLElement>(".field__err");
@@ -318,49 +458,122 @@ const config = {
     input.classList.toggle("is-invalid", show);
   }
 
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const nameEl = document.getElementById("lead-name") as HTMLInputElement;
-    const nameOk = nameEl.value.trim().length > 0;
-    const phoneOk = phoneEl.value.replace(/[^0-9]/g, "").length === 10;
-    showError(nameEl, !nameOk);
-    showError(phoneEl, !phoneOk);
-    if (!nameOk || !phoneOk) { (!nameOk ? nameEl : phoneEl).focus(); return; }
+  const configured = Boolean(cfg.endpoint) && !cfg.endpoint.includes("YOUR_FORM_ID");
 
-    const gotcha = form.querySelector<HTMLInputElement>('[name="_gotcha"]');
-    if (gotcha?.value) return; // bot
+  function mailtoLink(subject: string, payload: Record<string, unknown>) {
+    const body = Object.entries(payload)
+      .filter(([k]) => k !== "_subject")
+      .map(([k, v]) => `${k}: ${v}`)
+      .join("\n");
+    return `mailto:${cfg.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  }
 
-    const payload = leadPayload();
-    const configured = cfg.endpoint && !cfg.endpoint.includes("YOUR_FORM_ID");
+  // Wires a lead form to: validate -> POST to the real endpoint when
+  // configured, or reveal the "book online / call / email" fallback panel
+  // when it's still the "YOUR_FORM_ID" placeholder. Never silently
+  // re-enables the button with no visible result either way.
+  function wireLeadForm(opts: {
+    form: HTMLFormElement;
+    nameEl: HTMLInputElement;
+    phoneEl: HTMLInputElement;
+    submitBtn: HTMLButtonElement;
+    submitLabel: string;
+    status: HTMLElement;
+    fallbackPanel: HTMLElement;
+    fallbackEmail: HTMLAnchorElement;
+    buildPayload: () => Record<string, unknown>;
+  }) {
+    const { form, nameEl, phoneEl: pEl, submitBtn, submitLabel, status, fallbackPanel, fallbackEmail, buildPayload } = opts;
 
-    if (!configured) {
-      // graceful fallback until the form endpoint is set up: open email app
-      const body = Object.entries(payload)
-        .filter(([k]) => k !== "_subject")
-        .map(([k, v]) => `${k}: ${v}`)
-        .join("\n");
-      location.href = `mailto:${cfg.email}?subject=${encodeURIComponent(payload._subject)}&body=${encodeURIComponent(body)}`;
-      status.hidden = false;
-      status.textContent = `Your email app should open with your request. If it didn't, just call us at ${cfg.phone}.`;
-      return;
-    }
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const nameOk = nameEl.value.trim().length > 0;
+      const phoneOk = pEl.value.replace(/\D/g, "").length === 10;
+      showError(nameEl, !nameOk);
+      showError(pEl, !phoneOk);
+      if (!nameOk || !phoneOk) { (!nameOk ? nameEl : pEl).focus(); return; }
 
-    submitBtn.disabled = true;
-    submitBtn.textContent = "Sending…";
-    try {
-      const res = await fetch(cfg.endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) throw new Error(String(res.status));
-      location.href = "/thank-you";
-    } catch {
-      submitBtn.disabled = false;
-      submitBtn.textContent = "Send My Estimate Request";
-      status.hidden = false;
-      status.textContent = `Something went wrong sending your request. Please call us at ${cfg.phone} — we answer 7 days a week.`;
-    }
+      const gotcha = form.querySelector<HTMLInputElement>('[name="_gotcha"]');
+      if (gotcha?.value) return; // bot
+
+      const payload = buildPayload();
+
+      if (!configured) {
+        fallbackEmail.href = mailtoLink(String(payload._subject), payload);
+        form.hidden = true;
+        fallbackPanel.hidden = false;
+        fallbackPanel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Sending…";
+      try {
+        const res = await fetch(cfg.endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Accept: "application/json" },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) throw new Error(String(res.status));
+        location.href = "/thank-you";
+      } catch {
+        submitBtn.disabled = false;
+        submitBtn.textContent = submitLabel;
+        status.hidden = false;
+        status.textContent = `Something went wrong sending your request. Please call us at ${cfg.phone} — we answer 7 days a week.`;
+      }
+    });
+  }
+
+  // main install-wizard lead form
+  const emailEl = document.getElementById("lead-email") as HTMLInputElement;
+  const cityEl = document.getElementById("lead-city") as HTMLInputElement;
+  wireLeadForm({
+    form: document.getElementById("est-form") as HTMLFormElement,
+    nameEl: document.getElementById("lead-name") as HTMLInputElement,
+    phoneEl,
+    submitBtn: document.getElementById("est-submit") as HTMLButtonElement,
+    submitLabel: "Send My Estimate Request",
+    status: document.getElementById("est-status")!,
+    fallbackPanel: document.getElementById("est-fallback")!,
+    fallbackEmail: document.getElementById("est-fallback-email") as HTMLAnchorElement,
+    buildPayload: () => {
+      const [lo, hi] = range();
+      const tier = cfg.sqftTiers[state.sqft!];
+      return {
+        _subject: "New HVAC estimate request (website estimator)",
+        name: (document.getElementById("lead-name") as HTMLInputElement).value.trim(),
+        phone: phoneEl.value.trim(),
+        email: emailEl.value.trim(),
+        city: cityEl.value.trim(),
+        "house size": tier.label,
+        floors: state.floors,
+        priorities: state.priorities.join(", ") || "(none selected)",
+        "ductwork replacement": state.ductwork === "yes" ? `Yes — ${state.ducts} ducts` : state.ductwork,
+        "estimate shown": `${money(lo)} – ${money(hi)}`,
+        source: "promax-service.com/estimate",
+      };
+    },
+  });
+
+  // short repair-request form
+  const repairIssueEl = document.getElementById("repair-issue") as HTMLInputElement;
+  wireLeadForm({
+    form: document.getElementById("repair-form") as HTMLFormElement,
+    nameEl: document.getElementById("repair-name") as HTMLInputElement,
+    phoneEl: repairPhoneEl,
+    submitBtn: document.getElementById("repair-submit") as HTMLButtonElement,
+    submitLabel: "Send My Request",
+    status: document.getElementById("repair-status")!,
+    fallbackPanel: document.getElementById("repair-fallback")!,
+    fallbackEmail: document.getElementById("repair-fallback-email") as HTMLAnchorElement,
+    buildPayload: () => ({
+      _subject: "New HVAC repair request (website estimator)",
+      name: (document.getElementById("repair-name") as HTMLInputElement).value.trim(),
+      phone: repairPhoneEl.value.trim(),
+      issue: repairIssueEl.value.trim() || "(not specified)",
+      source: "promax-service.com/estimate (repair)",
+    }),
   });
 
   render(false);
@@ -374,7 +587,7 @@ const config = {
   .est-hero p { color: var(--ondark-muted, #b3b3ba); font-size: 1.08rem; margin: 12px auto 0; max-width: 560px; }
 
   .est-section { padding-top: 48px; }
-  .est { max-width: 780px; margin: 0 auto; padding: 34px clamp(20px, 4vw, 44px) 38px; }
+  .est { max-width: 780px; margin: 0 auto; padding: 34px clamp(20px, 4vw, 44px) 38px; scroll-margin-top: 96px; }
   .est:hover { transform: none; box-shadow: var(--shadow-sm); }
 
   .est__progress { display: flex; align-items: center; gap: 14px; margin-bottom: 28px; }
@@ -420,10 +633,47 @@ const config = {
 
   .est__result { text-align: center; padding: 10px 0 26px; border-bottom: 1px solid var(--line); margin-bottom: 26px; }
   .est__range { font-family: var(--font-head); font-weight: 700; font-size: clamp(2.1rem, 5vw, 3rem); color: var(--orange); display: block; }
+  .est__result-call { display: inline-block; margin-top: 8px; font-family: var(--font-head); font-weight: 700; color: var(--orange-deep); font-size: 1.05rem; }
   .est__summary { color: var(--slate-2); font-size: .93rem; margin: 10px 0 14px; }
   .est__disclaimer { color: var(--muted); font-size: .82rem; max-width: 560px; margin: 0 auto; }
 
+  /* repair branch */
+  .est__repair-list { list-style: none; padding: 0; margin: 0 0 18px; display: grid; gap: 10px; }
+  .est__repair-list li {
+    display: flex; justify-content: space-between; gap: 12px; align-items: baseline;
+    padding: 12px 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg-alt);
+  }
+  .est__repair-list strong { font-family: var(--font-head); font-weight: 600; color: var(--slate); font-size: .95rem; }
+  .est__repair-list span { font-family: var(--font-head); font-weight: 700; color: var(--orange-deep); white-space: nowrap; }
+  .est__repair-note { color: var(--muted); font-size: .88rem; margin-bottom: 22px; }
+  .est__repair-actions { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 26px; }
+  .est__repair-actions .btn { flex: 1 1 200px; }
+
+  /* tune-up branch */
+  .est__tuneup {
+    display: flex; align-items: center; gap: 16px; padding: 18px 22px; margin-bottom: 16px;
+    background: var(--orange-soft); border-radius: var(--radius); border: 2px dashed var(--orange);
+  }
+  .est__tuneup-price { font-family: var(--font-head); font-weight: 800; font-size: 2rem; color: var(--orange-deep); }
+  .est__tuneup-label { font-family: var(--font-head); font-weight: 600; color: var(--slate); }
+  .est__tuneup-link { margin-bottom: 22px; }
+  .est__tuneup-link a { font-weight: 700; }
+
+  /* success-style fallback panel (shown instead of a mailto dead-end while
+     site.formEndpoint is still the "YOUR_FORM_ID" placeholder) */
+  .est__fallback {
+    text-align: center; margin-top: 8px; padding: 26px 22px; border-radius: var(--radius-lg);
+    background: var(--orange-soft); border: 1px solid var(--line);
+  }
+  .est__fallback-lead { font-family: var(--font-head); font-weight: 700; color: var(--slate); font-size: 1.1rem; margin-bottom: 16px; }
+  .est__fallback .btn { width: 100%; max-width: 360px; }
+  .est__fallback-or { color: var(--slate-2); font-size: .95rem; margin: 14px 0 4px; }
+  .est__fallback-or a { font-weight: 700; }
+  .est__fallback-email { display: inline-block; margin-top: 10px; font-size: .85rem; color: var(--muted); text-decoration: underline; }
+
   .est__fields { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 18px 0; }
+  .est__fields--repair { grid-template-columns: 1fr 1fr; }
+  .field--wide { grid-column: 1 / -1; }
   .field label { display: flex; flex-direction: column; gap: 6px; font-weight: 600; color: var(--slate); font-size: .9rem; }
   .field input { font: inherit; padding: 12px 14px; border: 2px solid var(--line); border-radius: 10px; background: #fff; min-height: 48px; }
   .field input:focus { outline: 2px solid var(--orange); border-color: var(--orange); }
@@ -447,9 +697,10 @@ const config = {
   [hidden] { display: none !important; }
 
   @media (max-width: 640px) {
-    .est__opts, .est__opts--3, .est__fields { grid-template-columns: 1fr; }
+    .est__opts, .est__opts--3, .est__fields, .est__fields--repair { grid-template-columns: 1fr; }
     .est__nav .btn { width: 100%; }
     .est__nav { flex-direction: column-reverse; }
     .est__nav .est__back { margin-right: auto; }
+    .est__repair-actions { flex-direction: column; }
   }
 </style>
