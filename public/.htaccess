@@ -1,0 +1,91 @@
+# Apache config for SiteGround (or any Apache host). Cloudflare/Netlify ignore this
+# file and use _redirects/_headers instead — both can live in the repo together.
+
+# ── HTTPS + one canonical host (apex, no www) ──────────────────────────────
+DirectoryIndex index.html index.php
+RewriteEngine On
+RewriteCond %{HTTPS} off [OR]
+RewriteCond %{HTTP_HOST} ^www\. [NC]
+RewriteRule ^ https://promax-service.com%{REQUEST_URI} [L,R=301]
+
+# ── Old WordPress URLs → new pages (true 301s, trailing slash or not) ─────
+RewriteRule ^air\-conditioner\-installation/?$ /services/air-conditioner-installation/ [L,R=301]
+RewriteRule ^air\-conditioner\-maintenance/?$ /services/air-conditioner-maintenance/ [L,R=301]
+RewriteRule ^air\-conditioner\-repair/?$ /services/air-conditioner-repair/ [L,R=301]
+RewriteRule ^air\-conditioner/?$ /services/air-conditioner/ [L,R=301]
+RewriteRule ^contact\-us/?$ /contact/ [L,R=301]
+RewriteRule ^ductless\-split\-systems/?$ /services/ductless-split-systems/ [L,R=301]
+RewriteRule ^furnace\-installation/?$ /services/furnace-installation/ [L,R=301]
+RewriteRule ^furnace\-repair/?$ /services/furnace-repair/ [L,R=301]
+RewriteRule ^furnace/?$ /services/furnace/ [L,R=301]
+RewriteRule ^heat\-pump/?$ /services/heat-pump/ [L,R=301]
+RewriteRule ^hvac\-ductwork/?$ /services/hvac-ductwork/ [L,R=301]
+RewriteRule ^hvac\-installation/?$ /services/hvac-installation/ [L,R=301]
+RewriteRule ^hvac\-repair/?$ /services/hvac-repair/ [L,R=301]
+RewriteRule ^hvac/?$ /services/hvac/ [L,R=301]
+RewriteRule ^indoor\-air\-quality\-system/?$ /services/indoor-air-quality-system/ [L,R=301]
+RewriteRule ^locations\-atherton/?$ /locations/atherton/ [L,R=301]
+RewriteRule ^locations\-belmont/?$ /locations/belmont/ [L,R=301]
+RewriteRule ^locations\-campbell/?$ /locations/campbell/ [L,R=301]
+RewriteRule ^locations\-cupertino/?$ /locations/cupertino/ [L,R=301]
+RewriteRule ^locations\-fremont/?$ /locations/fremont/ [L,R=301]
+RewriteRule ^locations\-los\-altos/?$ /locations/los-altos/ [L,R=301]
+RewriteRule ^locations\-los\-gatos/?$ /locations/los-gatos/ [L,R=301]
+RewriteRule ^locations\-milpitas/?$ /locations/milpitas/ [L,R=301]
+RewriteRule ^locations\-mountain\-view/?$ /locations/mountain-view/ [L,R=301]
+RewriteRule ^locations\-palo\-alto/?$ /locations/palo-alto/ [L,R=301]
+RewriteRule ^locations\-redwood\-city/?$ /locations/redwood-city/ [L,R=301]
+RewriteRule ^locations\-sanmateo/?$ /locations/san-mateo/ [L,R=301]
+RewriteRule ^locations\-santa\-clara/?$ /locations/santa-clara/ [L,R=301]
+RewriteRule ^locations\-saratoga/?$ /locations/saratoga/ [L,R=301]
+RewriteRule ^locations\-sunnyvale/?$ /locations/sunnyvale/ [L,R=301]
+RewriteRule ^rooftop\-package\-unit/?$ /services/rooftop-package-unit/ [L,R=301]
+RewriteRule ^vrf\-installation\-system/?$ /services/vrf-installation-system/ [L,R=301]
+RewriteRule ^water\-heater\-installation/?$ /services/water-heater-installation/ [L,R=301]
+RewriteRule ^water\-heater\-repair/?$ /services/water-heater-repair/ [L,R=301]
+RewriteRule ^water\-heater\-replacement/?$ /services/water-heater-replacement/ [L,R=301]
+RewriteRule ^water\-heater/?$ /services/water-heater/ [L,R=301]
+RewriteRule ^zone\-control\-system/?$ /services/zone-control-system/ [L,R=301]
+RewriteRule ^feed/?$ // [L,R=301]
+RewriteRule ^comments/feed/?$ // [L,R=301]
+RewriteRule ^xmlrpc\.php/?$ // [L,R=301]
+RewriteRule ^wp\-login\.php/?$ // [L,R=301]
+
+# WordPress leftovers that bots still request
+RewriteRule ^(feed|comments/feed|xmlrpc\.php|wp-login\.php)/?$ / [L,R=301]
+RewriteRule ^(wp-json|wp-content|wp-admin|wp-includes)(/.*)?$ / [L,R=301]
+
+# ── Clean URLs: /about → /about/ (Astro builds folder/index.html) ─────────
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteCond %{REQUEST_URI} !/$
+RewriteRule ^(.*)$ /$1/ [L,R=301]
+
+ErrorDocument 404 /404.html
+
+# ── Security headers ───────────────────────────────────────────────────────
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+  # hashed build assets never change
+  <FilesMatch "\.(css|js|woff2?|webp|avif|png|jpe?g|svg|ico)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+  <FilesMatch "\.html$">
+    Header set Cache-Control "public, max-age=0, must-revalidate"
+  </FilesMatch>
+</IfModule>
+
+# ── Admin console: never cached, never indexed ─────────────────────────────
+<IfModule mod_headers.c>
+  <If "%{REQUEST_URI} =~ m#^/admin#">
+    Header set Cache-Control "no-store"
+    Header set X-Robots-Tag "noindex, nofollow"
+  </If>
+</IfModule>
+
+# ── Compression ────────────────────────────────────────────────────────────
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json image/svg+xml text/xml
+</IfModule>

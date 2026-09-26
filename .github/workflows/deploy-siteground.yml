@@ -1,0 +1,62 @@
+# Builds the site and uploads dist/ to SiteGround over FTPS on every push to main.
+# It does nothing until these three repository secrets exist
+# (GitHub → Settings → Secrets and variables → Actions):
+#   FTP_HOST      the FTP hostname from Site Tools → Files → FTP Accounts
+#   FTP_USERNAME  that FTP account's username
+#   FTP_PASSWORD  its password
+# Optional repository VARIABLE:  FTP_SERVER_DIR  (defaults to public_html/)
+#
+# First-time cutover is manual and deliberate: take a SiteGround backup, empty
+# public_html of the WordPress files, then let this workflow (or a manual
+# upload of dist/) fill it. After that, every push — including the owner's
+# admin-console edits and dropped photo folders — goes live by itself.
+name: Deploy to SiteGround
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-siteground
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      FTP_HOST: ${{ secrets.FTP_HOST }}
+    steps:
+      - name: Skip until FTP secrets are configured
+        if: env.FTP_HOST == ''
+        run: echo "FTP_HOST secret not set — nothing deployed. See the comment at the top of this file."
+
+      - uses: actions/checkout@v4
+        if: env.FTP_HOST != ''
+
+      - uses: actions/setup-node@v4
+        if: env.FTP_HOST != ''
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Build
+        if: env.FTP_HOST != ''
+        run: |
+          npm ci
+          npm run build
+
+      - name: Upload dist/ (only changed files)
+        if: env.FTP_HOST != ''
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          port: 21
+          local-dir: dist/
+          server-dir: ${{ vars.FTP_SERVER_DIR || 'public_html/' }}
+          state-name: .promax-deploy-state.json
+          exclude: |
+            **/.DS_Store

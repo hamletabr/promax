@@ -53,6 +53,27 @@ served via Google Cloud LB IPs; Google Workspace email on the domain; GTM-5WRQ9S
   `promax-service.com/admin*`, policy: emails you allow. Free for ≤50 users.
 - Owner needs a GitHub account added as a collaborator (write) on hamletabr/promax; turn on 2FA.
 
+## Alternative: stay on SiteGround (simpler cutover — no DNS change)
+
+The site is a folder of static files, so the existing SiteGround account can
+serve it. Nothing about DNS or email changes.
+
+1. GitHub → Settings → Secrets and variables → Actions → add `FTP_HOST`,
+   `FTP_USERNAME`, `FTP_PASSWORD` from a SiteGround FTP account
+   (Site Tools → Files → FTP Accounts → create one for the site).
+2. Site Tools → Backups → create a backup of the WordPress site (this is the rollback).
+3. Site Tools → File Manager → `public_html` → delete the WordPress files
+   (`wp-*`, `index.php`, `.htaccess`, `xmlrpc.php`…). The database can stay.
+4. GitHub → Actions → "Deploy to SiteGround" → Run workflow. It builds and
+   uploads `dist/` — including `.htaccess`, which carries the 301 map,
+   HTTPS/canonical-host redirect, headers and caching.
+5. Same checks as §3: `curl -I https://promax-service.com/heat-pump/` → 301,
+   `/locations-sanmateo/` → 301, submit the sitemap, confirm GTM fires.
+6. Every later push (admin-console edits, new photo folders) deploys itself.
+
+Rollback: Site Tools → Backups → restore. Migrate to Cloudflare Pages later
+if you want to drop the hosting bill; the repo already carries both configs.
+
 ## 5. Leave WordPress up for 30 days (don't cancel SiteGround yet)
 - Keeps a rollback: set nameservers back and the old site returns.
 - After 30 days with clean Search Console, cancel.
