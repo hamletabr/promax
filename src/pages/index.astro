@@ -36,10 +36,12 @@ const moreServices = primaryServices.length > homeServices.length;
         <div class="hero__btns">
           <CallButton />
           <EstimateButton />
-          <a href={site.bookingUrl} class="hero__book" target="_blank" rel="noopener">Book Online →</a>
         </div>
 
-        <a href="/emergency" class="hero__emergency">⚡ AC or heat out? Same-day dispatch →</a>
+        <div class="hero__links">
+          <a href="/emergency" class="hero__emergency">⚡ AC or heat out? Same-day dispatch →</a>
+          <a href={site.bookingUrl} class="hero__book" target="_blank" rel="noopener">Book online →</a>
+        </div>
 
         <div class="hero__proof">
           <div class="hero__stars"><span>★★★★★</span> Rated 5 stars by local homeowners</div>
@@ -184,17 +186,18 @@ const moreServices = primaryServices.length > homeServices.length;
 
   .hero__btns { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin: 32px 0 20px; }
 
+  .hero__links { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 22px; margin-bottom: 26px; }
+  /* secondary action as a text link, same family as the emergency line */
   .hero__book {
-    display: inline-flex; align-items: center; height: 56px; padding: 0 24px;
-    border-radius: 14px; border: 1.5px solid rgba(255,255,255,.5);
-    color: #fff; font-family: var(--font-head); font-weight: 700; font-size: 1.0625rem;
-    text-decoration: none; transition: .22s ease;
+    color: #fff; font-weight: 600; font-size: .95rem;
+    text-decoration: underline; text-underline-offset: 4px; text-decoration-color: rgba(255,255,255,.45);
+    transition: text-decoration-color .2s ease;
   }
-  .hero__book:hover { background: rgba(255,255,255,.14); border-color: #fff; transform: translateY(-3px); }
-  .hero__book:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+  .hero__book:hover { text-decoration-color: var(--amber); }
+  .hero__book:focus-visible { outline: 2px solid #fff; outline-offset: 3px; border-radius: 3px; }
 
   .hero__emergency {
-    display: inline-flex; align-items: center; gap: 6px; margin-bottom: 26px;
+    display: inline-flex; align-items: center; gap: 6px;
     color: var(--amber); font-weight: 700; font-size: .96rem; text-decoration: underline;
     text-underline-offset: 3px; text-decoration-color: rgba(251,191,36,.5);
   }

@@ -44,7 +44,7 @@ export const locations: Location[] = [
       },
       {
         q: "How fast can you respond if our AC or heat goes out in Atherton?",
-        a: `${site.promises.repair} ${site.promises.callback}`,
+        a: `${site.promises.repair}. ${site.promises.callback}.`,
       },
       {
         q: "Can you work around household staff and gate schedules?",
@@ -77,7 +77,7 @@ export const locations: Location[] = [
       },
       {
         q: "Our furnace stopped working overnight — how fast can you come?",
-        a: `${site.promises.repair} ${site.promises.callback}`,
+        a: `${site.promises.repair}. ${site.promises.callback}.`,
       },
       {
         q: "Is the estimate free if we're just considering a replacement?",
@@ -106,7 +106,7 @@ export const locations: Location[] = [
     faqs: [
       {
         q: "Our AC near downtown Campbell is over 20 years old — repair or replace?",
-        a: `We'll diagnose it honestly and lay out both options with real numbers. ${site.promises.diagnostic} ${site.promises.estimate}`,
+        a: `We'll diagnose it honestly and lay out both options with real numbers. ${site.promises.diagnostic}. ${site.promises.estimate}.`,
       },
       {
         q: "It hit 95° and our AC just died — how soon can you help?",
@@ -172,7 +172,7 @@ export const locations: Location[] = [
     faqs: [
       {
         q: "How fast can you get to Fremont on a no-cool day?",
-        a: `${site.promises.repair} ${site.promises.callback}`,
+        a: `${site.promises.repair}. ${site.promises.callback}.`,
       },
       {
         q: "Our Niles cottage still has an old wall furnace — can you upgrade it?",
@@ -246,7 +246,7 @@ export const locations: Location[] = [
       },
       {
         q: "Our furnace died on a cold night — how fast can you respond?",
-        a: `${site.promises.repair} ${site.promises.callback}`,
+        a: `${site.promises.repair}. ${site.promises.callback}.`,
       },
     ],
   },
@@ -255,8 +255,8 @@ export const locations: Location[] = [
     city: "Milpitas",
     h1: "HVAC Services in Milpitas",
     title: "HVAC Milpitas CA | Heating & AC Solutions",
-    sub: "From Berryessa to Montague, Milpitas families rely on us for dependable heating and cooling.",
-    hook: "Berryessa to Montague",
+    sub: "From Midtown to Montague, Milpitas families rely on us for dependable heating and cooling.",
+    hook: "Midtown to Montague",
     metaDesc:
       "Milpitas HVAC repair and installation near Midtown, McCarthy Ranch, and Park Victoria — licensed techs sizing systems for tract homes and new builds.",
     neighborhoods: ["Midtown Milpitas", "McCarthy Ranch", "Sunnyhills", "Zanker", "Park Victoria"],
@@ -341,7 +341,7 @@ export const locations: Location[] = [
       },
       {
         q: "How fast can you respond to a no-heat call in Professorville?",
-        a: `${site.promises.repair} ${site.promises.callback}`,
+        a: `${site.promises.repair}. ${site.promises.callback}.`,
       },
       {
         q: "Do you offer free estimates for Palo Alto homeowners?",
@@ -456,8 +456,8 @@ export const locations: Location[] = [
     sub: "From Congress Springs Park to the Foothills, Saratoga homeowners count on our HVAC expertise.",
     hook: "Congress Springs to the Foothills",
     metaDesc:
-      "Saratoga HVAC service for Golden Triangle and hillside foothill homes — smoke-ready air filtration, repair, install, and free in-home estimates.",
-    neighborhoods: ["Downtown Saratoga Village", "Golden Triangle", "Brookglen", "Quito", "the Saratoga foothills"],
+      "Saratoga HVAC service for Saratoga Village and hillside foothill homes — smoke-ready air filtration, repair, install, and free in-home estimates.",
+    neighborhoods: ["Downtown Saratoga Village", "Congress Springs", "Brookglen", "Quito", "the Saratoga foothills"],
     housing:
       "Saratoga's foothill and Golden Triangle homes tend to be larger, multi-story properties on bigger lots, often with more than one HVAC zone already or a clear need for one. Homes closer to the hills also sit nearer wildfire-smoke exposure during fire season, which makes filtration upgrades a common add-on alongside a system replacement.",
     utility:
@@ -506,7 +506,7 @@ export const locations: Location[] = [
       },
       {
         q: "How fast can you get to Sunnyvale on a no-cool day?",
-        a: `${site.promises.repair} ${site.promises.callback}`,
+        a: `${site.promises.repair}. ${site.promises.callback}.`,
       },
       {
         q: "Do you offer a free estimate for a new system in Sunnyvale?",

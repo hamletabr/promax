@@ -6,9 +6,11 @@ import { site } from "../data/site";
 import { reviews } from "../data/reviews";
 
 const title = "Reviews — Promax Service Group | 5-Star HVAC in San Jose, CA";
-const metaDesc = `Read ${reviews.length}+ verified 5-star Google reviews of Promax Service Group — HVAC repair, heat pumps, mini splits and water heaters in San Jose.`;
+// Only reviews that actually came from Google back the "Google reviews" claims.
+const google = reviews.filter((r) => !r.source || r.source === "Google");
+const metaDesc = `Read ${google.length}+ verified 5-star Google reviews of Promax Service Group — HVAC repair, heat pumps, mini splits and water heaters in San Jose.`;
 
-const avg = (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1);
+const avg = (google.reduce((s, r) => s + r.rating, 0) / google.length).toFixed(1);
 
 // HVAC reviews lead the page (this is an HVAC site); electrical/handyman jobs
 // for the same customers are real work too, so they stay — just grouped below.
@@ -23,7 +25,7 @@ const reviewsSchema = {
   aggregateRating: {
     "@type": "AggregateRating",
     ratingValue: avg,
-    reviewCount: reviews.length,
+    reviewCount: google.length,
     bestRating: 5,
   },
   review: reviews.slice(0, 10).map((r) => ({
@@ -58,7 +60,7 @@ const colors = ["#ea580c", "#13273f", "#0a9d6e", "#3b6fd4", "#b4476f", "#7a55c9"
         <div class="rv-score">
           <strong>{avg}</strong>
           <span class="rv-stars" aria-label={`${avg} out of 5 stars`}>★★★★★</span>
-          <span class="rv-count">{reviews.length}+ verified Google reviews</span>
+          <span class="rv-count">{google.length}+ verified Google reviews</span>
         </div>
         <div class="rv-actions">
           <a href={site.googleReviewsUrl} target="_blank" rel="noopener" class="btn btn--outline">Read on Google</a>

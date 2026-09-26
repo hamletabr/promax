@@ -73,8 +73,10 @@ import { site, nav } from "../data/site";
       font-family: var(--font-head); font-weight: 700; font-size: .92rem;
     }
     .hdr__nav-call { background: var(--bg-alt); color: var(--slate); }
-    .hdr__nav-est, .hdr__nav-book { background: var(--orange-deep); color: #fff; }
-    .hdr__nav-est:hover, .hdr__nav-book:hover { background: var(--orange-hover); }
+    .hdr__nav-est { background: var(--orange-deep); color: #fff; }
+    .hdr__nav-est:hover { background: var(--orange-hover); }
+    .hdr__nav-book { background: #fff; color: var(--ink); border: 2px solid var(--ink); }
+    .hdr__nav-book:hover { background: var(--ink); color: #fff; }
   }
 
   /* Narrow phones: the header still needs room for logo + phone + burger,

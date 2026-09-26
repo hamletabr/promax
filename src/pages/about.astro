@@ -4,7 +4,6 @@ import Layout from "../layouts/Layout.astro";
 import PageHero from "../components/PageHero.astro";
 import CallBanner from "../components/CallBanner.astro";
 import Stages from "../components/Stages.astro";
-import WhyChooseUs from "../components/WhyChooseUs.astro";
 import { site } from "../data/site";
 
 const title = "About Promax | Licensed HVAC Contractor, San Jose";
@@ -64,7 +63,7 @@ const guarantees = [
         </p>
       </div>
       <div class="ab-story__facts reveal">
-        <div class="ab-fact"><strong>{site.foundingDate}</strong><span>founded in San Jose, still local</span></div>
+        <div class="ab-fact"><strong>{site.foundingDate}</strong><span>founded in Santa Clara, still local</span></div>
         <div class="ab-fact"><strong>350+</strong><span>happy clients across the Bay Area</span></div>
         <div class="ab-fact"><strong>7 days</strong><span>open every week, 7 AM – 10 PM</span></div>
         <div class="ab-fact"><strong>{site.license.replace("Lic ", "")}</strong><span>California C-20 HVAC license</span></div>
@@ -111,7 +110,6 @@ const guarantees = [
     </div>
   </section>
 
-  <WhyChooseUs />
   <Stages />
   <CallBanner heading="Get to know us the easy way — book a free estimate." />
 </Layout>

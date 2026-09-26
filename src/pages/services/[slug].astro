@@ -43,7 +43,9 @@ function benefitsFor(s: Service): Variant {
         items: [
           site.promises.diagnostic,
           "Fully stocked trucks carry parts for most repairs on the first visit",
-          "We repair every major brand — Bryant, Carrier, Trane, Mitsubishi & more",
+          s.brands?.length
+            ? `We repair ${s.brands.slice(0, 3).join(", ")} and every other major brand`
+            : "We repair every major brand you already own",
           site.promises.repair,
         ],
       };
@@ -75,7 +77,7 @@ function benefitsFor(s: Service): Variant {
         heading: `The Full Range of ${s.name} Services`,
         items: [
           "Full-system design, sizing, and installation",
-          "Same-day repair for no-cool and no-heat emergencies",
+          site.promises.repair,
           "Seasonal maintenance that prevents costly breakdowns",
           "Licensed, EPA-certified technicians for every job",
         ],

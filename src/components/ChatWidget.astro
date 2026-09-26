@@ -190,7 +190,7 @@ const config = {
     // Repair intent is checked FIRST, before the price/cost pattern below —
     // otherwise "my AC is blowing warm air, how much to fix?" matches "how
     // much" and answers with a full-installation price instead of a repair one.
-    if (/(repair|fix|broken|not cooling|warm air|not working|no heat|no hot water|leak|noise)/.test(s))
+    if (/(repair|fix|broken|not cooling|no cool\b|no ac\b|no a\/c|ac (is |isn'?t |won'?t |stopped |not )|warm air|hot air|not working|stopped working|won'?t (turn on|start|cool|heat)|no heat\b|heat (is |isn'?t |won'?t |not )|no hot water|leak|noise|smell)/.test(s))
       return `That sounds like a repair, not a new system — most common fixes (a failed capacitor, igniter, blower motor, or contactor) run about ${f.repairRange}, and ${f.promises.diagnostic.toLowerCase()}. ${f.promises.repair}. Call ${cfg.phone} or tap Book above and we'll get a tech out to diagnose it.`;
     if (/(price|cost|how much|quote|estimate|ballpark|\$)/.test(s))
       return `Typical full-installation ranges: ${f.priceLines.join(" · ")}. Ductwork replacement adds about ${f.perDuct} per duct. ${f.promises.estimate}. Try our online estimator at promax-service.com/estimate, tap Book above, or call ${cfg.phone}.`;

@@ -138,8 +138,8 @@ const faqs = [
         <div class="fin-ctas">
           <CallButton />
           <EstimateButton label="See My Monthly Payment" />
-          <a href={site.bookingUrl} class="btn btn--outline" target="_blank" rel="noopener">Book Online</a>
         </div>
+        <p class="fin-ctas__or">Prefer to pick a time yourself? <a href={site.bookingUrl} target="_blank" rel="noopener">Book online →</a></p>
       </div>
     </div>
   </section>
@@ -177,4 +177,6 @@ const faqs = [
   .fin-monthly li::before { content: "✓"; position: absolute; left: 0; color: var(--orange); font-weight: 800; font-size: 1.1rem; }
   .fin-monthly strong { color: var(--slate); }
   .fin-monthly .fin-ctas { margin-top: 0; }
+  .fin-ctas__or { margin-top: 14px; color: var(--muted); font-size: .95rem; }
+  .fin-ctas__or a { color: var(--orange-deep); font-weight: 600; }
 </style>
