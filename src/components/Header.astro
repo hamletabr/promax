@@ -1,14 +1,102 @@
 ---
 import { site, nav } from "../data/site";
+import { services, type Service } from "../data/services";
+
+// ── Services menu ───────────────────────────────────────────────────────────
+// Built from src/data/services.ts so a new service page shows up in the
+// navigation on its own: each group lists its root pages, and under every root
+// its children (the root's `children` array plus anything whose `parent`
+// points at it). Anything not claimed by a group lands in "More Services" so
+// no page is ever left out of the nav. Links are plain <a> in the HTML — the
+// script below only toggles visibility, it never injects content.
+const bySlug = new Map(services.map((s) => [s.slug, s]));
+const childrenOf = (root: Service): Service[] => {
+  const slugs = new Set([
+    ...(root.children ?? []),
+    ...services.filter((s) => s.parent === root.slug).map((s) => s.slug),
+  ]);
+  return [...slugs].map((slug) => bySlug.get(slug)).filter((s): s is Service => !!s);
+};
+
+const menuSpec: { label: string; roots: string[] }[] = [
+  { label: "Cooling", roots: ["air-conditioner"] },
+  { label: "Heating", roots: ["furnace"] },
+  { label: "Heat Pumps & Ductless", roots: ["heat-pump", "ductless-split-systems"] },
+  { label: "Water Heaters", roots: ["water-heater"] },
+  { label: "HVAC Systems", roots: ["hvac"] },
+  { label: "Ducts, Air & Zoning", roots: ["hvac-ductwork", "indoor-air-quality-system", "zone-control-system"] },
+  { label: "Commercial", roots: ["commercial-hvac", "rooftop-package-unit", "vrf-installation-system"] },
+];
+
+type MenuEntry = { service: Service; child: boolean };
+const placed = new Set<string>();
+const place = (s: Service, child: boolean, out: MenuEntry[]) => {
+  if (placed.has(s.slug)) return;
+  placed.add(s.slug);
+  out.push({ service: s, child });
+};
+
+const menuGroups = menuSpec
+  .map(({ label, roots }) => {
+    const entries: MenuEntry[] = [];
+    for (const slug of roots) {
+      const root = bySlug.get(slug);
+      if (!root) continue;
+      place(root, false, entries);
+      childrenOf(root).forEach((c) => place(c, true, entries));
+    }
+    return { label, entries };
+  })
+  .filter((g) => g.entries.length > 0);
+
+const orphans: MenuEntry[] = [];
+services.forEach((s) => place(s, false, orphans));
+if (orphans.length) menuGroups.push({ label: "More Services", entries: orphans });
 ---
 <header class="hdr">
-  
+
   <div class="container hdr__main">
     <a href="/" class="hdr__logo">
       <img src="/images/logo.jpg" alt={site.name} width="328" height="100" fetchpriority="high" />
     </a>
     <nav class="hdr__nav" id="nav" aria-label="Main">
-      {nav.map((n) => <a href={n.href}>{n.label}</a>)}
+      {nav.map((n) =>
+        n.menu === "services" ? (
+          <div class="hdr__item" data-menu>
+            <a href={n.href}>{n.label}</a>
+            <!-- On desktop this is a chevron next to the link (the link still
+                 goes to /services); in the mobile drawer it becomes the whole
+                 "Services" row and the link is hidden. -->
+            <button class="hdr__toggle" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="nav-services" aria-label={`${n.label} menu`}>
+              <span class="hdr__toggle-text" aria-hidden="true">{n.label}</span>
+              <svg class="hdr__chev" viewBox="0 0 12 12" width="12" height="12" aria-hidden="true" focusable="false"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            </button>
+            <div class="hdr__drop" id="nav-services">
+              <div class="hdr__menu">
+                <div class="hdr__menu-grid">
+                  {menuGroups.map((g, i) => (
+                    <div class="hdr__menu-group">
+                      <p class="hdr__menu-label" id={`nav-services-g${i}`}>{g.label}</p>
+                      <ul aria-labelledby={`nav-services-g${i}`}>
+                        {g.entries.map(({ service, child }) => (
+                          <li class:list={{ "is-child": child }}>
+                            <a href={`/services/${service.slug}`}>{service.name}</a>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+                <div class="hdr__menu-foot">
+                  <a href="/services" class="hdr__menu-all">All services <span aria-hidden="true">→</span></a>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <a href={n.href}>{n.label}</a>
+        )
+      )}
       <!-- Mobile-drawer-only quick actions (hidden on the desktop horizontal
            nav via CSS) so a call, a free estimate, and online booking are
            always one tap away even when the top-bar CTA is collapsed. -->
@@ -35,9 +123,13 @@ import { site, nav } from "../data/site";
   .hdr__top-inner { display: flex; justify-content: space-between; padding: 8px 20px; }
   .hdr__top a { color: #cfd6dd; }
   .hdr__top-right { display: flex; gap: 22px; }
-  .hdr__main { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 12px 20px; }
+  /* position: relative anchors the Services panel to the header bar, so it
+     spans the container and can never run past the viewport edge */
+  .hdr__main { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 12px 20px; }
   .hdr__logo img { height: 56px; width: auto; border-radius: 6px; }
-  .hdr__nav { display: flex; gap: 18px; margin-left: auto; }
+  /* gap is 15px (was 18px): the Services chevron adds ~16px to the row, and the
+     bar only had ~4px of slack at the 1180px container width */
+  .hdr__nav { display: flex; gap: 15px; margin-left: auto; }
   .hdr__nav a { color: var(--slate); font-family: var(--font-head); font-weight: 500; font-size: .9rem; white-space: nowrap; }
   .hdr__nav a:hover { color: var(--orange-deep); }
   .hdr__cta { display: flex; align-items: center; gap: 16px; }
@@ -48,6 +140,69 @@ import { site, nav } from "../data/site";
   .hdr__burger span { width: 26px; height: 3px; background: var(--slate); border-radius: 2px; }
 
   .hdr__nav-actions { display: none; }
+
+  /* ── Services dropdown (desktop) ─────────────────────────────────────────
+     Vertical padding + equal negative margin stretch the hover zone to the
+     full height of the header bar, so the pointer can travel from the link
+     down to the panel without the menu closing. */
+  .hdr__item { display: flex; align-items: center; padding-block: 22px; margin-block: -22px; }
+  .hdr__toggle {
+    display: inline-flex; align-items: center; justify-content: center;
+    background: none; border: 0; cursor: pointer; color: var(--slate);
+    font: inherit; line-height: inherit;
+    padding: 10px 6px; margin: -10px -6px -10px -2px;
+  }
+  .hdr__toggle:hover, .hdr__item.is-open .hdr__toggle { color: var(--orange-deep); }
+  .hdr__toggle-text { display: none; }
+  .hdr__chev { flex: none; transition: transform 160ms var(--ease-out); }
+  .hdr__item.is-open .hdr__chev { transform: rotate(180deg); }
+
+  /* .hdr__drop is the positioned, transparent wrapper (it overlaps the empty
+     bottom padding of the bar so there is no dead gap to cross); .hdr__menu is
+     the visible white panel. */
+  .hdr__drop {
+    position: absolute; z-index: 1; top: calc(100% - 12px); left: 20px; right: 20px; padding-top: 18px;
+    opacity: 0; visibility: hidden; transform: translateY(-6px);
+  }
+  /* Only the opening animates. Closing is instant so the hidden links leave the
+     tab order at once (no fading-out panel that is still focusable). */
+  .hdr__item.is-open .hdr__drop {
+    opacity: 1; visibility: visible; transform: none;
+    transition: opacity 150ms var(--ease-out), transform 150ms var(--ease-out);
+  }
+  .hdr__menu {
+    background: #fff; border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow-lg);
+    padding: 28px 32px 18px; max-height: calc(100dvh - 130px); overflow-y: auto;
+  }
+  .hdr__menu-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 26px 32px; }
+  .hdr__menu-label {
+    display: flex; align-items: center; gap: 8px; margin: 0 0 8px;
+    font-family: var(--font-display); font-weight: 700; font-size: 1.05rem; line-height: 1.1;
+    letter-spacing: .05em; text-transform: uppercase; color: var(--ink);
+  }
+  .hdr__menu-label::before { content: ""; width: 8px; height: 8px; background: var(--orange); flex: none; }
+  .hdr__menu ul { list-style: none; margin: 0; padding: 0; }
+  .hdr__nav .hdr__menu a {
+    display: block; padding: 5px 0; white-space: normal; line-height: 1.3;
+    font-size: .93rem; font-weight: 600; color: var(--slate);
+    transition: color 120ms ease;
+  }
+  .hdr__nav .hdr__menu .is-child a { padding-left: 16px; font-weight: 500; color: var(--slate-2); }
+  .hdr__nav .hdr__menu a:hover { color: var(--orange-deep); }
+  .hdr__menu-foot { margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--line); }
+  .hdr__nav .hdr__menu .hdr__menu-all { display: inline-flex; gap: 8px; padding: 4px 0; font-weight: 700; color: var(--orange-deep); }
+  .hdr__nav .hdr__menu .hdr__menu-all:hover { color: var(--orange-hover); }
+
+  /* Just above the burger breakpoint the bar is over-full (the logo would be
+     squeezed and the phone number would wrap), so tighten the gaps a little. */
+  @media (min-width: 1121px) and (max-width: 1220px) {
+    .hdr__main { gap: 16px; }
+    .hdr__nav { gap: 11px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hdr__item.is-open .hdr__drop, .hdr__chev, .hdr__nav .hdr__menu a { transition: none; }
+  }
 
   @media (max-width: 1120px) {
     .hdr__nav {
@@ -63,6 +218,30 @@ import { site, nav } from "../data/site";
     .hdr__book { display: none; }
     .hdr__burger { display: flex; }
 
+    /* Services becomes an expandable group: the button is the whole row (the
+       /services link is hidden here — "All services" at the end of the group
+       goes there) and the grouped links open in place inside the drawer. */
+    .hdr__item { display: block; padding-block: 0; margin-block: 0; }
+    .hdr__item > a { display: none; }
+    .hdr__toggle {
+      display: flex; width: 100%; justify-content: space-between; padding: 0; margin: 0; text-align: left;
+      font-family: var(--font-head); font-weight: 500; font-size: .9rem;
+    }
+    .hdr__toggle-text { display: inline; }
+    .hdr__chev { width: 14px; height: 14px; }
+    .hdr__drop {
+      position: static; padding: 0; opacity: 1; transform: none; transition: none;
+      display: none; visibility: visible;
+    }
+    .hdr__item.is-open .hdr__drop { display: block; }
+    .hdr__menu {
+      border: 0; border-left: 2px solid var(--line); border-radius: 0; box-shadow: none;
+      margin: 8px 0 6px 2px; padding: 2px 0 2px 16px; max-height: none; overflow: visible;
+    }
+    .hdr__menu-grid { grid-template-columns: 1fr; gap: 16px; }
+    .hdr__nav .hdr__menu a { padding: 7px 0; }
+    .hdr__menu-foot { margin-top: 12px; padding-top: 8px; }
+
     .hdr__nav-actions {
       display: flex; flex-direction: column; gap: 8px;
       margin-top: 8px; padding-top: 14px; border-top: 1px solid var(--line);
@@ -72,11 +251,18 @@ import { site, nav } from "../data/site";
       display: flex; align-items: center; justify-content: center;
       font-family: var(--font-head); font-weight: 700; font-size: .92rem;
     }
-    .hdr__nav-call { background: var(--bg-alt); color: var(--slate); }
-    .hdr__nav-est { background: var(--orange-deep); color: #fff; }
-    .hdr__nav-est:hover { background: var(--orange-hover); }
-    .hdr__nav-book { background: #fff; color: var(--ink); border: 2px solid var(--ink); }
-    .hdr__nav-book:hover { background: var(--ink); color: #fff; }
+    /* a.hdr__nav-* — needs to out-rank the generic ".hdr__nav a" colour above,
+       otherwise "Free Estimate" renders dark-on-orange and "Book Online" turns
+       orange on its black hover. */
+    .hdr__nav a.hdr__nav-call { background: var(--bg-alt); color: var(--slate); }
+    .hdr__nav a.hdr__nav-est { background: var(--orange-deep); color: #fff; }
+    .hdr__nav a.hdr__nav-est:hover { background: var(--orange-hover); color: #fff; }
+    .hdr__nav a.hdr__nav-book { background: #fff; color: var(--ink); border: 2px solid var(--ink); }
+    .hdr__nav a.hdr__nav-book:hover { background: var(--ink); color: #fff; }
+  }
+
+  @media (min-width: 640px) and (max-width: 1120px) {
+    .hdr__menu-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 24px; }
   }
 
   /* Narrow phones: the header still needs room for logo + phone + burger,
@@ -93,10 +279,28 @@ import { site, nav } from "../data/site";
 <script>
   const b = document.getElementById("burger");
   const n = document.getElementById("nav");
+  const item = document.querySelector<HTMLElement>("[data-menu]");
+  const toggle = item?.querySelector<HTMLButtonElement>(".hdr__toggle") ?? null;
+  const drop = item?.querySelector<HTMLElement>(".hdr__drop") ?? null;
+  // At this width the nav is the burger drawer and Services is an accordion;
+  // above it, Services is the hover/click dropdown.
+  const drawerMq = window.matchMedia("(max-width: 1120px)");
+
+  let pinned = false; // opened by click/keyboard (stays open) vs. by hover (closes on leave)
+  let closeTimer: number | undefined;
+
+  const menuOpen = () => !!item?.classList.contains("is-open");
+  const setMenu = (open: boolean, pin = false) => {
+    window.clearTimeout(closeTimer);
+    item?.classList.toggle("is-open", open);
+    toggle?.setAttribute("aria-expanded", String(open));
+    pinned = open && pin;
+  };
 
   const setOpen = (open: boolean) => {
     n?.classList.toggle("open", open);
     b?.setAttribute("aria-expanded", String(open));
+    if (!open) setMenu(false);
   };
 
   b?.addEventListener("click", () => setOpen(!n?.classList.contains("open")));
@@ -104,7 +308,58 @@ import { site, nav } from "../data/site";
   n?.addEventListener("click", (e) => {
     if ((e.target as HTMLElement).closest("a")) setOpen(false);
   });
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && n?.classList.contains("open")) { setOpen(false); b?.focus(); }
+
+  // ── Services menu ──
+  toggle?.addEventListener("click", () => {
+    if (!menuOpen()) setMenu(true, true);
+    // hover already opened it: the click pins it open rather than closing it
+    else if (!drawerMq.matches && !pinned) setMenu(true, true);
+    else setMenu(false);
   });
+  toggle?.addEventListener("keydown", (e) => {
+    if (e.key !== "ArrowDown") return;
+    e.preventDefault();
+    setMenu(true, true);
+    item?.querySelector<HTMLAnchorElement>(".hdr__menu a")?.focus();
+  });
+
+  // Hover (mouse only — touch uses the click path above)
+  item?.addEventListener("pointerenter", (e) => {
+    if (e.pointerType !== "mouse" || drawerMq.matches) return;
+    window.clearTimeout(closeTimer);
+    if (!menuOpen()) setMenu(true);
+  });
+  item?.addEventListener("pointerleave", (e) => {
+    if (e.pointerType !== "mouse" || drawerMq.matches || pinned) return;
+    // keyboard focus inside the panel keeps it open
+    if (drop?.contains(document.activeElement)) return;
+    closeTimer = window.setTimeout(() => setMenu(false), 140);
+  });
+
+  // Close when keyboard focus leaves the item, and on any click outside it
+  item?.addEventListener("focusout", (e) => {
+    if (drawerMq.matches) return;
+    const to = e.relatedTarget as Node | null;
+    if (to && !item?.contains(to)) setMenu(false);
+  });
+  document.addEventListener("click", (e) => {
+    if (drawerMq.matches || !menuOpen()) return;
+    if (!item?.contains(e.target as Node)) setMenu(false);
+  });
+
+  // Escape: close the Services menu first (and give focus back to its toggle),
+  // then the drawer on the next press.
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape") return;
+    if (menuOpen()) {
+      const focusInside = !!item?.contains(document.activeElement);
+      setMenu(false);
+      if (focusInside) toggle?.focus();
+      return;
+    }
+    if (n?.classList.contains("open")) { setOpen(false); b?.focus(); }
+  });
+
+  // Crossing the breakpoint swaps dropdown <-> drawer: start clean.
+  drawerMq.addEventListener("change", () => setOpen(false));
 </script>

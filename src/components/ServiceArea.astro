@@ -1,0 +1,67 @@
+---
+import { site } from "../data/site";
+import { locations } from "../data/locations";
+
+interface Props {
+  /** Grey (.section--alt) band. Pass false when the section above or below is already grey. */
+  alt?: boolean;
+}
+const { alt = true } = Astro.props;
+---
+<section class={`section sa ${alt ? "section--alt" : ""}`} id="service-area">
+  <div class="container">
+    <div class="sa__intro">
+      <span class="eyebrow">Service Area</span>
+      <h2>Where We Work</h2>
+      <p>
+        Promax Service Group serves homes and businesses in San Jose, across Santa Clara County, and in nearby Peninsula and East Bay cities.
+        {site.promises.repair}.
+        Choose your city for local details, or call <a href={site.phoneHref}>{site.phone}</a> to confirm we cover your address.
+      </p>
+    </div>
+    <div class="sa__body">
+      <img
+        class="sa__map"
+        src="/images/map.jpg"
+        alt="Map of the Promax Service Group HVAC service area, covering San Jose, Santa Clara County and nearby Bay Area cities"
+        width="820"
+        height="716"
+        loading="lazy"
+        decoding="async"
+      />
+      <nav class="sa__cities" aria-label="Cities we serve">
+        <ul class="sa__list">
+          <li><a href="/" class="sa__city">San Jose</a></li>
+          {locations.map((l) => <li><a href={`/locations/${l.slug}`} class="sa__city">{l.city}</a></li>)}
+        </ul>
+        <a href="/locations" class="sa__all">All service areas &rarr;</a>
+      </nav>
+    </div>
+  </div>
+</section>
+
+<style>
+  .sa__intro { max-width: 720px; margin-bottom: 36px; }
+  .sa__intro p { color: var(--muted); font-size: 1.06rem; margin: 0; }
+  .sa__intro p a { font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+
+  .sa__body { display: grid; grid-template-columns: 1.1fr 1fr; gap: 44px; align-items: center; }
+  .sa__map { width: 100%; height: auto; border-radius: var(--radius); box-shadow: var(--shadow); }
+
+  .sa__list { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .sa__city {
+    display: flex; align-items: center; min-height: 48px; padding: 10px 16px;
+    background: var(--bg-alt); border: 1px solid var(--line); border-radius: 10px;
+    color: var(--slate); font-weight: 600; font-size: .95rem;
+    transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease, transform 180ms var(--ease-out);
+  }
+  .section--alt .sa__city { background: #fff; }
+  .sa__city:hover, .section--alt .sa__city:hover { background: var(--orange-deep); color: #fff; border-color: var(--orange-deep); transform: translateY(-2px); }
+  .sa__city:focus-visible { outline: 3px solid var(--orange); outline-offset: 2px; }
+
+  .sa__all { display: inline-block; margin-top: 20px; font-weight: 700; color: var(--orange-deep); }
+  .sa__all:hover { color: var(--orange-hover); }
+
+  @media (max-width: 860px) { .sa__body { grid-template-columns: 1fr; gap: 28px; } }
+  @media (prefers-reduced-motion: reduce) { .sa__city { transition: none; } .sa__city:hover { transform: none; } }
+</style>

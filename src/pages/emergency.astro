@@ -2,6 +2,7 @@
 import Layout from "../layouts/Layout.astro";
 import CallBanner from "../components/CallBanner.astro";
 import Reviews from "../components/Reviews.astro";
+import ServiceArea from "../components/ServiceArea.astro";
 import { site } from "../data/site";
 import { locations } from "../data/locations";
 
@@ -96,6 +97,10 @@ const situations = [
           <h3>Mini Split Not Working</h3>
           <p>Emergency ductless mini split repair →</p>
         </a>
+        <a href="/services/emergency-ac-repair" class="card em-link reveal">
+          <h3>AC Emergency: What to Do First</h3>
+          <p>Emergency AC repair guide →</p>
+        </a>
       </div>
     </div>
   </section>
@@ -114,10 +119,15 @@ const situations = [
         <a href={site.phoneHref} class="btn btn--primary">Call {site.phone}</a>
         <a href={site.bookingUrl} class="btn btn--outline" target="_blank" rel="noopener">Book Online</a>
       </div>
+      <p class="em-prevent">
+        Most emergencies start as small problems. A yearly tune-up catches worn parts before they fail on a cold night or in a heat wave —
+        see our <a href="/services/hvac-maintenance">HVAC maintenance</a> service and the <a href="/specials#coupons">$99 tune-up special</a>.
+      </p>
     </div>
   </section>
 
   <Reviews />
+  <ServiceArea alt={false} />
   <CallBanner heading="Comfort can't wait? Call now — we answer." />
 </Layout>
 
@@ -161,5 +171,7 @@ const situations = [
   .em-promise li { padding: 13px 0 13px 34px; position: relative; border-bottom: 1px solid var(--line); color: var(--slate-2); }
   .em-promise li::before { content: "✓"; position: absolute; left: 0; color: var(--orange); font-weight: 800; font-size: 1.1rem; }
   .em-promise strong { color: var(--slate); }
+  .em-prevent { margin: 26px 0 0; color: var(--muted); }
+  .em-prevent a { font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
   .em-promise-ctas { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 28px; }
 </style>

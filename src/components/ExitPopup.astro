@@ -24,7 +24,7 @@ const config = {
     <div class="xpop__card">
       <button type="button" class="xpop__close" id="xpop-close" aria-label="No thanks, close this offer">✕</button>
       <span class="xpop__badge">Limited-time offer</span>
-      <h2>{offer.headline}</h2>
+      <p class="xpop__headline">{offer.headline}</p>
       <p>{offer.sub}</p>
       {formConfigured ? (
         <form id="xpop-form">
@@ -180,4 +180,5 @@ const config = {
   .xpop__alt a { color: var(--orange-deep); font-weight: 600; }
   .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
   @media (max-width: 480px) { .xpop__row { flex-direction: column; } }
+  .xpop__headline { font-family: var(--font-display); font-size: clamp(1.7rem, 3.2vw, 2.4rem); font-weight: 700; line-height: 1.05; letter-spacing: -0.01em; color: var(--slate); margin: 0 0 .5em; text-wrap: balance; }
 </style>

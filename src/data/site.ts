@@ -151,7 +151,8 @@ export const site = {
 };
 
 export const nav = [
-  { label: "Services", href: "/services" },
+  // `menu` marks the entry that carries the grouped Services dropdown (Header.astro).
+  { label: "Services", href: "/services", menu: "services" },
   { label: "Emergency", href: "/emergency" },
   { label: "Specials", href: "/specials" },
   { label: "Our Work", href: "/our-work" },

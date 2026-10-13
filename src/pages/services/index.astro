@@ -1,7 +1,6 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import PageHero from "../../components/PageHero.astro";
-import CallBanner from "../../components/CallBanner.astro";
 import { services, type Service } from "../../data/services";
 import { site } from "../../data/site";
 
@@ -22,6 +21,10 @@ const inSlugs = (slug: string | undefined, list: string[]) => !!slug && list.inc
 
 const namedGroups: Group[] = [
   {
+    label: "Whole-Home HVAC",
+    test: (s) => s.slug === "hvac" || s.parent === "hvac",
+  },
+  {
     label: "Cooling",
     test: (s) => s.slug === "air-conditioner" || s.parent === "air-conditioner",
   },
@@ -36,7 +39,7 @@ const namedGroups: Group[] = [
       inSlugs(s.parent, ["heat-pump", "ductless-split-systems"]),
   },
   {
-    label: "Water Heaters",
+    label: "Water Heater",
     test: (s) =>
       s.slug === "water-heater" ||
       s.parent === "water-heater" ||
@@ -66,7 +69,7 @@ const groups = namedGroups
   .filter((g) => g.services.length > 0);
 
 const rest = services.filter((s) => !assigned.has(s.slug));
-if (rest.length > 0) groups.push({ label: "Everything Else", services: rest });
+if (rest.length > 0) groups.push({ label: "Additional", services: rest });
 
 const collectionSchema = {
   "@context": "https://schema.org",
@@ -133,7 +136,25 @@ const breadcrumbSchema = {
     </section>
   ))}
 
-  <CallBanner heading="Not sure which service you need? Just call us." />
+  <section class={`section ${groups.length % 2 === 1 ? "section--alt" : ""}`} id="not-sure">
+    <div class="container svc-help">
+      <div class="section-head">
+        <span class="eyebrow">Talk to a Technician</span>
+        <h2>Not sure which service you need? Just call us.</h2>
+        <p>
+          Call <a href={site.phoneHref}>{site.phone}</a> or <a href={site.bookingUrl} target="_blank" rel="noopener">book online</a>,
+          describe what is happening, and we will point you to the right service.
+          {site.promises.callback}.
+          {site.promises.estimate}.
+          {site.promises.diagnostic}.
+        </p>
+      </div>
+      <div class="svc-help__ctas">
+        <a href={site.phoneHref} class="btn btn--primary btn--lg">Call {site.phone}</a>
+        <a href={site.bookingUrl} target="_blank" rel="noopener" class="btn btn--outline btn--lg">Book Online</a>
+      </div>
+    </div>
+  </section>
 </Layout>
 
 <style>
@@ -149,5 +170,9 @@ const breadcrumbSchema = {
   .svc-idx:hover .svc-idx__img img { transform: scale(1.06); }
   .svc-idx__body { padding: 16px 18px 20px; }
   .svc-idx__body h3 { font-size: 1.05rem; margin-bottom: 4px; }
+  .svc-help .section-head { margin-bottom: 28px; }
+  .section-head p a { font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+  .svc-help__ctas { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+  .svc-help__ctas .btn { min-width: 230px; justify-content: center; }
   .svc-idx__link { color: var(--orange-deep); font-weight: 600; font-size: .9rem; }
 </style>

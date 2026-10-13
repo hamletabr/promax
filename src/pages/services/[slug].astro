@@ -4,6 +4,7 @@ import Layout from "../../layouts/Layout.astro";
 import PageHero from "../../components/PageHero.astro";
 import OffersStats from "../../components/OffersStats.astro";
 import CallBanner from "../../components/CallBanner.astro";
+import ServiceArea from "../../components/ServiceArea.astro";
 import FAQ from "../../components/FAQ.astro";
 import { services, bannerFor, type Service } from "../../data/services";
 import { site } from "../../data/site";
@@ -13,6 +14,36 @@ export function getStaticPaths() {
   return services.map((s) => ({ params: { slug: s.slug }, props: { service: s } }));
 }
 const { service } = Astro.props;
+
+// Body copy names other service pages in plain text ("see HVAC Repair"). Turn
+// the first mention of each into a real link so the cluster is actually
+// connected for crawlers and readers. Longest names win ("Emergency AC Repair"
+// before "AC Repair"); matches never nest or overlap.
+const escapeHtml = (t: string) =>
+  t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+const linkTargets = [
+  ...services.filter((s) => s.slug !== service.slug).map((s) => ({ text: s.name, href: `/services/${s.slug}/` })),
+  { text: "Emergency page", href: "/emergency/" },
+].sort((a, b) => b.text.length - a.text.length);
+function linkSiblings(paragraph: string): string {
+  const taken: { start: number; end: number; href: string }[] = [];
+  for (const t of linkTargets) {
+    const re = new RegExp(`(?<![\\w-])${t.text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\w-])`, "g");
+    for (const m of paragraph.matchAll(re)) {
+      const start = m.index ?? 0, end = start + m[0].length;
+      if (taken.some((x) => start < x.end && end > x.start)) continue;
+      taken.push({ start, end, href: t.href });
+      break; // first non-overlapping mention only
+    }
+  }
+  taken.sort((a, b) => a.start - b.start);
+  let html = "", cursor = 0;
+  for (const x of taken) {
+    html += escapeHtml(paragraph.slice(cursor, x.start)) + `<a href="${x.href}">${escapeHtml(paragraph.slice(x.start, x.end))}</a>`;
+    cursor = x.end;
+  }
+  return html + escapeHtml(paragraph.slice(cursor));
+}
 
 // ── Parent / child relationships (both optional — Agent A is filling them
 // in on services.ts; until then every service just renders without a
@@ -27,43 +58,64 @@ const kindLabel: Record<string, string> = {
   maintenance: "Maintenance",
   overview: "Overview",
 };
-const childLabel = (c: Service) => (c.kind && kindLabel[c.kind]) || c.name;
+// Short "Repair" / "Installation" labels read well when each kind appears once;
+// when several children share a kind (e.g. four install pages under Water
+// Heater) fall back to their own names so the buttons stay distinguishable.
+const childLabel = (c: Service) =>
+  c.kind && kindLabel[c.kind] && childServices.filter((o) => o.kind === c.kind).length === 1 ? kindLabel[c.kind] : c.name;
+
+// "AC Repair" -> "AC repair", "Water Heater" -> "water heater" — lowercase
+// the words in a service name but leave acronyms (AC, HVAC, VRF) alone.
+const lc = (name: string) =>
+  name.split(" ").map((w) => (w.length > 1 && w === w.toUpperCase() ? w : w.toLowerCase())).join(" ");
+const svcName = lc(service.name);
 
 // ── Kind-specific checklist beside the service image (replaces the old
 // generic 6-card benefits grid). Every promise string comes from
-// site.promises — never restated here. ─────────────────────────────────────
-type Variant = { eyebrow: string; heading: string; items: string[]; cta?: { label: string; href: string } };
+// site.promises — never restated here. The intro paragraph above the list is
+// built from the same promises, so the list itself never repeats them. ───────
+type Variant = {
+  eyebrow: string;
+  heading: string;
+  intro: string;
+  items: string[];
+  cta?: { label: string; href: string };
+};
 
 function benefitsFor(s: Service): Variant {
+  const n = lc(s.name);
   switch (s.kind) {
     case "repair":
       return {
         eyebrow: "Fast, Reliable Repair",
-        heading: `${s.name} Repair, Done Right`,
+        heading: `${s.name}, Done Right`,
+        intro: `Every ${n} visit is built around three things: finding the real cause, fixing it with parts already on the truck, and getting a licensed technician to your door fast. ${site.promises.repair}. ${site.promises.diagnostic}.`,
         items: [
-          site.promises.diagnostic,
           "Fully stocked trucks carry parts for most repairs on the first visit",
           s.brands?.length
             ? `We repair ${s.brands.slice(0, 3).join(", ")} and every other major brand`
             : "We repair every major brand you already own",
-          site.promises.repair,
+          "Licensed, EPA-certified technicians on every call",
+          "We stand behind our work — service and spare parts are both covered",
         ],
       };
     case "install":
       return {
         eyebrow: "New System Installation",
-        heading: `${s.name} Installation, Built to Last`,
+        heading: `${s.name}, Built to Last`,
+        intro: `Every ${n} starts with a plan: a system sized to your home, the permits and testing the job requires, and a written quote you can review before you commit. ${site.promises.estimate}. If you would rather spread out the cost, financing is available on approved credit.`,
         items: [
-          site.promises.estimate,
           "Proper load calculation, required permits, and HERS testing on every job",
           "We check every rebate and incentive you qualify for at your free estimate.",
+          "Your written quote itemizes equipment, labor, permits, and every rebate you qualify for",
         ],
         cta: { label: "Explore financing options", href: "/financing" },
       };
     case "maintenance":
       return {
         eyebrow: "Preventive Maintenance",
-        heading: `What Our ${s.name} Tune-Up Covers`,
+        heading: `${s.name}: What Every Visit Covers`,
+        intro: `This is what a technician does on every ${n} visit: inspect the system, clean the parts that cost you efficiency, and leave you a written report of what we found. ${site.promises.repair}. ${site.promises.scheduled}. New customers can start with our $99 tune-up special, which covers a 21-point inspection, coil cleaning, a refrigerant check, and a written health report per system.`,
         items: [
           "Multi-point inspection of components, wiring, and refrigerant charge",
           "Coil, filter, and drain-line cleaning for peak efficiency",
@@ -74,10 +126,11 @@ function benefitsFor(s: Service): Variant {
     case "overview":
       return {
         eyebrow: "Complete Coverage",
-        heading: `The Full Range of ${s.name} Services`,
+        heading: `${s.name}, Done Right`,
+        intro: `Here is what our ${n} work covers: system design and installation, repairs on every major brand, seasonal maintenance, and licensed, EPA-certified technicians on every job. ${site.promises.repair}. ${site.promises.estimate}.`,
         items: [
           "Full-system design, sizing, and installation",
-          site.promises.repair,
+          "Repairs on every major brand, with parts on the truck for most first visits",
           "Seasonal maintenance that prevents costly breakdowns",
           "Licensed, EPA-certified technicians for every job",
         ],
@@ -86,11 +139,10 @@ function benefitsFor(s: Service): Variant {
       return {
         eyebrow: "Why Homeowners Choose Promax",
         heading: `${s.name}, Done Right`,
+        intro: `Here is what you get when you call Promax for ${n}: licensed, EPA-certified technicians and honest pricing from the first phone call. ${site.promises.callback}. ${site.promises.repair}.`,
         items: [
-          site.promises.callback,
           "Licensed, EPA-certified technicians",
           "Upfront, honest pricing — no surprise fees",
-          site.promises.repair,
         ],
       };
   }
@@ -116,6 +168,66 @@ function pickRelated(s: Service): Service[] {
 const related = pickRelated(service);
 
 const showFreeEstimate = service.kind === "install" || service.kind === "overview";
+
+// ── Intro copy for the "Signs You Need…" section. The phone/booking links are
+// rendered by the template; `lead` is everything before them. ────────────────
+const signsCopy = (() => {
+  switch (service.kind) {
+    case "repair":
+      return {
+        lead: "Each symptom below means a part is wearing out or already failing, and these problems rarely fix themselves. Waiting usually lets a small fault damage other components, which turns a modest repair into a larger one and raises the odds of a breakdown at the worst possible time.",
+        tail: "and a technician will pinpoint the cause.",
+      };
+    case "install":
+      return {
+        lead: "These signs usually mean your current system is near the end of its useful life, and each repair tends to buy less time than the last. Holding on too long means rising energy bills, repeated service calls, and the risk of an unexpected breakdown.",
+        tail: "and we will help you weigh repair against replacement.",
+      };
+    case "maintenance":
+      return {
+        lead: "These signs mean the system is overdue for a professional inspection, even if it is still running. Skipping maintenance lets dirty coils, clogged drains, and worn parts quietly cut efficiency and shorten the life of the equipment.",
+        tail: "and we will inspect, clean, and tune the system before a small problem becomes a breakdown.",
+      };
+    default:
+      return {
+        lead: "These symptoms can point to a repair, a tune-up, or a system that has reached the end of its life, and a technician can tell you which. The longer a problem runs, the more it tends to cost in energy, repairs, and comfort.",
+        tail: "and we will find the cause and explain your options.",
+      };
+  }
+})();
+
+// ── Intro copy for the brands section. Factory credentials are only claimed
+// for the brands that program actually covers; otherwise we list all three. ──
+const brandVerb = service.kind === "install" ? "install" : service.kind === "repair" ? "repair" : "service";
+const brandDone = service.kind === "install" ? "installed" : service.kind === "repair" ? "repaired" : "serviced";
+const joinList = (xs: string[]) => (xs.length < 3 ? xs.join(" and ") : `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`);
+const credentialPrograms: [RegExp, string][] = [
+  [/mitsubishi/i, "Mitsubishi Diamond Contractor"],
+  [/bryant/i, "Bryant Factory Authorized Dealer"],
+  [/navien/i, "Navien Service Specialist"],
+];
+const brandsCopy = (() => {
+  const brands = service.brands ?? [];
+  const matched = credentialPrograms
+    .map(([re, cred]) => ({ cred, brand: brands.find((b) => re.test(b)) }))
+    .filter((m): m is { cred: string; brand: string } => Boolean(m.brand));
+  const credentials = matched.length
+    ? `Promax is a ${joinList(matched.map((m) => m.cred))}, so ${joinList(matched.map((m) => m.brand))} equipment is ${brandDone} by technicians with factory-backed training.`
+    : `Promax holds factory credentials as a ${joinList(credentialPrograms.map(([, c]) => c))}, and the same licensed, EPA-certified technicians ${brandVerb} every brand listed here.`;
+  const others =
+    service.kind === "repair"
+      ? "We repair every other major brand as well, whatever name is on your equipment."
+      : service.kind === "install"
+        ? "We install the other brands shown here as well, and we help you compare them for your home and budget."
+        : "We service the other brands shown here as well, so one team can look after every system in your home.";
+  const parts =
+    service.kind === "repair"
+      ? "Our fully stocked trucks carry common parts for these brands, so most repairs are finished in a single visit."
+      : service.kind === "install"
+        ? "Every brand here is widely supported, so replacement parts stay easy to find long after the installation."
+        : "Our trucks carry common parts for these brands, so many small issues found during a visit can be fixed on the spot.";
+  return `${credentials} ${others} ${parts}`;
+})();
 
 // Service + breadcrumb structured data
 const pageUrl = `${site.url}/services/${service.slug}`;
@@ -162,7 +274,7 @@ const breadcrumbSchema = {
       )}
       <span class="eyebrow">About This Service</span>
       <h2>{service.name} in San Jose &amp; the Bay Area</h2>
-      {service.body.map((p) => <p>{p}</p>)}
+      {service.body.map((p) => <p set:html={linkSiblings(p)} />)}
       <div class="svc-intro__ctas">
         <a href={site.phoneHref} class="btn btn--primary">Call {site.phone}</a>
         <a href={site.bookingUrl} target="_blank" rel="noopener" class="btn btn--outline">Book Online</a>
@@ -184,6 +296,7 @@ const breadcrumbSchema = {
       <div class="svc-check__text">
         <span class="eyebrow">{benefits.eyebrow}</span>
         <h2>{benefits.heading}</h2>
+        <p class="svc-check__lead">{benefits.intro}</p>
         <ul class="svc-feats">
           {benefits.items.map((item) => <li>{item}</li>)}
         </ul>
@@ -201,6 +314,10 @@ const breadcrumbSchema = {
         <div class="section-head">
           <span class="eyebrow">What's Included</span>
           <h2>What's Included With {service.name}</h2>
+          <p class="svc-intro-copy">
+            Every {service.name.toLowerCase()} {service.kind === "install" ? "project" : "visit"} covers the items below, and the scope and price are confirmed in writing before any work starts.
+            When it's finished the technician walks you through what was done and what to watch for. {site.promises.callback}.
+          </p>
         </div>
         <ul class="svc-feats svc-feats--cols">
           {service.included.map((item) => <li>{item}</li>)}
@@ -215,6 +332,9 @@ const breadcrumbSchema = {
         <div class="section-head">
           <span class="eyebrow">Watch For This</span>
           <h2>Signs You Need {service.name}</h2>
+          <p>
+            {signsCopy.lead} Call <a href={site.phoneHref}>{site.phone}</a> or <a href={site.bookingUrl} target="_blank" rel="noopener">book online</a>, {signsCopy.tail}
+          </p>
         </div>
         <ul class="svc-feats svc-feats--cols svc-feats--signs">
           {service.signs.map((item) => <li>{item}</li>)}
@@ -228,7 +348,8 @@ const breadcrumbSchema = {
       <div class="container">
         <div class="section-head">
           <span class="eyebrow">Equipment We Trust</span>
-          <h2>Brands We {service.kind === "install" ? "Install" : service.kind === "repair" ? "Repair" : "Service"}</h2>
+          <h2>Brands We {brandVerb[0].toUpperCase() + brandVerb.slice(1)}</h2>
+          <p>{brandsCopy}</p>
         </div>
         <div class="svc-brands">
           {service.brands.map((b) => <span class="svc-brand">{b}</span>)}
@@ -237,13 +358,17 @@ const breadcrumbSchema = {
     </section>
   )}
 
-  <CallBanner heading={`Need ${service.name.toLowerCase()} help in San Jose?`} />
+  <CallBanner heading={`Need ${svcName} help in San Jose?`} />
 
-  <section class="section">
+  <section class="section section--alt">
     <div class="container">
       <div class="section-head">
         <span class="eyebrow">Explore More</span>
         <h2>Related Services</h2>
+        <p class="svc-intro-copy">
+          Most {service.name.toLowerCase()} jobs touch one of these, and the same licensed Promax team handles all of them.
+          Each page lists what's included, typical costs and the questions San Jose homeowners ask most. Not sure which you need? Call {site.phone} and we'll point you to the right one.
+        </p>
       </div>
       <div class="grid cols-4">
         {related.map((r) => (
@@ -260,6 +385,8 @@ const breadcrumbSchema = {
       </div>
     </div>
   </section>
+
+  <ServiceArea alt={false} />
 
   <FAQ items={service.faqs} />
 </Layout>
@@ -279,6 +406,8 @@ const breadcrumbSchema = {
 
   .svc-check { display: grid; grid-template-columns: 1.1fr 1fr; gap: 44px; align-items: center; }
   .svc-check__img img { border-radius: var(--radius); box-shadow: var(--shadow-lg); }
+  .svc-check__lead { color: var(--muted); }
+  .section-head p a { font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
   .svc-check__cta { display: inline-block; margin-top: 6px; font-weight: 700; color: var(--orange-deep); }
 
   .svc-feats { list-style: none; padding: 0; margin: 0 0 8px; }
@@ -303,4 +432,5 @@ const breadcrumbSchema = {
 
   @media (max-width: 860px) { .svc-check { grid-template-columns: 1fr; } }
   @media (max-width: 700px) { .svc-feats--cols { columns: 1; } }
+  .svc-intro-copy { max-width: 760px; margin: -8px auto 28px; text-align: center; color: var(--muted); }
 </style>

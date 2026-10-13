@@ -15,7 +15,7 @@
 // match src/data/site.ts `promises` and the canonical rebate facts below, even
 // though this file can't import site.ts (it's data, read at build time by
 // several pages, so it stays framework-free). As of this content pass:
-//   - Federal 25C tax credit (30% up to $2,000) EXPIRED for installations
+//   - Federal 25C tax credit (30% of project cost) EXPIRED for installations
 //     after Dec 31, 2025. Never claim it's currently available.
 //   - HEEHRA (income-qualified) single-family funding is fully reserved
 //     statewide as of Feb 2026 — waitlist only.
@@ -51,17 +51,17 @@ export const services: Service[] = [
   {
     slug: "hvac",
     name: "HVAC Systems",
-    h1: "HVAC Systems in San Jose, CA",
-    title: "HVAC Company San Jose, CA | Repair & Installation | Promax",
+    h1: "HVAC Systems for San Jose Homes: Your Options Explained",
+    title: "HVAC Systems San Jose | Heating & Cooling Options | Promax",
     metaDesc:
-      "Full-service HVAC company in San Jose, CA. Design, installation, repair and maintenance by licensed, EPA-certified techs. Free estimates: (669) 777-1997.",
+      "Furnace and AC, all-electric heat pump, or ductless? How to choose the right HVAC system for a San Jose home — designed, permitted and installed by Promax.",
     sub: "Ready for year-round comfort in the Bay Area? From full system design to repair and maintenance, we keep San Jose homes comfortable in every season.",
     image: "/images/hva1.jpg",
     primary: true,
     kind: "overview",
-    children: ["hvac-repair", "hvac-installation"],
+    children: ["hvac-repair", "hvac-installation", "hvac-maintenance"],
     body: [
-      "When San Jose homeowners search for a reliable HVAC company near them, they want one team that can handle everything — heating, cooling, ductwork, and air quality. Promax Service Group is a licensed HVAC contractor (Lic #1133885) serving San Jose, Santa Clara, Sunnyvale, Cupertino, and the greater Bay Area with complete heating and air conditioning services: new system design and installation, emergency repairs, seasonal tune-ups, duct sealing, and smart thermostat upgrades.",
+      "A San Jose home has three real HVAC options: a gas furnace paired with a central air conditioner, an all-electric heat pump that heats and cools from one unit, or ductless mini splits for homes without usable ducts. Which one fits depends on your ductwork, electrical panel, how the house holds heat on a 100°F August afternoon, and whether you want to stop burning gas. Picking it is a design decision, not a box swap: the furnace, AC or heat pump, coil, ductwork, venting, and thermostat have to work together as one matched system, sized to your actual home rather than the nameplate on the old equipment. Promax Service Group is a licensed HVAC contractor (Lic #1133885) that designs and installs complete systems across San Jose, Santa Clara, Sunnyvale, Cupertino, and the greater Bay Area: furnace and AC pairs, all-electric heat pump conversions, ductless multi-zone setups, new ductwork, and zoning with smart thermostats. Every project starts with a Manual J load calculation and finishes with HERS testing and a walkthrough of your new controls. Free in-home estimates on new systems and replacements. Looking for repairs or seasonal tune-ups instead? See HVAC Repair and HVAC Maintenance.",
       "As a Mitsubishi Diamond Contractor and Bryant Factory Authorized Dealer, we install equipment we trust and back it with real warranties. Whether you need a high-efficiency heat pump for a Willow Glen bungalow, zoned comfort for a two-story Almaden home, or a rooftop package unit for your business, our EPA-certified technicians size the system correctly, pull the required City of San José permits, and leave your home clean.",
     ],
     included: [
@@ -115,7 +115,7 @@ export const services: Service[] = [
     image: "/images/hva2.jpg",
     primary: true,
     kind: "overview",
-    children: ["air-conditioner-repair", "air-conditioner-installation", "air-conditioner-maintenance"],
+    children: ["air-conditioner-repair", "air-conditioner-installation", "air-conditioner-maintenance", "emergency-ac-repair"],
     body: [
       "San Jose summers are getting hotter, and a struggling air conditioner turns your home into an oven fast. Promax Service Group provides complete air conditioning services across San Jose and Santa Clara County — same-day AC repair, high-efficiency air conditioner installation, seasonal tune-ups, and honest advice on whether to fix or replace your cooling system.",
       "We service every major brand — Bryant, Carrier, Trane, Lennox, Daikin, Mitsubishi, Rheem, and Goodman — and as a Bryant Factory Authorized Dealer we install new SEER2-rated systems that cut cooling bills while keeping your home comfortable through triple-digit heat waves. Every visit ends with upfront pricing, no upsells, and a system you can rely on.",
@@ -665,11 +665,71 @@ export const services: Service[] = [
       },
       {
         q: "Is annual AC maintenance really worth the money?",
-        a: "A tune-up costs a fraction of one emergency repair. It restores lost efficiency (dirty coils alone can add 15% to cooling costs), catches failing $20 parts before they take out $2,000 compressors, and preserves your warranty coverage.",
+        a: "A tune-up costs a fraction of one emergency repair. It restores lost efficiency (dirty coils alone can add 15% to cooling costs), catches failing $20 parts before they take out a compressor that costs thousands to replace, and preserves your warranty coverage.",
       },
       {
         q: "When is the best time for an AC tune-up in San Jose?",
         a: "March through May, before the cooling season. You get first pick of appointments, and any issues found can be fixed before you actually need the system on a 100° day.",
+      },
+    ],
+  },
+  {
+    slug: "emergency-ac-repair",
+    name: "Emergency AC Repair",
+    h1: "Emergency AC Repair in San Jose, CA",
+    title: "Emergency AC Repair San Jose | 7 Days a Week | Promax",
+    metaDesc:
+      "Emergency AC repair in San Jose, CA. Same-day service for no-cool, no-heat and no-hot-water calls, 7 days a week. Call (669) 777-1997 now.",
+    sub: "AC down on a 95–100°F South Bay afternoon? Call now. Same-day service for no-cool, no-heat and no-hot-water calls, 7 days a week.",
+    image: "/images/hva2.jpg",
+    kind: "repair",
+    parent: "air-conditioner",
+    body: [
+      "San Jose is mild most of the year, but when a heat wave pushes the South Bay into the 95–100°F range, a dead air conditioner stops being an inconvenience. Attics soak up the afternoon sun, upstairs bedrooms heat up fast, and infants, older adults, and pets feel it first. That is what we mean by emergency AC repair: not a routine tune-up that can wait, but a no-cooling call where the house is getting hotter by the hour. Our promise on these calls is written down and doesn't change with the weather: Same-day service for no-cool, no-heat and no-hot-water calls, 7 days a week.",
+      "Treat these as emergencies and call right away: no cooling at all or only warm air from the vents, a breaker that trips every time the AC starts, ice or frost on the outdoor unit or refrigerant lines, a burning smell or smoke, and water leaking from the indoor unit or the ceiling. While you wait, set the thermostat to off, or to fan only if there is ice so the coil can thaw. If you smell burning or see smoke, switch the AC off at the breaker. Close the blinds on the sunny side, run fans, and keep children, older family members, and pets in the coolest room. Don't keep resetting a tripped breaker and don't chip ice off the coil, because both turn a repairable failure into an expensive one.",
+      "The trucks we send on emergency calls carry the capacitors, contactors, condenser fan motors, and refrigerant behind most heat-wave failures, so the first visit is usually the last one. You get a firm price before any work starts, and one promise applies on every call: Diagnostic fee waived with any repair. If the problem is bigger than a part, such as a seized compressor or a leaking coil, we will tell you plainly whether repair still makes sense. Free in-home estimates on new systems and replacements. For the full picture of how we diagnose and fix cooling problems, see AC Repair. If the unit is at the end of its life, AC Installation covers sizing and replacement, and AC Maintenance is how you avoid the next breakdown. Furnace, heating, and water heater emergencies are covered on our Emergency page.",
+    ],
+    included: [
+      "Same-day service for no-cool, no-heat and no-hot-water calls, 7 days a week",
+      "Safety check first: breaker, wiring, and burning-smell calls are made safe before anything restarts",
+      "Full diagnosis of capacitor, contactor, fan motor, refrigerant, compressor, and drain problems",
+      "Trucks stocked with the capacitors, contactors, fan motors, and refrigerant behind most heat-wave failures",
+      "Diagnostic fee waived with any repair",
+      "A firm price you approve before any repair begins",
+    ],
+    signs: [
+      "Warm air from the vents, or no airflow at all, during a heat wave",
+      "The breaker trips every time the AC starts",
+      "Ice or frost on the outdoor unit, the refrigerant lines, or the indoor coil",
+      "A burning smell, smoke, or a sharp electrical odor",
+      "Water leaking from the indoor unit, a ceiling stain, or an overflowing drain line",
+      "The outdoor unit hums or clicks but the fan won't spin",
+    ],
+    brands: ["Bryant", "Carrier", "Trane", "Lennox", "Daikin", "Rheem", "Goodman"],
+    faqs: [
+      {
+        q: "How fast can you get to my house for emergency AC repair?",
+        a: "Our standing promise is: Same-day service for no-cool, no-heat and no-hot-water calls, 7 days a week. Call as early in the day as you can, and tell the dispatcher about infants, older adults, or medical needs in the home, because those households are prioritized during heat waves.",
+      },
+      {
+        q: "What counts as an AC emergency, and what can wait?",
+        a: "Call right away for no cooling in hot weather, a breaker that trips when the AC starts, ice on the unit or refrigerant lines, a burning smell or smoke, or water leaking inside the home. A system that still cools but runs a little long, makes a small new noise, or is due for a tune-up can go on the regular schedule, where the standing promise is: Most other visits scheduled within 1–2 days.",
+      },
+      {
+        q: "What should I do while I wait for the technician?",
+        a: "Set the thermostat to off. If you see ice, switch to fan only so the coil can thaw, and don't chip at it. If you smell burning or see smoke, shut the AC off at the breaker and leave it off. If water is leaking, turn the system off and put a towel or pan under the drip. Close the blinds on the sunny side, run fans, drink water, and keep children, older adults, and pets in the coolest room. If the house gets dangerously hot, many cities open public cooling centers during heat waves, and libraries and malls are another option.",
+      },
+      {
+        q: "My AC keeps tripping the breaker. Can I just reset it?",
+        a: "Reset it once at most. A breaker that trips again as soon as the AC starts is protecting you from a short, a failed capacitor, a seized fan motor, or a compressor drawing too much current, and forcing it can burn wiring or destroy the compressor. Leave the AC off and call. We find the cause and quote the repair before anything gets replaced.",
+      },
+      {
+        q: "What does emergency AC repair cost?",
+        a: "You get a firm price before any work begins. Common failures like capacitors, contactors, and fan motors typically run $150–$650, while refrigerant leaks and compressor problems cost more depending on the part and refrigerant type. Diagnostic fee waived with any repair.",
+      },
+      {
+        q: "What happens if my AC can't be repaired?",
+        a: "If a compressor or coil has failed on an older system, we show you the repair cost next to the cost of replacement so you can decide with real numbers. Free in-home estimates on new systems and replacements. Qualifying complete system replacements may also be eligible for our $500 off installation special, and financing is available.",
       },
     ],
   },
@@ -865,6 +925,67 @@ export const services: Service[] = [
       {
         q: "Why does contractor choice matter more than brand?",
         a: "Industry studies show improper installation cuts system efficiency by up to 30% — sizing, refrigerant charge, airflow, and duct sealing are all workmanship. A mid-tier system installed perfectly outperforms a premium system installed badly, every time.",
+      },
+    ],
+  },
+  {
+    slug: "hvac-maintenance",
+    name: "HVAC Maintenance",
+    h1: "HVAC Maintenance & Tune-Ups in San Jose, CA",
+    title: "HVAC Maintenance & Tune-Ups San Jose, CA | Promax",
+    metaDesc:
+      "HVAC maintenance in San Jose: 21-point AC, furnace and heat pump tune-ups with refrigerant and carbon monoxide safety checks. $99 tune-up special.",
+    sub: "Spring for the AC, fall for the furnace. A 21-point tune-up keeps every system in your San Jose home efficient, safe, and covered by its warranty.",
+    image: "/images/hva1.jpg",
+    primary: true,
+    kind: "maintenance",
+    parent: "hvac",
+    body: [
+      "A San Jose home runs two seasons of equipment on one set of filters, ducts, and thermostats, and each system sits idle for months before it has to perform. A professional HVAC tune-up is a 21-point inspection that gets whatever you own ready for the job ahead. On the cooling side, we clean the condenser coil, verify the refrigerant charge (a sealed system never 'uses up' refrigerant, so a low charge means a leak worth finding), test capacitors and contactors under load, flush the condensate drain, and measure the temperature drop across the coil. On the heating side, we clean the burners, igniter, and flame sensor, inspect the heat exchanger, check the venting, and run a combustion analysis and carbon monoxide safety test. Heat pumps get both sets of checks, plus reversing valve and defrost operation in each mode.",
+      "Timing matters as much as the checklist. Book your AC tune-up from March through May, before the first 95°F week, and your furnace tune-up from September through November, before the first cold snap. A heat pump works year-round, so it earns a visit in both seasons. Between visits, the best thing you can do is change the filter: a 1-inch pleated filter every one to three months, a 4–5 inch media filter once or twice a year, and sooner during wildfire smoke season. A tuned system runs on clean coils and the right refrigerant charge, so it moves heat with less strain on the compressor and blower, which means lower bills and fewer breakdowns. It also keeps your paperwork in order, because many manufacturers expect documented annual service for their extended parts warranties, and every visit ends with a dated written report and photos you can keep on file.",
+      "Think of it as a maintenance plan that doesn't need a contract. New customers can book the $99 tune-up special for an AC or furnace (per system, not combinable with other offers). Once we have served you, you are a returning customer, and every repair or maintenance visit after that gets 15% off labor. If an inspection turns up a failing part, HVAC Repair prices it before any work starts. Diagnostic fee waived with any repair. If the equipment is at the end of its life, HVAC Installation covers the replacement. Free in-home estimates on new systems and replacements. When airflow or duct leakage is the weak link, HVAC Ductwork handles sealing and replacement. Business owners can ask about maintenance programs under Commercial HVAC and Rooftop Package Units, and if something fails before your appointment, our Emergency page shows what to do and who to call.",
+    ],
+    included: [
+      "21-point inspection for your AC, furnace, or heat pump, with a written report and photos",
+      "Condenser coil cleaning, refrigerant charge check, and capacitor and contactor testing under load",
+      "Burner, igniter, and flame sensor cleaning with a heat exchanger inspection",
+      "Combustion analysis and carbon monoxide safety test on every furnace visit",
+      "Heat pump check in both heating and cooling mode, including reversing valve and defrost operation",
+      "Filter check, thermostat calibration, condensate drain flush, and airflow measurement",
+    ],
+    signs: [
+      "It has been more than 12 months since the last professional tune-up, or you can't remember when it was",
+      "Energy bills are creeping up with no change in how you use the system",
+      "The system takes longer to cool or heat the house than it used to",
+      "Musty or dusty smells at startup, or new rattles and humming from the equipment",
+      "The furnace flame looks yellow or flickering instead of steady blue",
+      "You just bought or moved into the home and don't know the system's service history",
+    ],
+    brands: ["Bryant", "Carrier", "Trane", "Lennox", "Daikin", "Mitsubishi Electric", "Rheem", "Goodman"],
+    faqs: [
+      {
+        q: "What's the difference between an AC, furnace, and heat pump tune-up?",
+        a: "The 21-point visit is built around the equipment you have. An AC tune-up focuses on the condenser coil, refrigerant charge, capacitors, and condensate drain. A furnace tune-up focuses on the burners, igniter, flame sensor, heat exchanger, venting, and a combustion and carbon monoxide test. A heat pump gets both sets of checks plus the reversing valve and defrost cycle, because it has to perform in both modes. If you have a furnace and an AC, you can book both together.",
+      },
+      {
+        q: "How often should I have my HVAC system serviced, and when?",
+        a: "At least once a year, timed to the season that matters most: AC from March through May, furnace from September through November. A heat pump runs year-round, so spring and fall visits are the better schedule. Systems older than about 10 years, or ones that run most of the day, benefit from two visits a year because small problems show up sooner.",
+      },
+      {
+        q: "How much does an HVAC tune-up cost in San Jose, and is there a maintenance plan?",
+        a: "New customers can book our $99 AC or furnace tune-up, priced per system and not combinable with other offers. After that first visit you are a returning customer, and repair and maintenance visits get 15% off labor, which works like a maintenance plan without a long-term contract. Heat pump and mini split tune-ups are priced when you book, and you always hear the number before we start.",
+      },
+      {
+        q: "Will skipping maintenance void my HVAC warranty?",
+        a: "Not automatically, but many manufacturers ask for proof of regular professional service before they approve an extended parts warranty or a major claim, and the requirements vary by brand. Check your warranty paperwork for the exact wording. Every tune-up ends with a dated written report and photos, which gives you a documented service history to show if a claim ever comes up.",
+      },
+      {
+        q: "How often should I change my HVAC filter?",
+        a: "Check it monthly. A 1-inch pleated filter usually needs replacing every one to three months, and a 4–5 inch media filter every six to twelve months, depending on pets, dust, and how much the system runs. During wildfire smoke season, check it more often. For most San Jose homes, a MERV-11 to MERV-13 filter balances filtration and airflow.",
+      },
+      {
+        q: "Does an HVAC tune-up include a carbon monoxide test?",
+        a: "Yes, on every gas furnace visit: we run a combustion analysis, inspect the heat exchanger for cracks, and test for carbon monoxide. Keep working CO alarms near sleeping areas as well. Most alarms need replacing every 5 to 10 years, so check the date printed on the back of yours.",
       },
     ],
   },
@@ -1293,11 +1414,13 @@ const bannerMap: Record<string, string> = {
   hvac: "/images/photo_hvac-min.jpg",
   "hvac-repair": "/images/high-photo-min.jpg",
   "hvac-installation": "/images/high-photo-min.jpg",
+  "hvac-maintenance": "/images/photo_hvac-min.jpg",
   "hvac-ductwork": "/images/hvac-ductwork-photo-min.jpg",
   "air-conditioner": "/images/high-photo-min.jpg",
   "air-conditioner-repair": "/images/high-photo-min.jpg",
   "air-conditioner-installation": "/images/high-photo-min.jpg",
   "air-conditioner-maintenance": "/images/high-photo-min.jpg",
+  "emergency-ac-repair": "/images/high-photo-min.jpg",
   furnace: "/images/furnace-photo-min.jpg",
   "furnace-repair": "/images/furnace-photo-min.jpg",
   "furnace-installation": "/images/furnace-photo-min.jpg",

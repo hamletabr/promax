@@ -2,6 +2,12 @@
 import { site } from "../data/site";
 import { primaryServices } from "../data/services";
 import { locations } from "../data/locations";
+
+// Every primary service is listed (no cap), so a new primary page reaches the
+// footer on its own. Commercial HVAC is a destination rather than a primary
+// card, so it is added after the list — unless it is ever promoted to primary,
+// in which case it is already in the list and is not repeated.
+const commercialListed = primaryServices.some((s) => s.slug === "commercial-hvac");
 ---
 <footer class="ftr">
   <div class="container ftr__grid">
@@ -14,13 +20,16 @@ import { locations } from "../data/locations";
       <p class="ftr__lic">{site.license}</p>
     </div>
 
-    <div>
+    <div class="ftr__svc">
       <h4>Services</h4>
-      <ul>
-        {primaryServices.slice(0, 7).map((s) => (
+      <ul class="ftr__svc-list">
+        {primaryServices.map((s) => (
           <li><a href={`/services/${s.slug}`}>{s.name}</a></li>
         ))}
-        <li><a href="/services/commercial-hvac">Commercial HVAC</a></li>
+      </ul>
+      <ul class="ftr__svc-more">
+        <li><a href="/services">All services</a></li>
+        {!commercialListed && <li><a href="/services/commercial-hvac">Commercial HVAC</a></li>}
         <li><a href="/emergency">Emergency Service</a></li>
       </ul>
     </div>
@@ -66,7 +75,11 @@ import { locations } from "../data/locations";
 
 <style>
   .ftr { background: var(--bg-dark); color: #a1a1aa; padding-top: 60px; }
-  .ftr__grid { display: grid; grid-template-columns: 1.3fr 1fr .9fr 1fr 1fr; gap: 32px; padding-bottom: 44px; }
+  /* The Services column is the widest: it carries every primary service in two
+     columns, so it gets roughly twice the width of the other link columns. The brand
+     column keeps a 180px floor so the logo (54px tall, ~177px wide) is never squeezed,
+     and service areas keep the width they had before. */
+  .ftr__grid { display: grid; grid-template-columns: minmax(180px, .8fr) 2.35fr .9fr 1.3fr .9fr; gap: 24px; padding-bottom: 44px; }
   .ftr__logo { height: 54px; width: auto; border-radius: 6px; margin-bottom: 16px; }
   .ftr__about { font-size: .92rem; }
   .ftr__lic { font-weight: 700; color: #fff; }
@@ -76,9 +89,26 @@ import { locations } from "../data/locations";
   .ftr a { color: #a1a1aa; font-size: .92rem; }
   .ftr a:hover { color: var(--amber); }
   .ftr__areas { columns: 2; }
+  .ftr__svc-list { columns: 2; column-gap: 28px; }
+  .ftr__svc-list li { break-inside: avoid; }
+  /* destination links under the list: All services / Commercial / Emergency */
+  .ftr .ftr__svc-more { display: flex; flex-wrap: wrap; gap: 4px 20px; margin-top: 6px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,.1); }
+  .ftr__svc-more li { margin-bottom: 0; }
+  .ftr__svc-more a { color: #fff; font-weight: 600; }
+  .ftr__svc-more a:hover { color: var(--amber); }
   .ftr__phone { color: var(--amber) !important; font-weight: 700; font-size: 1.1rem; }
   .ftr__bar { border-top: 1px solid rgba(255,255,255,.1); padding: 18px 0; font-size: .84rem; }
   .ftr__bar .container { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  /* below the 1180px container width five columns are too tight for a two-column service list:
+     brand + services share the first row, the rest drop to the next */
+  @media (max-width: 1179px) {
+    .ftr__grid { grid-template-columns: repeat(3, 1fr); }
+    .ftr__svc { grid-column: span 2; }
+  }
   @media (max-width: 860px) { .ftr__grid { grid-template-columns: 1fr 1fr; } }
-  @media (max-width: 520px) { .ftr__grid { grid-template-columns: 1fr; } }
+  @media (max-width: 520px) {
+    .ftr__grid { grid-template-columns: 1fr; }
+    .ftr__svc { grid-column: auto; }
+  }
+  @media (max-width: 400px) { .ftr__svc-list { columns: 1; } }
 </style>
