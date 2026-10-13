@@ -40,8 +40,8 @@ served via Google Cloud LB IPs; Google Workspace email on the domain; GTM-5WRQ9S
 - Send email to and from support@promax-service.com — confirms MX/SPF survived.
 - Search Console → Sitemaps → submit https://promax-service.com/sitemap-index.xml
 - GTM: open tagmanager.google.com → GTM-5WRQ9STK → Preview on the live site → confirm tags fire.
-- Google Business Profile: website URL unchanged; confirm address = 3033 Kaiser Dr Unit D,
-  Santa Clara 95051 (matches new schema).
+- Google Business Profile: website URL unchanged; the profile should be a
+  service-area business with the address hidden (the site shows city/state only).
 - Pages → Analytics: confirm traffic. Watch Search Console Coverage for 404s for two weeks.
 
 ## 4. Admin console login (after launch, 20 minutes)

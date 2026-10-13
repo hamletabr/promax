@@ -26,13 +26,13 @@ export const site = {
   description:
     "Licensed HVAC contractor in San Jose, CA. Same-day AC and furnace repair, heat pump and mini split installation, water heaters. Free estimates, open 7 days.",
   // Structured-data details (used in schema.org JSON-LD)
-  // Registered business address (matches Google Business Profile, BBB, Yelp).
-  // Service area is still San Jose + the cities in locations.ts.
+  // Service-area business: no public office, so no street address anywhere on
+  // the site or in the schema — city/state only, matching how the Google
+  // Business Profile shows a service-area business. Service area = San Jose +
+  // the cities in locations.ts.
   address: {
-    street: "3033 Kaiser Dr, Unit D",
     locality: "Santa Clara",
     region: "CA",
-    postalCode: "95051",
     country: "US",
   },
   alternateName: ["Promax Service Group Inc", "Promax HVAC & Plumbing"],

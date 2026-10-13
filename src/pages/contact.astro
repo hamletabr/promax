@@ -29,7 +29,6 @@ const contactSchema = {
         <ul class="contact__list">
           <li><span aria-hidden="true">📞</span><div><strong>Phone</strong><a href={site.phoneHref}>{site.phone}</a></div></li>
           <li><span aria-hidden="true">✉️</span><div><strong>Email</strong><a href={`mailto:${site.email}`}>{site.email}</a></div></li>
-          <li><span aria-hidden="true">🏢</span><div><strong>Address</strong><a href={site.sameAs[0]} target="_blank" rel="noopener">{site.address.street}, {site.address.locality}, {site.address.region} {site.address.postalCode}</a></div></li>
           <li><span aria-hidden="true">🕑</span><div><strong>Hours</strong>{site.hours}</div></li>
           <li><span aria-hidden="true">📍</span><div><strong>Service Area</strong>{site.serviceArea}</div></li>
           <li><span aria-hidden="true">📜</span><div><strong>License</strong>{site.license}</div></li>
